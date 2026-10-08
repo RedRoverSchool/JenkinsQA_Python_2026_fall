@@ -51,6 +51,6 @@ def test_login():
     assert products_title.text == "Products"
 
 
-    # driver.quit()
+    driver.quit()
 
     time.sleep(10)
