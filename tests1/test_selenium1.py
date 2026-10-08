@@ -1,10 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+
 def test_first():
     driver = webdriver.Chrome()
 
     driver.get("https://www.selenium.dev/selenium/web/web-form.html")
+
+    title = driver.title
 
     driver.implicitly_wait(0.5)
 
@@ -15,11 +18,12 @@ def test_first():
     submit_button.click()
 
     message = driver.find_element(by=By.ID, value="message")
+    text = message.text
+
     assert message.text == "Received!"
 
+
     driver.quit()
-
-
 
 import time
 from selenium import webdriver
@@ -47,6 +51,6 @@ def test_login():
     assert products_title.text == "Products"
 
 
-    # driver.quit()
+    driver.quit()
 
     time.sleep(10)
