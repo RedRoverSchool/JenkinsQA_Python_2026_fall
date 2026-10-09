@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import time
 
 def test_first():
     driver = webdriver.Chrome()
@@ -18,13 +19,6 @@ def test_first():
     assert message.text == "Received!"
 
     driver.quit()
-
-
-
-import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-
 
 def test_login():
     driver = webdriver.Chrome()
@@ -46,7 +40,20 @@ def test_login():
 
     assert products_title.text == "Products"
 
-
-    # driver.quit()
+    driver.quit()
 
     time.sleep(10)
+
+def test_second():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get("https://tradematix.com")
+
+    time.sleep(5)
+
+    assert driver.title == "Tradematix - Next-gen Trading Tools"
+    element = driver.find_element(By.CSS_SELECTOR, ".tn-atom__button-text")
+    element.click()
+
+    assert driver.current_url == "https://tradematix.com/#rec802399224"
+    driver.quit()
