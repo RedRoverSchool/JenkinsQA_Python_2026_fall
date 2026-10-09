@@ -48,6 +48,7 @@ def test_second():
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get("https://tradematix.com")
+
     time.sleep(5)
 
     assert driver.title == "Tradematix - Next-gen Trading Tools"
