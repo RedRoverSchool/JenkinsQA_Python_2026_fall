@@ -100,3 +100,4 @@ def test_third():
     )
 
     assert title.text == "Discover the best flight deals"
+    driver.quit()
