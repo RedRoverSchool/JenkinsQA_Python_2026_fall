@@ -142,3 +142,73 @@ def test_disabled_radio_button():
     assert orange.is_enabled() == False
 
     driver.quit()
+
+
+def test_button_click():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/Click-Buttons/index.html")
+
+    button = driver.find_element(By.ID, "button1")
+    button.click()
+    time.sleep(1)
+    assert button.is_enabled() == True
+
+    message = driver.find_element(
+        By.CSS_SELECTOR,
+        "div[id='myModalClick'] h4[class='modal-title']"  )
+
+    text = message.text
+
+    assert text == "Congratulations!"
+
+    close_button = driver.find_element( By.CSS_SELECTOR,
+        "div[id='myModalClick'] div[class='modal-footer'] button[type='button']" )
+    close_button.click()
+
+    driver.quit()
+
+
+def test_double_click():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/Actions/index.html")
+
+    double_click = driver.find_element(By.ID, "double-click")
+    ActionChains(driver).double_click(double_click).perform()
+    background_color = double_click.value_of_css_property("background-color")
+
+    assert background_color == "rgba(31, 31, 31, 1)"
+
+    driver.quit()
+
+
+def test_drag_and_drop():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/Actions/index.html")
+
+    draggable = driver.find_element(By.ID, "draggable")
+    droppable = driver.find_element(By.ID, "droppable")
+    ActionChains(driver).drag_and_drop(draggable, droppable).perform()
+    result = droppable.text
+
+    assert result == "Dropped!"
+
+    driver.quit()
+
+
+def test_click_and_hold():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/Actions/index.html")
+
+    click_box = driver.find_element(By.ID, "click-box")
+
+    ActionChains(driver).click_and_hold(click_box).perform()
+
+    assert click_box.text == "Well done! keep holding that click now....."
+
+    ActionChains(driver).release().perform()
+
+    driver.quit()
