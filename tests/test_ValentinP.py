@@ -236,3 +236,23 @@ def test_click_and_hold():
     ActionChains(driver).release().perform()
 
     driver.quit()
+
+
+def test_dynamic_login():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/AI-Playground/index.html")
+
+    username = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Username']")
+    username.send_keys("Valentin")
+
+    password = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
+    password.send_keys("Test")
+
+    login_button = driver.find_element(By.CSS_SELECTOR, "button")
+    login_button.click()
+
+    success_message = driver.find_element(By.ID, "dynamic-success")
+    assert success_message.text == "Login successful"
+
+    driver.quit()
