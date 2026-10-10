@@ -49,6 +49,30 @@ def test_contact_us():
     driver.quit()
 
 
+def test_login():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/Login-Portal/index.html")
+
+    username = driver.find_element(By.ID, "text")
+    username.send_keys("webdriver")
+
+    password = driver.find_element(By.ID, "password")
+    password.send_keys("webdriver123")
+
+    login_button = driver.find_element(By.CSS_SELECTOR, "#login-button")
+    login_button.click()
+
+    alert = driver.switch_to.alert
+    alert_text = alert.text
+
+    assert alert_text == "validation succeeded"
+
+    alert.accept()
+
+    driver.quit()
+
+
 def test_dropdowm():
     driver = webdriver.Chrome()
 
