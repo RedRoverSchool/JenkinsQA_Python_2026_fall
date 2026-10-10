@@ -256,3 +256,49 @@ def test_dynamic_login():
     assert success_message.text == "Login successful"
 
     driver.quit()
+
+
+def test_multi_step_form():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/AI-Playground/index.html")
+
+    name = driver.find_element(By.ID, "ms-name")
+    name.send_keys("Valentin Podkova")
+
+    email = driver.find_element(By.ID, "ms-email")
+    email.send_keys("valentin@test.com")
+
+    next_button = driver.find_element(By.ID, "ms-next-1")
+    next_button.click()
+
+    step = driver.find_element(By.ID, "step-text")
+    assert step.text == "Step 2 of 3"
+
+    country = driver.find_element(By.ID, "ms-country")
+    Select(country).select_by_value("DE")
+
+    phone = driver.find_element(By.ID, "ms-phone")
+    phone.send_keys("+49 151 12345678")
+
+    next_button = driver.find_element(By.ID, "ms-next-2")
+    next_button.click()
+
+    step = driver.find_element(By.ID, "step-text")
+    assert step.text == "Step 3 of 3"
+
+    comments = driver.find_element(By.ID, "ms-comments")
+    comments.send_keys("Everything looks good.")
+
+    terms = driver.find_element(By.ID, "ms-terms")
+    terms.click()
+    assert terms.is_selected()
+
+    submit_button = driver.find_element(By.ID, "ms-submit")
+    submit_button.click()
+
+    body_text = driver.find_element(By.TAG_NAME, "body").text
+
+    assert "Form submitted successfully." in body_text
+
+    driver.quit()
