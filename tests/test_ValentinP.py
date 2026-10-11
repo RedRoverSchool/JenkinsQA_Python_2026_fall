@@ -302,3 +302,21 @@ def test_multi_step_form():
     assert "Form submitted successfully." in body_text
 
     driver.quit()
+
+
+def test_hidden_element():
+    driver = webdriver.Chrome()
+
+    driver.get("https://webdriveruniversity.com/Hidden-Elements/index.html")
+
+    button = driver.find_element(By.ID, "button1")
+    assert not button.is_displayed()
+
+    button2 = driver.find_element(By.ID, "button2")
+    assert not button2.is_displayed()
+
+    parent = driver.find_element(By.ID, "zero-opacity")
+    assert parent.value_of_css_property("opacity") == "0"
+    assert not parent.is_displayed()
+
+    driver.quit()
