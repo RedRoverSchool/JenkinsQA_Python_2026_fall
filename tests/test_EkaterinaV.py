@@ -16,5 +16,3 @@ def test_text_input():
     assert label.text == "Text Input"
     time.sleep(5)
     driver.quit()
-
-    #test
