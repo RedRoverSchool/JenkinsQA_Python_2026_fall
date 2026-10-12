@@ -52,7 +52,6 @@ def test_registration_feild(email: str, password: str, expected_error_text=None)
     else:
         print(f"Тест с данными: email='{email}', password='{password}' выполнен.")
 
-
 # Тестовые данные
 test_cases = [
     ("user123tutmy@mail.ru", "~~~~~~~~~~", None),
