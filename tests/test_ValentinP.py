@@ -22,6 +22,21 @@ def test_radio_buttons():
     driver.quit()
 
 
+def test_heading():
+    driver = webdriver.Chrome()
+
+    driver.get("https://ultimateqa.com/fake-landing-page")
+
+    heading = driver.find_element(By.TAG_NAME, "h1")
+    assert heading.text == "Learn to Code Websites, Apps & Games"
+
+    button = driver.find_element(By.CSS_SELECTOR, "a.et_pb_button")
+    assert button.text == "VIEW COURSES"
+    assert button.get_attribute("href") == "https://ultimateqa.com/fake-landing-page#"
+
+    driver.quit()
+
+
 def test_contact_us():
     driver = webdriver.Chrome()
 
