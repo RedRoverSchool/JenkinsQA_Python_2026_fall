@@ -35,6 +35,16 @@ def test_create_account_page():
     assert title == "Create Account"
     driver.quit()
 
+
+def test_open_shoping_cart():
+    driver = webdriver.Chrome()
+    driver.get("https://automationteststore.com/")
+    driver.implicitly_wait(5)
+    CARD_LINK1 = driver.find_element(By.XPATH, "(//li[@data-id='menu_cart'])[1]").click()
+    title = driver.title
+    assert title == "Shopping Cart"
+    driver.quit()
+
 def test_create_new_account():
     driver = webdriver.Chrome()
     driver.get("https://automationteststore.com/index.php?rt=account/create")
@@ -59,3 +69,5 @@ def test_create_new_account():
     assert title == "Your Account Has Been Created!"
     time.sleep(10)
     driver.quit()
+
+
