@@ -38,6 +38,7 @@ def test_create_account_page():
 
 def test_open_shoping_cart():
     driver = webdriver.Chrome()
+    driver.maximize_window()
     driver.get("https://automationteststore.com/")
     driver.implicitly_wait(5)
     CARD_LINK1 = driver.find_element(By.XPATH, "(//li[@data-id='menu_cart'])[1]").click()
