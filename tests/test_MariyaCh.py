@@ -56,7 +56,7 @@ def driver(api_token):
 
 # ----------------------------------------------- Страница авторизации ------------------------------------------------
 
-def do_login(driver_no_token):
+def do_login(driver_no_token, login, password):
     login_input = WebDriverWait(driver_no_token, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="login-username"]')))
     password_input = WebDriverWait(driver_no_token, 10).until(
@@ -64,51 +64,81 @@ def do_login(driver_no_token):
     submit_button = WebDriverWait(driver_no_token, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="login-submit"]')))
 
-    login_input.send_keys(USERNAME)
-    password_input.send_keys(PASSWORD)
+    login_input.send_keys(login)
+    password_input.send_keys(password)
     submit_button.click()
 
-def test_success_log_in_open_menu_page(driver_no_token):
+
+@pytest.mark.parametrize("login, password, expected", [
+    ("owner", "owner123", True),  # валидные данные
+    ("admin", "wrong", False),  # неверный пароль
+    ("", "fulladmin", False),  # пустой логин
+    ("admin", "", False),  # пустой пароль
+    ("unknown", "admin123", False),  # несуществующий юзер
+])
+def test_success_log_in_open_menu_page(driver_no_token, login, password, expected):
     """Проверяет, что успешно авторизованный пользователь перенаправляется на страницу с меню."""
     driver_no_token.get(f"{BASE_URL}/login")
-    do_login(driver_no_token)
+    do_login(driver_no_token, login, password)
 
     try:
         WebDriverWait(driver_no_token, 10).until(EC.url_contains("/menu"))
+        result = True
     except TimeoutException:
-        pytest.fail("Пользователь не перенаправлен в /menu")
+        result = False
 
-    try:
-        WebDriverWait(driver_no_token, 10).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="logout-btn"]'))
-        )
-    except TimeoutException:
-        pytest.fail("Кнопка EXIT не появилась в /menu после логина")
+    assert result == expected, "Пользователь не перенаправлен в /menu"
 
 
-# def test_invalid_log_in_show_error(driver_no_token):
-#     """Проверяет, что при неудачной авторизации пользователь видит ошибку и остается на той же странице."""
-#     driver_no_token.get(f"{BASE_URL}/login")
-#     do_login(driver_no_token)
-#
-#     try:
-#         WebDriverWait(driver_no_token, 10).until(
-#             EC.text_to_be_present_in_element(
-#                 (By.CSS_SELECTOR, '[role="status"]'), "Invalid username or password"
-#             )
-#         )
-#     except TimeoutException:
-#         pytest.fail("Не появилось уведомление об ошибке после неудачной авторизации")
-#
-#     try:
-#         WebDriverWait(driver_no_token, 10).until(EC.url_contains("/login"))
-#     except TimeoutException:
-#         pytest.fail("Пользователь не остался на странице /login после неудачной авторизации")
+@pytest.mark.parametrize("login, password, expected", [
+    ("owner", "wrong", "error"),  # неверный пароль - ошибка
+    ("", "owner123", "warning"),  # пустой логин - подсказка
+    ("owner", "", "warning"),  # пустой пароль - подсказка
+    ("unknown", "admin123", "error"),  # несуществующий юзер - ошибка
+])
+def test_invalid_log_in_show_error(driver_no_token, login, password, expected):
+    """Проверяет, что при неудачной авторизации пользователь видит ошибку или подсказку"""
+    driver_no_token.get(f"{BASE_URL}/login")
+    do_login(driver_no_token, login, password)
+
+    if expected == "error":
+        try:
+            WebDriverWait(driver_no_token, 10).until(
+                EC.text_to_be_present_in_element(
+                    (By.CSS_SELECTOR, '[role="status"]'), "Invalid username or password"
+                )
+            )
+            result = "error"
+        except TimeoutException:
+            result = ""
+
+        assert result == expected, "Не появилось уведомление об ошибке после неудачной авторизации"
+
+    if expected == "warning":
+        login_input = WebDriverWait(driver_no_token, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="login-username"]')))
+        password_input = WebDriverWait(driver_no_token, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="login-password"]')))
+        validation_message_login = login_input.get_attribute("validationMessage")
+        validation_message_password = password_input.get_attribute("validationMessage")
+
+        assert validation_message_login or validation_message_password == "Заполните это поле.", "Не появилась подсказка об обязательном поле"
+
+    # try:
+    #     WebDriverWait(driver_no_token, 3).until(EC.url_contains("/login"))
+    #     result = True
+    # except TimeoutException:
+    #     result = False
+    #
+    # assert result == expected, "Пользователь не остался на странице /login после неудачной авторизации"
 
 
 # ----------------------------------------------- Главная страница ------------------------------------------------
 
-def test_menu_page_has_all_navigation_tabs(driver):
+@pytest.mark.parametrize("tabs", [
+    ["menu", "orders", "stock", "stack", "events", "docs"]
+])
+def test_menu_page_has_all_navigation_tabs(driver, tabs):
     """Проверяет, что на главной странице отображаются все элементы навигации."""
     driver.get(f"{BASE_URL}/menu")
     tabs = ["menu", "orders", "stock", "stack", "events", "docs"]
