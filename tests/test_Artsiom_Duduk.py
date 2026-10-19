@@ -30,8 +30,7 @@ def run_form_submit(first_name, last_name):
         # Проверяем, что мы действительно на новой странице
         assert "home.ultimateqa.com" in driver.current_url, "Ожидался редирект на home.ultimateqa.com, но URL другой."
     finally:
-        # Закрываем браузер после каждого запуска
-        # Закрываем браузер даже при ошибке
+        # Закрываем браузер после каждого запуска, даже при ошибке
         driver.quit()
 
 # Тесты для pytest
