@@ -2,8 +2,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-
-
 def test_login(driver):
     wait = WebDriverWait(driver, 10)
     driver.get("https://www.saucedemo.com/")
