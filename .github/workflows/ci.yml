@@ -59,7 +59,7 @@ jobs:
         run: ./.github/wait-for-jenkins.sh
 
       - name: Pytest
-        run: pytest -v -s
+        run: pytest tests/ -v -s
         env:
           JENKINS_USERNAME: ${{ secrets.ADMIN_USERNAME }}
           JENKINS_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
