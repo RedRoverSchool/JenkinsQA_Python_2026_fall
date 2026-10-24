@@ -1,32 +1,42 @@
-import logging
-from selenium.webdriver.chrome.options import Options
 import pytest
 from selenium import webdriver
 
+from common.filter_utils import filter_items_by_changed_files
+from common.jenkins_utils import login, logout, clear_data
+from common.order_utils import reorder_items_by_dependency
+from common.project_utils import get_browser, get_options, get_url
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("WebDriver")
 
 @pytest.fixture(scope="function")
-def driver(chrome_options):
-    logger.info("Starting Chrome browser session...")
-    driver = webdriver.Chrome(options=chrome_options)
-    logger.info("Closing Chrome browser session...")
-    yield driver
-    driver.quit()
+def browser(request):
+    get_browser()
 
-@pytest.fixture
-def chrome_options():
-    options = Options()
-    options.add_argument("--incognito")
-    options.add_argument("--disable-cache")
-    options.add_argument('--start-maximized')
-    return options
+    dependency_marker = request.node.get_closest_marker("dependency")
+    depends = dependency_marker.kwargs.get("depends") if dependency_marker else None
+    if not depends:
+        print("\nclearing data")
+        clear_data()
+
+    options = webdriver.ChromeOptions()
+    for option in get_options():
+        options.add_argument(option)
+    print("opening browser")
+    driver = webdriver.Chrome(options=options)
+    driver.implicitly_wait(10)
+
+    print("getting page")
+    driver.get(get_url())
+    login(driver)
+    try:
+        yield driver
+    finally:
+        try:
+            logout(driver)
+        finally:
+            driver.quit()
 
 
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(session, config, items):
+    items[:] = filter_items_by_changed_files(items)
+    reorder_items_by_dependency(items)

@@ -1,0 +1,5 @@
+pytest
+python-dotenv
+requests
+selenium
+webdriver-manager
