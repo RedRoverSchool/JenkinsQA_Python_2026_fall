@@ -15,7 +15,7 @@ def test_open_jenkins(browser):
 
 def test_new_item_page_open(browser):
     time.sleep(2)
-    new_item  = browser.find_element(By.XPATH, "//a[@it='hudson.model.Hudson@2f34e1b7']")
+    new_item  = browser.find_element(By.CSS_SELECTOR,"a[href='/view/all/newJob']")
     new_item.click()
     assert browser.current_url == 'http://localhost:8080/view/all/newJob'
 
