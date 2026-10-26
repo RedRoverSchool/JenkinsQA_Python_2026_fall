@@ -28,23 +28,23 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     ok_button.click()
 
     # submit_button = browser.find_element(By.XPATH, "//button[@name='Submit']")
-    submit_button = WebDriverWait(browser, 10).until(
-        EC.visibility_of_element_located((By.XPATH, "//button[@name='Submit']"))
+    WebDriverWait(browser, timeout=10).until(
+        EC.visibility_of_element_located((By.NAME, "Submit"))
     )
-    submit_button.click()
+    browser.find_element(By.NAME, "Submit").click()
 
     # jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
-    jenkins_dashboard = WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.XPATH, "//span[text()='Jenkins']"))
     )
 
-    jenkins_dashboard.click()
+    browser.find_element(By.XPATH, "//span[text()='Jenkins']").click()
 
-    created_folder = WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
     )
     # created_folder = browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']")
-    assert created_folder.is_displayed()
+    assert browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']").is_displayed()
 
 
 
