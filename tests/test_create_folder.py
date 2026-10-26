@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def test_create_folder_and_checking_if_the_folder_was_created(browser):
-    browser.implicitly_wait(10)
+    wait = WebDriverWait(browser, 25)
     FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
     new_item_button = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_button.click()
