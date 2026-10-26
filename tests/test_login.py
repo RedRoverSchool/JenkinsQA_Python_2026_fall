@@ -24,3 +24,23 @@ def test_successful_login(browser):
         EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))
     )
     assert "login" not in browser.current_url
+
+
+def test_login_with_invalid_credentials(browser):
+    """TC_08.001.02 | Verify login with invalid credentials"""
+
+    username = get_user_name()
+    logout(browser)
+
+    WebDriverWait(browser, timeout=10).until(
+        EC.visibility_of_element_located((By.ID, "j_username"))
+    )
+    browser.find_element(By.ID, "j_username").send_keys(username)
+    browser.find_element(By.NAME, "j_password").send_keys("WrongPassword_12345!")
+    browser.find_element(By.NAME, "Submit").click()
+
+    error_message = WebDriverWait(browser, timeout=10).until(
+        EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'Invalid username or password')]"))
+    )
+
+    assert "Invalid username or password" in error_message.text
