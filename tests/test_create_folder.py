@@ -1,6 +1,6 @@
 import time
 
-import wait
+
 from selenium.webdriver.common.by import By
 import random
 from selenium.webdriver.support.ui import WebDriverWait
