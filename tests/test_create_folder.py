@@ -1,0 +1,37 @@
+from selenium.webdriver.common.by import By
+import random
+
+
+def test_create_folder_and_checking_if_the_folder_was_created(browser):
+    FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
+    new_item_button = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
+    new_item_button.click()
+
+    input_name_field = browser.find_element(By.XPATH, "//input[@name='name']")
+    input_name_field.send_keys(FOLDER_NAME )
+
+    folder_type_of_field = browser.find_element(By.XPATH, "//span[text()='Folder']")
+    folder_type_of_field.click()
+
+    ok_button = browser.find_element(By.ID, "ok-button")
+    ok_button.click()
+
+    submit_button = browser.find_element(By.XPATH, "//button[@name='Submit']")
+    submit_button.click()
+
+    jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
+    jenkins_dashboard.click()
+
+    created_folder = browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']")
+    assert created_folder.is_displayed()
+
+
+
+
+
+
+
+
+
+
+
