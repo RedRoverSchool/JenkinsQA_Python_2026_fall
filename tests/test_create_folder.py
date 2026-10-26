@@ -1,7 +1,12 @@
+import time
+
+import wait
 from selenium.webdriver.common.by import By
 import random
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+
 
 
 def test_create_folder_and_checking_if_the_folder_was_created(browser):
@@ -23,13 +28,14 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     submit_button.click()
 
     jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
+
     jenkins_dashboard.click()
 
-    created_folder = browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']")
+    created_folder = WebDriverWait(browser, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
+    )
+    # created_folder = browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']")
     assert created_folder.is_displayed()
-
-
-
 
 
 
