@@ -21,10 +21,16 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     folder_type_of_field = browser.find_element(By.XPATH, "//span[text()='Folder']")
     folder_type_of_field.click()
 
-    ok_button = browser.find_element(By.ID, "ok-button")
+    # ok_button = browser.find_element(By.ID, "ok-button")
+    ok_button = WebDriverWait(browser, 10).until(
+        EC.visibility_of_element_located((By.ID, "ok-button"))
+    )
     ok_button.click()
 
-    submit_button = browser.find_element(By.XPATH, "//button[@name='Submit']")
+    # submit_button = browser.find_element(By.XPATH, "//button[@name='Submit']")
+    submit_button = WebDriverWait(browser, 10).until(
+        EC.visibility_of_element_located((By.XPATH, "//button[@name='Submit']"))
+    )
     submit_button.click()
 
     # jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
