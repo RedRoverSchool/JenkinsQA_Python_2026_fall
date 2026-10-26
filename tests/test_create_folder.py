@@ -27,7 +27,10 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     submit_button = browser.find_element(By.XPATH, "//button[@name='Submit']")
     submit_button.click()
 
-    jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
+    # jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
+    jenkins_dashboard = WebDriverWait(browser, 10).until(
+        EC.visibility_of_element_located((By.XPATH, "//span[text()='Jenkins']"))
+    )
 
     jenkins_dashboard.click()
 
