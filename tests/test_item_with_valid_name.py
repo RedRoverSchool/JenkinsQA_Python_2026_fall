@@ -4,7 +4,10 @@ from selenium.webdriver.common.by import By
 def test_create_item_with_valid_name(browser):
     item_name = "Test_Item_001"
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
+    browser.find_element(
+        By.CSS_SELECTOR,
+        "a[href='/view/all/newJob']"
+    ).click()
 
     name_field = browser.find_element(By.ID, "name")
     assert name_field.is_enabled()
@@ -17,5 +20,7 @@ def test_create_item_with_valid_name(browser):
     ).click()
 
     browser.find_element(By.ID, "ok-button").click()
+
+    print(browser.find_element(By.TAG_NAME, "body").text)
 
     assert item_name in browser.current_url
