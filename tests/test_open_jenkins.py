@@ -32,3 +32,10 @@ def test_create_new_folder(browser):
     btn_save = browser.find_element(By.XPATH, "//button[@value='Save']").click()
     time.sleep(2)
     assert browser.find_element(By.XPATH, "//h1[@class='job-index-headline page-headline']").is_displayed()
+
+
+def test_open_builds_history(browser):
+    time.sleep(2)
+    builds_history_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/builds']")
+    builds_history_link.click()
+    assert browser.current_url == "http://localhost:8080/view/all/builds"
