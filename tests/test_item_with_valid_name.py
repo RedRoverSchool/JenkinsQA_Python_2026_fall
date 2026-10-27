@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 def test_create_item_with_valid_name(browser):
@@ -21,6 +22,11 @@ def test_create_item_with_valid_name(browser):
 
     browser.find_element(By.ID, "ok-button").click()
 
-    print(browser.find_element(By.TAG_NAME, "body").text)
+    WebDriverWait(browser, 10).until(
+        lambda driver: driver.find_element(By.TAG_NAME, "body")
+    )
+
+    print("Current URL:", browser.current_url)
+    print("Page text:", browser.find_element(By.TAG_NAME, "body").text)
 
     assert item_name in browser.current_url
