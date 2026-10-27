@@ -6,8 +6,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def test_create_folder_and_checking_if_the_folder_was_created(browser):
     FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
-    new_item_button = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
-    new_item_button.click()
+    create_item_button = WebDriverWait(browser, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//span[@class = 'task-link-text' and contains(text(), 'Item')]/.."))
+    )
+    create_item_button.click()
 
     # input_name_field = browser.find_element(By.XPATH, "//input[@name='name']")
     # input_name_field.send_keys(FOLDER_NAME)
@@ -47,7 +49,11 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
     )
     # created_folder = browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']")
-    assert browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']").is_displayed()
+    # assert browser.find_element(By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']").is_displayed()
+
+    assert WebDriverWait(browser, 10).until(
+        EC.visibility_of_element_located((By.XPATH, f"//*[normalize-space(.) = '{FOLDER_NAME}']"))
+    )
 
 
 
