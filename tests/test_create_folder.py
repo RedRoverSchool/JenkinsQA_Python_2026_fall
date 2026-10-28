@@ -48,7 +48,7 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     jenkins_logo = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, ".app-jenkins-logo"))
     )
-    jenkins_logo.click()
+    browser.execute_script("arguments[0].click();", jenkins_logo)
 
     WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
