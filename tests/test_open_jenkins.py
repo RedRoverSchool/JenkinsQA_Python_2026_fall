@@ -1,5 +1,7 @@
 import time
 
+from selenium.webdriver import Keys
+from selenium.webdriver.common.bidi import browser
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -39,3 +41,19 @@ def test_open_builds_history(browser):
     builds_history_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/builds']")
     builds_history_link.click()
     assert browser.current_url == "http://localhost:8080/view/all/builds"
+
+
+def test_create_new_job(browser):
+    time.sleep(2)
+    new_job_link = browser.find_element(By.XPATH,"//span[text()='Create a job']").click()
+    assert browser.current_url == 'http://localhost:8080/newJob'
+    job_name_fild = browser.find_element(By.XPATH, "//input[@id='name']")
+    job_name_fild.send_keys("Jobname")
+    name = job_name_fild.get_attribute('value')
+    item_type = browser.find_element(By.XPATH,"//span[text()='Folder']")
+    item_type.click()
+    btn_ok = browser.find_element(By.XPATH, "//button[@id='ok-button']").click()
+    assert browser.find_element(By.XPATH,"//span[text()='Configuration']").is_displayed()
+    btn_save = browser.find_element(By.XPATH, "//button[@value='Save']").click()
+    time.sleep(2)
+    assert browser.current_url == f'http://localhost:8080/job/{name}/'
