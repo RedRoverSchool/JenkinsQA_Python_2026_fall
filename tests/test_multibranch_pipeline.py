@@ -32,6 +32,9 @@ def test_create_multibranch_pipeline(browser):
 
     pipeline = browser.find_element(By.XPATH, "//*[contains(@class, 'multibranch')]")
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", pipeline)
+    WebDriverWait(browser, timeout=10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'multibranch')]"))
+    )
     pipeline.click()
 
     browser.find_element(By.ID, "ok-button").click()
