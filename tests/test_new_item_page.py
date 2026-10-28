@@ -1,4 +1,4 @@
-import allure
+# import allure
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -31,9 +31,9 @@ class MainPageLocator:
     ITEM_NAME_ROW = (By.CSS_SELECTOR, f'tr[id="job_{UNIQUE_ITEM_NAME}"]')
 
 
-@allure.description_html("Automated by: <strong>Konstantin Kurilo</strong>")
-@allure.title("TC_01.004 .001")
-@allure.link("https://github.com/RedRoverSchool/JenkinsQA_Python_2026_fall/issues/92")
+# @allure.description_html("Automated by: <strong>Konstantin Kurilo</strong>")
+# @allure.title("TC_01.004 .001")
+# @allure.link("https://github.com/RedRoverSchool/JenkinsQA_Python_2026_fall/issues/92")
 def test_item_types_are_available(browser):
     browser.find_element(*NewItemPageLocator.ADD_NEW_ITEM).click()
     WebDriverWait(browser, 10).until(EC.visibility_of_element_located(NewItemPageLocator.PIPELINE))
@@ -68,9 +68,9 @@ def test_item_types_are_available(browser):
     assert organization_folder.is_displayed()
 
 
-@allure.description_html("Automated by: <strong>Konstantin Kurilo</strong>")
-@allure.title("TC_01.004.002 | Verify entering a valid and unique item name and creating the item")
-@allure.link("https://github.com/RedRoverSchool/JenkinsQA_Python_2026_fall/issues/93")
+# @allure.description_html("Automated by: <strong>Konstantin Kurilo</strong>")
+# @allure.title("TC_01.004.002 | Verify entering a valid and unique item name and creating the item")
+# @allure.link("https://github.com/RedRoverSchool/JenkinsQA_Python_2026_fall/issues/93")
 def test_create_item_with_unique_name(browser, cleanup_item):
     browser.find_element(*NewItemPageLocator.ADD_NEW_ITEM).click()
 
