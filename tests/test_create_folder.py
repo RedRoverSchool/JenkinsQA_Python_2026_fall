@@ -39,11 +39,16 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     browser.find_element(By.NAME, "Submit").click()
 
     # jenkins_dashboard = browser.find_element(By.XPATH, "//span[text()='Jenkins']")
-    WebDriverWait(browser, 10).until(
-        EC.visibility_of_element_located((By.XPATH, "//span[text()='Jenkins']"))
-    )
+    # WebDriverWait(browser, 10).until(
+    #     EC.visibility_of_element_located((By.XPATH, "//span[text()='Jenkins']"))
+    # )
+    #
+    # browser.find_element(By.XPATH, "//span[text()='Jenkins']").click()
 
-    browser.find_element(By.XPATH, "//span[text()='Jenkins']").click()
+    jenkins_logo = WebDriverWait(browser, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, ".app-jenkins-logo"))
+    )
+    browser.execute_script("arguments[0].click();", jenkins_logo)
 
     WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
