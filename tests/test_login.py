@@ -5,7 +5,6 @@ from common.project_utils import get_user_name, get_password, get_url
 from common.jenkins_utils import logout
 
 def test_successful_login(browser):
-    """TC_08.001.01 | Verify successful login with valid credentials"""
 
     username = get_user_name()
     password = get_password()
@@ -27,7 +26,6 @@ def test_successful_login(browser):
 
 
 def test_login_with_invalid_credentials(browser):
-    """TC_08.001.02 | Verify login with invalid credentials"""
 
     username = get_user_name()
     logout(browser)

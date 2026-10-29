@@ -4,7 +4,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def test_create_folder_from_dashboard(browser):
-    """TC_01.002.01 | Verify successful creation of a Folder from the Dashboard"""
 
     folder_name = "TestFolder_01"
 
@@ -26,7 +25,6 @@ def test_create_folder_from_dashboard(browser):
 
 
 def test_create_nested_folder(browser):
-    """TC_01.002.02 | Verify successful creation of a nested Folder"""
 
     parent_name = "ParentFolder2"
     child_name = "NestedFolder2"
