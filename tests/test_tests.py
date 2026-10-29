@@ -22,8 +22,3 @@ def test_version(browser, wait):
     label = wait.until(EC.presence_of_element_located(TEXT))
     assert "Jenkins" in label.text
 
-
-def test_debugging(browser):
-    print("URL:", browser.current_url)
-    print("TITLE:", browser.title)
-    print("SOURCE[:1000]:", browser.page_source[:1000])
