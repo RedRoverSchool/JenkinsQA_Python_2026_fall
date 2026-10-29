@@ -23,7 +23,6 @@ def test_multibranch_pipeline(browser):
     assert "PipelineDisplayName" in browser.find_element(By.TAG_NAME, "h1").text
 
 def test_create_multibranch_pipeline(browser):
-    """TC_01.005.01 | Verify successful creation of a Multibranch Pipeline"""
 
     pipeline_name = "Pipeline_1"
 
@@ -46,3 +45,23 @@ def test_create_multibranch_pipeline(browser):
 
     assert pipeline_name in breadcrumbs_text
     assert f"job/{pipeline_name}/configure" in browser.current_url
+
+def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser):
+
+    pipeline_name = "Pipeline_1"
+
+    browser.find_element(By.CSS_SELECTOR, ".task:nth-child(1)").click()
+    browser.find_element(By.ID, "name").send_keys(pipeline_name)
+
+    pipeline = browser.find_element(By.XPATH, "//*[contains(@class, 'multibranch')]")
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", pipeline)
+    WebDriverWait(browser, timeout=10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'multibranch')]"))
+    )
+    pipeline.click()
+
+    browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
+
+    welcome_title = browser.find_element(By.CSS_SELECTOR, "div.empty-state-block > h1")
+
+    assert welcome_title.text == "Welcome to Jenkins!"
