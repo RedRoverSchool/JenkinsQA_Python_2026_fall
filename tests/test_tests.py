@@ -22,3 +22,4 @@ def test_version(browser, wait):
     label = wait.until(EC.presence_of_element_located(TEXT))
     assert "Jenkins" in label.text
 
+
