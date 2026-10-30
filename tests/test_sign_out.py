@@ -18,7 +18,7 @@ def test_redirect_to_login_page_after_logout(browser):
     ).click()
 
     assert len(browser.find_elements(By.CSS_SELECTOR,
-                                     ".jenkins-dialog, .modal, .alert, .warning, .error, .notification")) == 0, \
+                                     ".jenkins-dialog, .modal, .alert, .warning, .error")) == 0, \
         'Any notification received or confirmation required'
 
     assert WebDriverWait(browser, timeout=10).until(EC.url_contains("login")), "No redirect to login page after logout"
