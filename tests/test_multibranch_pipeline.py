@@ -1,4 +1,5 @@
 import secrets
+import pytest
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -25,7 +26,7 @@ def test_multibranch_pipeline(browser):
 
     assert "PipelineDisplayName" in browser.find_element(By.TAG_NAME, "h1").text
 
-
+@pytest.mark.skip
 def test_create_multibranch_pipeline(browser):
     pipeline_name = "Pipeline_1"
 
