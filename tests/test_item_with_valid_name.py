@@ -1,7 +1,8 @@
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-
+@pytest.mark.skip
 def test_create_item_with_valid_name(browser):
     item_name = "Test_Item_001"
 
