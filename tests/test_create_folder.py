@@ -1,10 +1,10 @@
 from selenium.webdriver.common.by import By
 import random
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.support.ui import WebDriverWait
 
 def test_create_folder_and_checking_if_the_folder_was_created(browser):
+    wait = WebDriverWait(browser, 10)
     FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
     create_item_button = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.XPATH, "//span[@class = 'task-link-text' and contains(text(), 'Item')]/.."))
@@ -38,6 +38,9 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     )
     browser.execute_script("arguments[0].click();", jenkins_logo)
 
+    wait.until(
+        EC.element_to_be_clickable((By.ID, "jenkins-head-icon"))
+    ).click()
     WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
     )
