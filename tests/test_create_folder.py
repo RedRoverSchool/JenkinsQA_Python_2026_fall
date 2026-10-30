@@ -38,6 +38,9 @@ def test_create_folder_and_checking_if_the_folder_was_created(browser):
     )
     browser.execute_script("arguments[0].click();", jenkins_logo)
 
+    WebDriverWait(browser, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
+    )
     assert WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.XPATH, f"//*[normalize-space(.) = '{FOLDER_NAME}']"))
     )
