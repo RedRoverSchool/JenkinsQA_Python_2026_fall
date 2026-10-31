@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-def test_successful_creating(browser):
+def test_create(browser):
     name_pipeline = ''.join(random.choices(string.ascii_lowercase, k=10))
 
     create_item_button = WebDriverWait(browser, 10).until(
