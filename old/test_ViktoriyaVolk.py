@@ -1,4 +1,4 @@
-from selenium import webdriver
+from pipselenium import webdriver
 from selenium.webdriver.common.by import By
 
 
