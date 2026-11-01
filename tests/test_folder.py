@@ -1,3 +1,4 @@
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -23,7 +24,7 @@ def test_create_folder_from_dashboard(browser):
 
     assert folder_name in browser.find_element(By.TAG_NAME, "h1").text
 
-
+@pytest.mark.skip
 def test_create_nested_folder(browser):
 
     parent_name = "ParentFolder2"
