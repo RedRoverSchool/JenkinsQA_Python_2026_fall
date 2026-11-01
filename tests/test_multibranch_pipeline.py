@@ -1,4 +1,5 @@
 import secrets
+import pytest
 
 import pytest
 from selenium.webdriver.common.by import By
