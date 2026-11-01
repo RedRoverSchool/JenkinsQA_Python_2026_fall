@@ -24,7 +24,6 @@ def test_create_folder_from_dashboard(browser):
 
     assert folder_name in browser.find_element(By.TAG_NAME, "h1").text
 
-@pytest.mark.skip
 def test_create_nested_folder(browser):
 
     parent_name = "ParentFolder2"
