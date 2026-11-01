@@ -16,3 +16,12 @@ def test_open_new_item_page(browser):
     pipeline_item = browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
     pipeline_label = pipeline_item.find_element(By.CLASS_NAME, "jenkins-choice-list__item__label")
     assert pipeline_item.is_displayed() and pipeline_label.text == "Pipeline"
+
+def test_validate_blank_name(browser):
+    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
+    new_item_link.click()
+    assert "/view/all/newJob" in browser.current_url
+
+    name_field = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
+    assert name_field.is_displayed()
+    assert name_field.get_attribute("value") == ""
