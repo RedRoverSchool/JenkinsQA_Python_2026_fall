@@ -1,6 +1,6 @@
 import time
 
-from selenium.webdriver.common.bidi import browser
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
