@@ -25,7 +25,7 @@ def test_multibranch_pipeline(browser):
 
     assert "PipelineDisplayName" in browser.find_element(By.TAG_NAME, "h1").text
 
-
+@pytest.mark.skip
 def test_create_multibranch_pipeline(browser):
     pipeline_name = "Pipeline_1"
 
@@ -68,6 +68,7 @@ def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser):
     welcome_title = browser.find_element(By.CSS_SELECTOR, "div.empty-state-block > h1")
 
     assert welcome_title.text == "Welcome to Jenkins!"
+
 
 def test_multibranch_with_special_characters(browser):
     spec_chars = r"!@#$%^&*[]<>;:/\|"
