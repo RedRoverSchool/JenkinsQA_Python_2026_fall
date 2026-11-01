@@ -96,11 +96,16 @@ def test_error_message_for_invalid_git_repository_url(browser):
 
     repository_url_field.send_keys(Keys.TAB)
 
-    error_message = WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 10).until(
         EC.text_to_be_present_in_element((
             By.XPATH,
             "//div[contains(@class, 'error') and contains(., 'Failed to connect to repository')]"
         ), "Failed to connect to repository")
+    )
+
+    error_message = browser.find_element(
+        By.XPATH,
+        "//div[contains(@class, 'error') and contains(., 'Failed to connect to repository')]"
     )
 
     assert "Failed to connect to repository" in error_message.text
