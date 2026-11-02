@@ -65,3 +65,26 @@ def test_disable_freestyle_project(browser):
     WebDriverWait(browser, 10).until( EC.url_to_be(f"http://localhost:8080/job/{project_name}/"))
 
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
+
+
+def test_enable_disabled_freestyle_project(browser):
+    project_name = "Freestyle_Project_Config_Test"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
+    browser.find_element(By.ID, "name").send_keys(project_name)
+
+    browser.find_element(By.XPATH, "//span[normalize-space()='Freestyle project']/parent::label").click()
+    browser.find_element(By.ID, "ok-button").submit()
+
+    WebDriverWait(browser, 10).until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, "label[for='enable-disable-project']").click()
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+
+    WebDriverWait(browser, 10).until(EC.url_to_be(f"http://localhost:8080/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']").click()
+
+    WebDriverWait(browser, 10).until(EC.url_to_be(f"http://localhost:8080/job/{project_name}/"))
+
+    assert "This project is currently disabled" not in browser.find_element(By.TAG_NAME, "body").text
