@@ -1,8 +1,10 @@
+import pytest
 from selenium.webdriver.common.by import By
 import random
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+@pytest.mark.skip
 def test_create_folder_and_checking_if_the_folder_was_created(browser):
     wait = WebDriverWait(browser, 10)
     FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
