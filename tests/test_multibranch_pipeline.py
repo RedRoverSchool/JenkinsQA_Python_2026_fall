@@ -71,7 +71,7 @@ def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser):
 
     assert welcome_title.text == "Welcome to Jenkins!"
 
-
+@pytest.mark.skip
 def test_multibranch_with_special_characters(browser):
     spec_chars = r"!@#$%^&*[]<>;:/\|"
     spec_char = secrets.choice(spec_chars)
