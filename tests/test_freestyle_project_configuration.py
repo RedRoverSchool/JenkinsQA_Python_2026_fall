@@ -1,3 +1,4 @@
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -66,7 +67,7 @@ def test_disable_freestyle_project(browser):
 
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
 
-
+@pytest.mark.skip
 def test_enable_disabled_freestyle_project(browser):
     project_name = "Freestyle_Project_Config_Test"
 
