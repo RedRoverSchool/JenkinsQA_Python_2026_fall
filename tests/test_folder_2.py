@@ -36,11 +36,8 @@ def create_folder(browser):
         EC.element_to_be_clickable((By.NAME, "Submit"))
     )
     save_button.click()
-
-    jenkins_logo = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.app-jenkins-logo"))
-    )
-    browser.execute_script("arguments[0].click();", jenkins_logo)
+    jenkins_logo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".app-jenkins-logo")))
+    jenkins_logo.click()
 
     WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
@@ -102,10 +99,8 @@ def test_create_and_verify_if_the_folder_was_created(browser):
     )
     save_button.click()
 
-    jenkins_logo = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.app-jenkins-logo"))
-    )
-    browser.execute_script("arguments[0].click();", jenkins_logo)
+    jenkins_logo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".app-jenkins-logo")))
+    jenkins_logo.click()
 
     folder_element = WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
