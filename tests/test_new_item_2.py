@@ -40,7 +40,7 @@ def test_validate_invalid_characters(browser):
     name_field = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
     name_field.send_keys("Test?Job")
 
-    error_message = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, "error")))
+    error_message = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".validation-error-area--visible .error")))
     assert error_message.text == "‘?’ is an unsafe character"
 
     ok_button = browser.find_element(By.ID, "ok-button")
