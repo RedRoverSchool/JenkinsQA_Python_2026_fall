@@ -17,3 +17,6 @@ venv.bak/
 # Environment variables
 .env
 pytest.ini
+
+.venv/
+venv/
