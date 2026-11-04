@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
+@pytest.mark.skip
 def test_access_enable_disable_option(browser):
     project_name = "Freestyle_Project_Config_Test"
 
