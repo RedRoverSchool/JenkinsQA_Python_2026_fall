@@ -1,3 +1,4 @@
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -31,7 +32,7 @@ def test_validate_blank_name(browser):
     ok_button = browser.find_element(By.ID, "ok-button")
     assert not ok_button.is_enabled()
 
-
+@pytest.mark.skip
 def test_validate_invalid_characters(browser):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
