@@ -38,7 +38,7 @@ def create_folder(browser):
     save_button.click()
 
     jenkins_logo = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a.app-jenkins-logo"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "a.app-jenkins-logo"))
     )
     browser.execute_script("arguments[0].click();", jenkins_logo)
 
@@ -103,7 +103,7 @@ def test_create_and_verify_if_the_folder_was_created(browser):
     save_button.click()
 
     jenkins_logo = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a.app-jenkins-logo"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "a.app-jenkins-logo"))
     )
     browser.execute_script("arguments[0].click();", jenkins_logo)
 
