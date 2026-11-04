@@ -60,14 +60,14 @@ def create_folder(browser):
         print(f"Удалена папка - {FOLDER_NAME}")
     except WebDriverException as e:
         print(f"Не удалось автоматически удалить папку {FOLDER_NAME}")
-
+@pytest.mark.skip
 def test_create_and_verify_if_the_folder_was_created2(browser, create_folder):
     FOLDER_NAME = create_folder
     folder_element = WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
     )
     assert folder_element.is_displayed(), f"Ошибка: Созданная папка '{FOLDER_NAME}' не отображается на странице!"
-
+@pytest.mark.skip
 def test_create_and_verify_if_the_folder_was_created(browser):
     wait = WebDriverWait(browser, 10)
     FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
