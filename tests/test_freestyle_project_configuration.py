@@ -1,9 +1,9 @@
-import pytest
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-@pytest.mark.skip
+
 def test_access_enable_disable_option(browser):
     project_name = "Freestyle_Project_Config_Test"
 
@@ -67,7 +67,7 @@ def test_disable_freestyle_project(browser):
 
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
 
-@pytest.mark.skip
+
 def test_enable_disabled_freestyle_project(browser):
     project_name = "Freestyle_Project_Config_Test"
 
@@ -84,11 +84,14 @@ def test_enable_disabled_freestyle_project(browser):
 
     WebDriverWait(browser, 10).until(EC.url_to_be(f"http://localhost:8080/job/{project_name}/"))
 
+    old_body = browser.find_element(By.TAG_NAME, "body")
+
     browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']").click()
 
-    WebDriverWait(browser, 10).until(EC.url_to_be(f"http://localhost:8080/job/{project_name}/"))
+    WebDriverWait(browser, 10).until(EC.staleness_of(old_body))
 
     assert "This project is currently disabled" not in browser.find_element(By.TAG_NAME, "body").text
+    assert len(browser.find_elements(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']")) == 0
 
 
 def test_save_freestyle_project_disabled_state(browser):
