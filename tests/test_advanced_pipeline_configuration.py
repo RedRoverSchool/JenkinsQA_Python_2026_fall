@@ -1,3 +1,4 @@
+import re
 import pytest
 from selenium.common import TimeoutException
 from selenium.webdriver import Keys
@@ -29,7 +30,7 @@ def test_quiet_period_accepts_positive_integer(browser):
     pytest.param(QP_NEGATIVE, NEGATIVE_ERROR, id="negative_integer_value"),
     pytest.param(NON_INTEGER, NON_INTEGER_ERROR, id="non_integer_value"),
 ])
-def test_quiet_period_rejects_invalid_values(browser, value, expected_error):
+def test_quiet_period_rejects_negative_and_non_integer_values(browser, value, expected_error):
     wait = WebDriverWait(browser, 5)
     create_pipeline(browser)
     set_quiet_period(browser, value)
@@ -39,6 +40,20 @@ def test_quiet_period_rejects_invalid_values(browser, value, expected_error):
     ))).text
 
     assert error == expected_error
+
+
+@pytest.mark.parametrize("value", [
+    pytest.param("AbCdeEГд", id="letters_as_value"),
+    pytest.param("!@#$%^&*()", id="symbols_as_value"),
+    pytest.param("A512@d", id="mix_value"),
+])
+def test_quiet_period_letters_and_symbols_can_not_be_entered(browser, value):
+    create_pipeline(browser)
+    set_quiet_period(browser, value)
+    input_field = browser.find_element(By.CSS_SELECTOR, "input[name='quiet_period']").get_property("value")
+    input_expected = re.sub(r"[^0-9]", "", value)
+
+    assert input_field == input_expected
 
 
 def create_pipeline(browser):
