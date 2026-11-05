@@ -1,4 +1,3 @@
-
 import pytest
 from selenium.common import WebDriverException
 from selenium.webdriver.common.by import By
