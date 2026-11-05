@@ -18,7 +18,6 @@ def test_create_item_folder(browser):
 
     assert WebDriverWait(browser,5).until(EC.visibility_of_element_located((By.XPATH, "//h1"))).is_displayed()
 
-
     WebDriverWait(browser,2).until(EC.visibility_of_element_located((By.XPATH, "//input[@name='_.displayNameOrNull']"))).send_keys("Display")
 
     WebDriverWait(browser,2).until(EC.visibility_of_element_located((By.XPATH,"//textarea[@name='_.description']"))).send_keys("Description hello world")
