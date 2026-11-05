@@ -1,5 +1,6 @@
 import pytest
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 
 from common.filter_utils import filter_items_by_changed_files
 from common.jenkins_utils import login, logout, clear_data
@@ -34,6 +35,21 @@ def browser(request):
             logout(driver)
         finally:
             driver.quit()
+
+
+@pytest.fixture(scope="function")
+def wait2(browser):
+    return WebDriverWait(browser, 2)
+
+
+@pytest.fixture(scope="function")
+def wait5(browser):
+    return WebDriverWait(browser, 5)
+
+
+@pytest.fixture(scope="function")
+def wait10(browser):
+    return WebDriverWait(browser, 10)
 
 
 @pytest.hookimpl(trylast=True)
