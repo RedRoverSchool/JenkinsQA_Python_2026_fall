@@ -56,5 +56,5 @@ def test_access_description_via_click_pipeline_name(browser, wait10):
     desc_content_fld = browser.find_element(*DESCRIPTION_CONTENT_FLD)
     actual_text = desc_content_fld.text.strip()
     assert actual_text == TEXT_AFTER, f"Ожидался текст '{TEXT_AFTER}', но получен '{actual_text}'"
-    time.sleep(10)
+
 
