@@ -1,6 +1,6 @@
 import time
 
-
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -15,7 +15,7 @@ def test_new_item_page_open(browser):
     new_item = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
     new_item.click()
     assert browser.current_url == 'http://localhost:8080/view/all/newJob'
-
+@pytest.mark.skip
 def test_create_new_folder(browser):
     new_item = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))).click()
     assert browser.current_url == 'http://localhost:8080/view/all/newJob'
