@@ -23,7 +23,6 @@ def test_successful_login(browser, wait10):
     )
     assert "login" not in browser.current_url
 
-
 def test_login_with_invalid_credentials(browser, wait10):
 
     username = get_user_name()
