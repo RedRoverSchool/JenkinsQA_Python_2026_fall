@@ -23,7 +23,7 @@ def browser(request):
         options.add_argument(option)
     print("opening browser")
     driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(6)
 
     print("getting page")
     driver.get(get_url())
