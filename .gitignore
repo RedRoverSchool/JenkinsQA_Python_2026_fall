@@ -17,3 +17,7 @@ venv.bak/
 # Environment variables
 .env
 pytest.ini
+
+# Local screenshots
+screenshots/
+*.png

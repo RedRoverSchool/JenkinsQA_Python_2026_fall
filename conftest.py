@@ -1,4 +1,5 @@
 import pytest
+import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -63,3 +64,26 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(session, config, items):
     items[:] = filter_items_by_changed_files(items)
     reorder_items_by_dependency(items)
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+
+    if rep.when == "call" and rep.failed:
+        try:
+            if "browser" in item.fixturenames:
+                web_driver = item.funcargs["browser"]
+
+                folder_name = "screenshots"
+                if not os.path.exists(folder_name):
+                    os.makedirs(folder_name)
+
+                clean_test_name = item.name.replace('[', '_').replace(']', '_').replace(':', '_')
+                screenshot_path = os.path.join(folder_name, f"failed_{clean_test_name}.png")
+
+                web_driver.save_screenshot(screenshot_path)
+                print(f"\n[Скриншот ошибки успешно сохранен: {screenshot_path}]")
+        except Exception as e:
+            print(f"\nНе удалось создать скриншот при падении: {e}")
