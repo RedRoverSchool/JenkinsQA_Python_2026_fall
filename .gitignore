@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 # Virtual environments
+.venv/
 venv/
 env/
 ENV/
@@ -17,3 +18,4 @@ venv.bak/
 # Environment variables
 .env
 pytest.ini
+
