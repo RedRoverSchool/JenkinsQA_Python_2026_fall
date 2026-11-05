@@ -81,7 +81,7 @@ def test_disable_the_project(browser):
     )
     enabled_radiobutton.click()
 
-    save_button = WebDriverWait(browser, 10).until(
+    save_button = wait.until(
         EC.element_to_be_clickable((By.XPATH, "//button[@value = 'Save']")))
     save_button.click()
 
