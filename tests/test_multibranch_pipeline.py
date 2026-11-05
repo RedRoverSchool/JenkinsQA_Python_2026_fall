@@ -5,6 +5,7 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+PIPELINE_NAME = "Pipeline_1"
 
 def test_multibranch_pipeline(browser, wait10):
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
@@ -26,12 +27,11 @@ def test_multibranch_pipeline(browser, wait10):
 
     assert "PipelineDisplayName" in browser.find_element(By.TAG_NAME, "h1").text
 
-
+@pytest.mark.dependency()
 def test_create_multibranch_pipeline(browser, wait10):
-    pipeline_name = "Pipeline_1"
 
     browser.find_element(By.CSS_SELECTOR, ".task:nth-child(1)").click()
-    browser.find_element(By.ID, "name").send_keys(pipeline_name)
+    browser.find_element(By.ID, "name").send_keys(PIPELINE_NAME)
 
     multibranch_locator = (By.XPATH, "//*[contains(@class, 'multibranch')]")
     pipeline = wait10.until(
@@ -47,8 +47,8 @@ def test_create_multibranch_pipeline(browser, wait10):
     )
     breadcrumbs_text = browser.find_element(By.CLASS_NAME, "jenkins-breadcrumbs__list").text
 
-    assert pipeline_name in breadcrumbs_text
-    assert f"job/{pipeline_name}/configure" in browser.current_url
+    assert PIPELINE_NAME in breadcrumbs_text
+    assert f"job/{PIPELINE_NAME}/configure" in browser.current_url
 
 
 def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser, wait10):
@@ -100,33 +100,10 @@ def test_multibranch_with_special_characters(browser, wait5):
     assert not ok_button.is_enabled()
     assert error_message == expected_text
 
-
+@pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait10):
-    pipeline_name = "Pipeline_1"
 
-    browser.find_element(By.CSS_SELECTOR, ".task:nth-child(1)").click()
-    browser.find_element(By.ID, "name").send_keys(pipeline_name)
-
-    multibranch_locator = (By.XPATH, "//*[contains(@class, 'multibranch')]")
-    pipeline = wait10.until(
-        EC.element_to_be_clickable(multibranch_locator)
-    )
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", pipeline)
-    pipeline.click()
-
-    browser.find_element(By.ID, "ok-button").click()
-
-    wait10.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.NAME, "Submit").click()
-
-    wait10.until(
-        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
-    )
-    browser.find_element(By.ID, "jenkins-head-icon").click()
-
-    chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{pipeline_name})]"
+    chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{PIPELINE_NAME})]"
     browser.find_element(By.XPATH, chevron_selector).click()
     browser.find_element(By.XPATH, "//a[contains(@href, 'confirm-rename')]").click()
 

@@ -52,6 +52,13 @@ def wait10(browser):
     return WebDriverWait(browser, 10)
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "dependency(name=None, depends=None): dependencies between tests",
+    )
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_collection_modifyitems(session, config, items):
     items[:] = filter_items_by_changed_files(items)
