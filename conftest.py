@@ -63,3 +63,17 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(session, config, items):
     items[:] = filter_items_by_changed_files(items)
     reorder_items_by_dependency(items)
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.when == "call" and rep.failed:
+        try:
+            driver = item.funcargs.get("browser")
+            if driver:
+                import os
+                os.makedirs("screenshots", exist_ok=True)
+                driver.save_screenshot(f"screenshots/{item.name}.png")
+        except Exception as e:
+            print(f"Не удалось сохранить скриншот: {e}")
