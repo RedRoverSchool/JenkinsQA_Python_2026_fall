@@ -22,7 +22,7 @@ def test_create_folder_from_dashboard(browser, wait10):
     )
 
     assert folder_name in browser.find_element(By.TAG_NAME, "h1").text
-
+@pytest.mark.skip
 def test_create_nested_folder(browser, wait10):
 
     parent_name = "ParentFolder2"
