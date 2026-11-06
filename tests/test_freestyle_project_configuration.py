@@ -101,3 +101,33 @@ def test_save_freestyle_project_disabled_state(browser):
 
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
     assert browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']").is_displayed()
+
+
+def test_environment_options_are_available(browser):
+    project_name = "Freestyle_Environment_Test"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+    browser.find_element(By.ID, "name").send_keys(project_name)
+
+    browser.find_element(By.XPATH, "//span[normalize-space()='Freestyle project']/parent::label").click()
+    browser.find_element(By.ID, "ok-button").submit()
+
+    WebDriverWait(browser, 10).until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.XPATH, "//button[.//span[normalize-space()='Environment']]").click()
+
+    delete_workspace = browser.find_element(By.XPATH, "//label[normalize-space()='Delete workspace before build starts']")
+    secret_text = browser.find_element(By.XPATH, "//label[normalize-space()='Use secret text(s) or file(s)']")
+    config_files = browser.find_element(By.XPATH, "//label[normalize-space()='Provide Configuration files']")
+    timestamps = browser.find_element(By.XPATH, "//label[normalize-space()='Add timestamps to the Console Output']")
+    build_scans = browser.find_element(By.XPATH, "//label[normalize-space()='Inspect build log for published build scans']")
+    terminate_build = browser.find_element(By.XPATH, "//label[normalize-space()=\"Terminate a build if it's stuck\"]")
+    ant = browser.find_element(By.XPATH, "//label[normalize-space()='With Ant']")
+
+    assert delete_workspace.is_displayed()
+    assert secret_text.is_displayed()
+    assert config_files.is_displayed()
+    assert timestamps.is_displayed()
+    assert build_scans.is_displayed()
+    assert terminate_build.is_displayed()
+    assert ant.is_displayed()
