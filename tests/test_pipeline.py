@@ -65,7 +65,7 @@ def test_disable_the_project(browser):
     )
     create_item_button.click()
 
-    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline']")
+    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline111']")
     pipeline_button.click()
 
     field_name = browser.find_element(By.ID, "name")

@@ -13,6 +13,8 @@ jobs:
   run-test:
     name: 'Run tests'
     runs-on: ubuntu-latest
+    env:
+      RUN_CI: true
     steps:
       - name: Git clone
         uses: actions/checkout@v4
@@ -67,4 +69,11 @@ jobs:
           JENKINS_PORT: 8080
           BROWSER_NAME: chrome
           BROWSER_OPTIONS_CHROME: --remote-allow-origins=*;--disable-gpu;--no-sandbox;--disable-dev-shm-usage;--headless=new;--window-size=1920,1080
-          RUN_CI: true
+
+      - name: Add screenshot
+        if: failure() && env.RUN_CI == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots
+          path: ${{ github.workspace }}/screenshots
+          if-no-files-found: ignore
