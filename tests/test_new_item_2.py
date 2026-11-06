@@ -1,4 +1,3 @@
-import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -32,14 +31,16 @@ def test_validate_blank_name(browser):
     ok_button = browser.find_element(By.ID, "ok-button")
     assert not ok_button.is_enabled()
 
-@pytest.mark.skip
 def test_validate_invalid_characters(browser):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
     assert "/view/all/newJob" in browser.current_url
 
     name_field = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
-    name_field.send_keys("Test?Job")
+    name_field.send_keys("Test")
+
+    WebDriverWait(browser, 10).until(EC.text_to_be_present_in_element_attribute((By.ID, "name"),"data-valid","true"))
+    name_field.send_keys("?")
 
     error_message = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".validation-error-area--visible .error")))
     assert error_message.text == "‘?’ is an unsafe character"
