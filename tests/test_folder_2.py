@@ -28,16 +28,23 @@ def create_folder(browser):
     ok_button = WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.ID, "ok-button"))
     )
-    browser.execute_script("arguments[0].scrollIntoView(true);", ok_button)
-    ok_button.click()
+    # browser.execute_script("arguments[0].scrollIntoView(true);", ok_button)
+    browser.execute_script("arguments[0].scrollIntoView(true); arguments[0].click();", ok_button)
 
 
-    save_button = WebDriverWait(browser, timeout=10).until(
-        EC.element_to_be_clickable((By.NAME, "Submit"))
-    )
-    save_button.click()
-    jenkins_logo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[./span[text()='Jenkins']]")))
-    browser.execute_script("arguments[0].click();", jenkins_logo)
+    WebDriverWait(browser, 10).until(EC.url_contains("/configure"))
+    assert "/configure" in browser.current_url
+
+
+    # save_button = WebDriverWait(browser, timeout=10).until(
+    #     EC.element_to_be_clickable((By.NAME, "Submit"))
+    # )
+    # save_button.click()
+    # jenkins_logo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[./span[text()='Jenkins']]")))
+    # browser.execute_script("arguments[0].click();", jenkins_logo)
+
+    jenkins_logo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".app-jenkins-logo")))
+    jenkins_logo.click()
 
     WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
@@ -61,51 +68,14 @@ def create_folder(browser):
     except WebDriverException as e:
         print(f"Не удалось автоматически удалить папку {FOLDER_NAME}")
 
-def test_create_and_verify_if_the_folder_was_created2(browser, create_folder):
+def test_create_and_verify_if_the_folder_was_created(browser, create_folder):
     FOLDER_NAME = create_folder
     folder_element = WebDriverWait(browser, 10).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
     )
     assert folder_element.is_displayed(), f"Ошибка: Созданная папка '{FOLDER_NAME}' не отображается на странице!"
 
-def test_create_and_verify_if_the_folder_was_created(browser):
-    wait = WebDriverWait(browser, 10)
-    FOLDER_NAME = f"Folder_{random.randint(0,1000)}"
-    create_item_button = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "//span[@class = 'task-link-text' and contains(text(), 'Item')]/.."))
-    )
-    create_item_button.click()
 
-    input_name_field = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "//input[@name='name']"))
-    )
-    input_name_field.send_keys(FOLDER_NAME)
-
-
-    item_type_folder = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "//span[text()='Folder']"))
-    )
-    item_type_folder.click()
-
-    ok_button = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.ID, "ok-button"))
-    )
-    browser.execute_script("arguments[0].scrollIntoView(true);", ok_button)
-    ok_button.click()
-
-
-    save_button = WebDriverWait(browser, timeout=10).until(
-        EC.element_to_be_clickable((By.NAME, "Submit"))
-    )
-    save_button.click()
-
-    jenkins_logo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[./span[text()='Jenkins']]")))
-    browser.execute_script("arguments[0].click();", jenkins_logo)
-
-    folder_element = WebDriverWait(browser, 10).until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, f"[data-href*='{FOLDER_NAME}']"))
-    )
-    assert folder_element.is_displayed(), f"Ошибка: Созданная папка '{FOLDER_NAME}' не отображается на странице!"
 
 
 
