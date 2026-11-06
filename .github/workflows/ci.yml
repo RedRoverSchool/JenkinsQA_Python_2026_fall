@@ -61,7 +61,9 @@ jobs:
         run: ./.github/wait-for-jenkins.sh
 
       - name: Pytest
-        run: pytest tests/ -v -s
+        run: |
+          pip install pytest-html
+          pytest tests/ -v -s --html=screenshots/report.html --self-contained-html
         env:
           JENKINS_USERNAME: ${{ secrets.ADMIN_USERNAME }}
           JENKINS_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
