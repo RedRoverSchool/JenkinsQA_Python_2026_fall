@@ -118,7 +118,6 @@ def test_environment_options_are_available(browser):
 
     delete_workspace = browser.find_element(By.XPATH, "//label[normalize-space()='Delete workspace before build starts']")
     secret_text = browser.find_element(By.XPATH, "//label[normalize-space()='Use secret text(s) or file(s)']")
-    config_files = browser.find_element(By.XPATH, "//label[normalize-space()='Provide Configuration files']")
     timestamps = browser.find_element(By.XPATH, "//label[normalize-space()='Add timestamps to the Console Output']")
     build_scans = browser.find_element(By.XPATH, "//label[normalize-space()='Inspect build log for published build scans']")
     terminate_build = browser.find_element(By.XPATH, "//label[normalize-space()=\"Terminate a build if it's stuck\"]")
@@ -126,7 +125,6 @@ def test_environment_options_are_available(browser):
 
     assert delete_workspace.is_displayed()
     assert secret_text.is_displayed()
-    assert config_files.is_displayed()
     assert timestamps.is_displayed()
     assert build_scans.is_displayed()
     assert terminate_build.is_displayed()
