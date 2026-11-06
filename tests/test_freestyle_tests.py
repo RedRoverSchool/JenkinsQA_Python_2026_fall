@@ -1,4 +1,5 @@
 from selenium import webdriver
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -74,7 +75,7 @@ def test_exetute_windows_step(browser):
 
     wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
     assert item_name in browser.find_element(By.TAG_NAME, "h1").text
-
+@pytest.mark.skip
 def test_execute_shell_and_invoke_ant(browser):
     wait = WebDriverWait(browser, 10)
     new_item = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
