@@ -129,3 +129,32 @@ def test_environment_options_are_available(browser):
     assert build_scans.is_displayed()
     assert terminate_build.is_displayed()
     assert ant.is_displayed()
+
+
+def test_create_project_without_environment_settings(browser):
+    project_name = "Freestyle_Environment_Default_Test"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+    browser.find_element(By.ID, "name").send_keys(project_name)
+
+    browser.find_element(By.XPATH, "//span[normalize-space()='Freestyle project']/parent::label").click()
+    browser.find_element(By.ID, "ok-button").submit()
+
+    WebDriverWait(browser, 10).until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.XPATH, "//button[.//span[normalize-space()='Environment']]").click()
+
+    timestamps = browser.find_element(By.ID, "cb21")
+    delete_workspace = browser.find_element(By.ID, "cb18")
+    secret_text = browser.find_element(By.ID, "cb19")
+    build_scans = browser.find_element(By.ID, "cb22")
+    terminate_build = browser.find_element(By.ID, "cb23")
+    ant = browser.find_element(By.NAME, "hudson-tasks-AntWrapper")
+
+    assert not timestamps.is_selected()
+    assert not delete_workspace.is_selected()
+    assert not secret_text.is_selected()
+    assert not build_scans.is_selected()
+    assert not terminate_build.is_selected()
+    assert not ant.is_selected()
+
