@@ -27,8 +27,7 @@ def test_multibranch_pipeline(browser, wait5):
 
     assert "PipelineDisplayName" in browser.find_element(By.TAG_NAME, "h1").text
 
-@pytest.mark.dependency()
-def test_create_multibranch_pipeline(browser, wait5):
+def create_multibranch_pipeline(browser, wait5):
 
     browser.find_element(By.CSS_SELECTOR, ".task:nth-child(1)").click()
     browser.find_element(By.ID, "name").send_keys(PIPELINE_NAME)
@@ -45,10 +44,19 @@ def test_create_multibranch_pipeline(browser, wait5):
     wait5.until(
         EC.visibility_of_element_located((By.ID, "side-panel"))
     )
-    breadcrumbs_text = browser.find_element(By.CLASS_NAME, "jenkins-breadcrumbs__list").text
+    browser.find_element(By.NAME, "Submit").click()
 
-    assert PIPELINE_NAME in breadcrumbs_text
-    assert f"job/{PIPELINE_NAME}/configure" in browser.current_url
+@pytest.mark.dependency()
+def test_create_multibranch_pipeline(browser, wait5):
+
+    create_multibranch_pipeline(browser, wait5)
+
+    pipeline_name = wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+
+    assert PIPELINE_NAME == pipeline_name.text
+    assert f"job/{PIPELINE_NAME}/" in browser.current_url
 
 
 def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser, wait5):
@@ -122,8 +130,14 @@ def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait5):
     assert new_pipeline_name == job_name.text
     assert f"job/{new_pipeline_name}" in browser.current_url
 
-@pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_from_project_menu(browser, wait5):
+
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
 
     link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
     browser.find_element(By.XPATH, link_selector).click()
@@ -148,8 +162,14 @@ def test_rename_multibranch_pipeline_from_project_menu(browser, wait5):
     assert new_pipeline_name == job_name.text
     assert f"job/{new_pipeline_name}" in browser.current_url
 
-@pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_with_same_name(browser, wait5):
+
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
 
     link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
     browser.find_element(By.XPATH, link_selector).click()
@@ -177,8 +197,14 @@ def test_rename_multibranch_pipeline_with_same_name(browser, wait5):
 
     assert warning_message == expected_text
 
-@pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_with_blank_name(browser, wait5):
+
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
 
     link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
     browser.find_element(By.XPATH, link_selector).click()
@@ -205,8 +231,14 @@ def test_rename_multibranch_pipeline_with_blank_name(browser, wait5):
 
     assert error_message == expected_text
 
-@pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_with_unsupported_characters(browser, wait5):
+
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
 
     link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
     browser.find_element(By.XPATH, link_selector).click()
