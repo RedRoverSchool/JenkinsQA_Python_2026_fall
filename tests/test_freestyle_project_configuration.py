@@ -149,7 +149,7 @@ def test_create_project_without_environment_settings(browser):
     secret_text = browser.find_element(By.ID, "cb19")
     build_scans = browser.find_element(By.ID, "cb22")
     terminate_build = browser.find_element(By.ID, "cb23")
-    ant = browser.find_element(By.ID, "cb24")
+    ant = browser.find_element(By.NAME, "hudson-tasks-AntWrapper")
 
     assert not timestamps.is_selected()
     assert not delete_workspace.is_selected()
