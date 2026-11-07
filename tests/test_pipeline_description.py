@@ -57,4 +57,21 @@ def test_access_description_via_click_pipeline_name(browser, wait10):
     actual_text = desc_content_fld.text.strip()
     assert actual_text == TEXT_AFTER, f"Ожидался текст '{TEXT_AFTER}', но получен '{actual_text}'"
 
+@pytest.mark.dependency(depends=["test_access_description_via_click_pipeline_name"])
+def test_edit_existing_description(browser, wait10):
+    wait10.until(EC.element_to_be_clickable(PIPELINE_LINK)).click()
+    edit_desc_btn = browser.find_element(*EDIT_DESCRIPTION_BTN)
+    edit_desc_btn.click()
+    desc_textarea_fld = browser.find_element(*DESCRIPTION_TEXTAREA_FLD)
+    desc_textarea_fld.click()
+    desc_textarea_fld.clear()
+    desc_textarea_fld.send_keys(TEST_TEXT)
+    save_btn_edit = browser.find_element(*SAVE_BTN_2)
+    save_btn_edit.click()
+    wait10.until(EC.text_to_be_present_in_element(DESCRIPTION_CONTENT_FLD, TEST_TEXT))
+    desc_content_fld = browser.find_element(*DESCRIPTION_CONTENT_FLD)
+    text_after = desc_content_fld.text.strip()
+    assert text_after == TEST_TEXT, f"Ожидался {TEST_TEXT}, а получен {text_after}"
+
+
 
