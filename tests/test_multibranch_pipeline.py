@@ -113,7 +113,9 @@ def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait5):
 
     chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{PIPELINE_NAME})]"
     browser.find_element(By.XPATH, chevron_selector).click()
-    browser.find_element(By.XPATH, "//a[contains(@href, 'confirm-rename')]").click()
+    wait5.until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'confirm-rename')]"))
+    ).click()
 
     new_pipeline_name = "Pipeline_2"
     input_field = wait5.until(
