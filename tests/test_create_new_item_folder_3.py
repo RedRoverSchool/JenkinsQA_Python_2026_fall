@@ -4,7 +4,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-@pytest.mark.skip
 def test_create_item_folder(browser):
     WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))).click()
     assert browser.current_url == 'http://localhost:8080/view/all/newJob'
@@ -15,7 +14,7 @@ def test_create_item_folder(browser):
     WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.XPATH,"//span[text()='Folder']"))).click()
     WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='ok-button']"))).click()
 
-    assert WebDriverWait(browser,5).until(EC.visibility_of_element_located((By.XPATH, "//h1"))).is_displayed()
+    assert WebDriverWait(browser,10).until(EC.visibility_of_element_located((By.XPATH, "//h1"))).is_displayed()
 
     WebDriverWait(browser,2).until(EC.visibility_of_element_located((By.XPATH, "//input[@name='_.displayNameOrNull']"))).send_keys("Display")
 
