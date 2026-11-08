@@ -13,7 +13,7 @@ class PageLocators:
     NEW_ITEM_NAME_INPUT = (By.ID, "name")
     NEW_ITEM_TYPE_PIPELINE = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
     NEW_ITEM_OK_BUTTON = (By.ID, "ok-button")
-    NEW_ITEM_COPY_FROM_INPUT = (By.ID, "from")
+    NEW_ITEM_COPY_FROM_INPUT = (By.XPATH, '//*[@id="from"]')
     NEW_ITEM_COPY_FROM_DROPDOWN_ITEM = (By.CSS_SELECTOR, "a.jenkins-dropdown__item") #В DOM название этого класса еще и пробел содержит в конце
 
 
