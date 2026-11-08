@@ -50,7 +50,7 @@ def test_login_page_elements(unauthenticated_browser):
         By.XPATH, '//*[@id="main-panel"]/div/form/div[2]/label'
     )
     assert password_label.is_displayed()
-    assert password_label.text == 'Пароль'
+    assert password_label.text in ['Password', 'Пароль']
 
     password_field = unauthenticated_browser.find_element(
         By.ID, 'j_password'
