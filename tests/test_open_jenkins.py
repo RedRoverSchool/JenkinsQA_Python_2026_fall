@@ -21,7 +21,7 @@ def test_new_item_page_open(browser):
 
 @pytest.mark.dependency(depends=["test_new_item_page_open"])
 def test_create_new_folder(browser,wait5,wait10):
-    item_name_fild = wait5.until(EC.element_to_be_clickable((By.XPATH, "//input[@id='name']")))
+    item_name_fild = wait10.until(EC.element_to_be_clickable((By.XPATH, "//input[@id='name']")))
     item_name_fild.send_keys("folder_name")
     item_type_folder = browser.find_element(By.XPATH,"//span[text()='Folder']")
     item_type_folder.click()
