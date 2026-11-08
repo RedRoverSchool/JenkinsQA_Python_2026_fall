@@ -50,8 +50,8 @@ class PageActions:
 
 
 @pytest.fixture
-def actions(wait2):
-    return PageActions(wait2)
+def actions(wait5):
+    return PageActions(wait5)
 
 
 @pytest.fixture
