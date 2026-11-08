@@ -12,7 +12,7 @@ class PageLocators:
     NEW_ITEM_OK_BUTTON = (By.ID, "ok-button")
     NEW_ITEM_TYPE_DUPLICATE = (By.ID, "duplicate-job")
     NEW_ITEM_DUPLICATE_INPUT = (By.ID, "from")
-    NEW_ITEM_DROPDOWN_VALUES = (By.CSS_SELECTOR, "button.jenkins-dropdown__item")
+    NEW_ITEM_DROPDOWN_VALUES = (By.CSS_SELECTOR, ".jenkins-dropdown__item")
 
     CONFIGURE_GENERAL_DESCRIPTION_INPUT = (By.NAME, "description")
     CONFIGURE_GENERAL_SAVE_BUTTON = (By.NAME, "Submit")
@@ -27,12 +27,15 @@ class Inputs:
 
 
 class PageActions:
-    def __init__(self, wait):
+    def __init__(self, driver, wait):
+        self.driver = driver
         self.wait = wait
 
     def click(self, locator):
-        self.wait.until(EC.element_to_be_clickable(locator),
-                           message=f"Not clickable: {locator}").click()
+        element = self.wait.until(EC.element_to_be_clickable(locator),
+                                  message=f"Not clickable: {locator}")
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        element.click()
 
     def visibility(self, locator):
         return self.wait.until(EC.visibility_of_element_located(locator),
@@ -47,8 +50,8 @@ class PageActions:
 
 
 @pytest.fixture
-def actions(wait5):
-    return PageActions(wait5)
+def actions(browser, wait5):
+    return PageActions(browser, wait5)
 
 
 @pytest.fixture
@@ -71,6 +74,7 @@ def test_dropdown_shows_matching_existing_items(browser, actions, create_item_wi
 
     actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.FIRST_JOB_NAME_VALID)
+    actions.visibility(PageLocators.NEW_ITEM_DROPDOWN_VALUES)
     options = browser.find_elements(*PageLocators.NEW_ITEM_DROPDOWN_VALUES)
 
     assert Inputs.FIRST_JOB_NAME_VALID in [o.text for o in options]
