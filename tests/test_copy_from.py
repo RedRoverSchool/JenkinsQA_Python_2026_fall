@@ -1,8 +1,9 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import pytest
+from selenium.common.exceptions import TimeoutException
 
-from conftest import wait10
+
 
 
 class PageLocators:
@@ -73,7 +74,22 @@ def test_dropdown_shows_matching_existing_items(browser, actions, create_item_wi
     actions.click(PageLocators.NEW_ITEM_TYPE_PIPELINE)
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
 
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_INPUT), Inputs.FIRST_JOB_NAME_VALID)
+    #actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_INPUT), Inputs.FIRST_JOB_NAME_VALID)
+
+    try:
+        field = actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_INPUT)
+    except TimeoutException:
+        els = browser.find_elements(*PageLocators.NEW_ITEM_COPY_FROM_INPUT)
+        print("COUNT:", len(els), "DISPLAYED:", [e.is_displayed() for e in els])
+        if els:
+            print("PARENT HTML:", els[0].find_element(By.XPATH, "..").get_attribute("outerHTML")[:2000])
+        print("DUPLICATE:", [e.get_attribute("outerHTML")[:300]
+                             for e in browser.find_elements(By.XPATH, "//*[contains(text(),'Duplicate')]")])
+        raise
+    actions.enter_text(field, Inputs.FIRST_JOB_NAME_VALID)
+
+
+
     actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
     options = browser.find_elements(*PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
     assert Inputs.FIRST_JOB_NAME_VALID in [o.text for o in options]
