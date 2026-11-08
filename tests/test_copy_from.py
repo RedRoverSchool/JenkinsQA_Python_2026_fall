@@ -67,12 +67,10 @@ def create_item_with_configuration(browser, actions):
 
 def test_dropdown_shows_matching_existing_items(browser, actions, create_item_with_configuration):
     actions.click(PageLocators.MAIN_NEW_ITEM)
-    actions.click(PageLocators.NEW_ITEM_TYPE_PIPELINE)
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
 
     actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.FIRST_JOB_NAME_VALID)
-    #actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
     options = browser.find_elements(*PageLocators.NEW_ITEM_DROPDOWN_VALUES)
 
     assert Inputs.FIRST_JOB_NAME_VALID in [o.text for o in options]
