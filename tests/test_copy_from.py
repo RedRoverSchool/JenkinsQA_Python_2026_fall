@@ -34,16 +34,19 @@ class PageActions:
         self.wait = wait
 
     def click(self, locator):
-        self.wait.until(EC.element_to_be_clickable(locator)).click()
+        self.wait.until(EC.element_to_be_clickable(locator),
+                           message=f"Not clickable: {locator}").click()
 
     def visibility(self, locator):
-        return self.wait.until(EC.visibility_of_element_located(locator))
+        return self.wait.until(EC.visibility_of_element_located(locator),
+                           message=f"Not visible: {locator}")
 
     def enter_text(self, input, text):
         return input.send_keys(text)
 
     def wait_url_not_contains(self, text):
-        self.wait.until_not(EC.url_contains(text))
+        self.wait.until_not(EC.url_contains(text),
+                           message=f"URL not contains: {text}")
 
 
 @pytest.fixture
@@ -67,8 +70,8 @@ def create_item_with_configuration(browser, actions):
 
 def test_dropdown_shows_matching_existing_items(browser, actions, create_item_with_configuration):
     actions.click(PageLocators.MAIN_NEW_ITEM)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
     actions.click(PageLocators.NEW_ITEM_TYPE_PIPELINE)
+    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
 
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_INPUT), Inputs.FIRST_JOB_NAME_VALID)
     actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
