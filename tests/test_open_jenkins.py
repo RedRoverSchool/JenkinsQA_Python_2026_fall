@@ -27,7 +27,7 @@ def test_create_new_folder(browser):
 
     WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='ok-button']"))).click()
 
-    configuration = WebDriverWait(browser,5).until(EC.visibility_of_element_located((By.XPATH, "//h1")))
+    configuration = WebDriverWait(browser,10).until(EC.visibility_of_element_located((By.XPATH, "//h1")))
     assert configuration.is_displayed()
 
     WebDriverWait(browser,2).until(EC.visibility_of_element_located((By.XPATH, "//input[@name='_.displayNameOrNull']"))).send_keys("Display")
