@@ -2,9 +2,11 @@ import pytest
 import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 TEST_TEXT = 'random_name'
 TEXT_AFTER = 'test_text'
+MULTILINE_TEXT = "Первая строка\nВторая строка\nТретья строка"
 CREATE_ITEM_BTN = (By.XPATH, "//*[@id='tasks']/div[1]/span/a")
 ITEM_NAME_FLD = (By.XPATH, "//*[@id='name']")
 PIPELINE_BTN = (By.XPATH, "//*[@id='items']/div[1]/label")
@@ -73,5 +75,49 @@ def test_edit_existing_description(browser, wait10):
     text_after = desc_content_fld.text.strip()
     assert text_after == TEST_TEXT, f"Ожидался {TEST_TEXT}, а получен {text_after}"
 
+def test_enter_multiline_description_on_configure(browser, wait10):
 
+    wait10.until(EC.element_to_be_clickable(CREATE_ITEM_BTN)).click()
+    name_fld = wait10.until(EC.visibility_of_element_located(ITEM_NAME_FLD))
+    name_fld.click()
+    name_fld.clear()
+    name_fld.send_keys(TEST_TEXT)
+    pip_btn = browser.find_element(*PIPELINE_BTN)
+    pip_btn.click()
+    ok_btn = browser.find_element(*OK_BTN)
+    ok_btn.click()
+    wait10.until(EC.url_contains(TEST_TEXT))
+    wait10.until(EC.url_contains("configure"))
+    desc = browser.find_element(*DESCRIPTION_FLD)
+    desc.click()
+    desc.clear()
+    desc.send_keys(MULTILINE_TEXT)
+    save_btn = browser.find_element(*SAVE_BTN_1)
+    save_btn.click()
+    desc_content = wait10.until(EC.visibility_of_element_located(DESCRIPTION_CONTENT_FLD))
+    actual_result = desc_content.text.strip()
+    lines = actual_result.splitlines()
+    assert len(lines) == 3, f"Ожидалось 3 строки, а получено {len(lines)}"
 
+@pytest.mark.dependency(depends=["test_access_description_via_click_pipeline_name"])
+def test_clear_description_field(browser, wait10):
+
+    wait10.until(EC.element_to_be_clickable(PIPELINE_LINK)).click()
+    desc_content = browser.find_element(*EDIT_DESCRIPTION_BTN)
+    desc_content.click()
+
+    desc_textarea = browser.find_element(*DESCRIPTION_TEXTAREA_FLD)
+    desc_textarea.send_keys(Keys.CONTROL, "a")
+    desc_textarea.send_keys(Keys.BACKSPACE)
+
+    save_btn_2 = browser.find_element(*SAVE_BTN_2)
+    save_btn_2.click()
+
+    def description_is_empty(driver):
+        elements = driver.find_elements(*DESCRIPTION_CONTENT_FLD)
+        if len(elements) == 0:
+            return True
+        return elements[0].text.strip() == ""
+
+    wait10.until(description_is_empty)
+    assert description_is_empty(browser), "Ошибка: блок с описанием не пустой"
