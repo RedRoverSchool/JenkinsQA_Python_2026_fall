@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import pytest
 
 
 def test_create_item_with_blank_name(browser, wait2):
@@ -13,6 +14,7 @@ def test_create_item_with_blank_name(browser, wait2):
     assert name_field.get_attribute("value") == ""
 
 
+@pytest.mark.dependency(name="create_item")
 def test_create_item_with_valid_name(browser, wait5):
     item_name = "Test_Item_001"
 
@@ -31,17 +33,11 @@ def test_create_item_with_valid_name(browser, wait5):
     assert item_name in browser.current_url
 
 
+@pytest.mark.dependency(name="existing_item", depends=["create_item"])
 def test_create_item_with_existing_name(browser, wait5):
-    item_name = "Existing_Item"
+    item_name = "Test_Item_001"
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
-    browser.find_element(By.ID, "name").send_keys(item_name)
-
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
-
-    wait5.until(EC.element_to_be_clickable((By.ID, "ok-button"))).click()
-    wait5.until(EC.url_contains(f"/job/{item_name}/"))
-    wait5.until(EC.element_to_be_clickable((By.ID, "jenkins-head-icon"))).click()
+    browser.find_element(By.XPATH, "//span[text()='Jenkins']").click()
 
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
     browser.find_element(By.ID, "name").send_keys(item_name)
@@ -57,6 +53,7 @@ def test_create_item_with_existing_name(browser, wait5):
     assert not ok_button_enabled
 
 
+@pytest.mark.dependency(name="invalid_special_characters",depends=["existing_item"])
 def test_item_with_invalid_special_characters(browser, wait5):
     item_name = "Test/Item"
 
@@ -76,22 +73,12 @@ def test_item_with_invalid_special_characters(browser, wait5):
     assert "/view/all/newJob" in browser.current_url
 
 
+@pytest.mark.dependency(depends=["invalid_special_characters"])
 def test_return_to_dashboard(browser, wait5):
-    project_name = "Dashboard_Return_Test"
-
-    browser.find_element(By.LINK_TEXT, "New Item").click()
-    browser.find_element(By.ID, "name").send_keys(project_name)
-
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
-
-    wait5.until(EC.element_to_be_clickable((By.ID, "ok-button"))).click()
-    wait5.until(EC.url_contains(f"/job/{project_name}/"))
-
-    project_url = browser.current_url
+    project_name = "Test_Item_001"
 
     browser.find_element(By.XPATH, "//span[text()='Jenkins']").click()
 
-    wait5.until(EC.url_changes(project_url))
     wait5.until(
         EC.text_to_be_present_in_element((By.TAG_NAME, "body"), project_name)
     )
