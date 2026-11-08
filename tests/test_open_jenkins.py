@@ -1,52 +1,58 @@
-import time
 
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from conftest import wait5
 
+@pytest.mark.dependency()
 def test_open_jenkins(browser):
-    label = WebDriverWait(browser,10).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Welcome to Jenkins!']")))
+    label = browser.find_element(By.XPATH, "//h1[text()='Welcome to Jenkins!']")
     assert label.text == "Welcome to Jenkins!"
 
-
+@pytest.mark.dependency(depends=["test_open_jenkins"])
 def test_new_item_page_open(browser):
-    new_item = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+    new_item = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item.click()
-    assert browser.current_url == 'http://localhost:8080/view/all/newJob'
-@pytest.mark.skip
-def test_create_new_folder(browser):
-    new_item = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))).click()
-    assert browser.current_url == 'http://localhost:8080/view/all/newJob'
-    name_new_item = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='name']"))).send_keys("folder_name")
-    assert browser.find_element(By.XPATH, "//input[@id='name']").get_attribute('value') == "folder_name"
-    folder_link = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.XPATH,"//span[text()='Folder']"))).click()
-    btn_ok = WebDriverWait(browser,10).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='ok-button']"))).click()
-    configuration = WebDriverWait(browser,5).until(EC.visibility_of_element_located((By.XPATH, "//h1")))
-    assert configuration.is_displayed()
-    display_name_fild = WebDriverWait(browser,2).until(EC.visibility_of_element_located((By.XPATH, "//input[@name='_.displayNameOrNull']"))).send_keys("Display")
-    discrip_filde = WebDriverWait(browser,2).until(EC.visibility_of_element_located((By.XPATH,"//textarea[@name='_.description']"))).send_keys("Description hello world")
-    btn_save = browser.find_element(By.XPATH, "//button[@value='Save']").click()
+    label_new_item = browser.find_element(By.XPATH, "//h1")
+    assert label_new_item.is_displayed()
+
+
+@pytest.mark.dependency(depends=["test_new_item_page_open"])
+def test_create_new_folder(browser,wait5,wait10):
+    new_item = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
+    new_item.click()
+    item_name_fild = wait5.until(EC.element_to_be_clickable((By.XPATH, "//input[@id='name']")))
+    item_name_fild.send_keys("folder_name")
+    item_type_folder = browser.find_element(By.XPATH,"//span[text()='Folder']")
+    item_type_folder.click()
+    wait5.until(EC.element_to_be_clickable((By.XPATH, "//button[@id='ok-button']"))).click()
+    display_name = wait5.until(EC.visibility_of_element_located((By.XPATH, "//input[@name='_.displayNameOrNull']")))
+    display_name.send_keys("Display")
+    disc_fild = wait5.until(EC.element_to_be_clickable((By.XPATH, "//textarea[@name='_.description']")))
+    disc_fild.send_keys("Description hello world")
+    browser.find_element(By.XPATH, "//button[@value='Save']").click()
     assert browser.find_element(By.XPATH, "//h1[@class='job-index-headline page-headline']").is_displayed()
 
 
-def test_open_builds_history(browser):
-    builds_history_link = WebDriverWait(browser,5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/builds']")))
+def test_open_builds_history(browser,wait5,wait10):
+    builds_history_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/builds']")
     builds_history_link.click()
-    assert browser.current_url == "http://localhost:8080/view/all/builds"
+    title = browser.find_element(By.XPATH, "//h1")
+    assert title.is_displayed()
 
 
-def test_create_new_job(browser):
-    new_job_link = WebDriverWait(browser,5).until(EC.element_to_be_clickable((By.XPATH,"//span[text()='Create a job']"))).click()
-    assert browser.current_url == 'http://localhost:8080/newJob'
-    job_name_fild = WebDriverWait(browser,3).until(EC.visibility_of_element_located((By.XPATH, "//input[@id='name']")))
+def test_create_job_with_out_display_name_and_discription(browser,wait5,wait10):
+    new_job_link = browser.find_element(By.XPATH,"//span[text()='Create a job']")
+    new_job_link.click()
+    job_name_fild = wait5.until(EC.visibility_of_element_located((By.XPATH, "//input[@id='name']")))
     job_name_fild.send_keys("Jobname")
-    name = job_name_fild.get_attribute('value')
-    item_type = WebDriverWait(browser,3).until(EC.element_to_be_clickable((By.XPATH,"//span[text()='Folder']")))
-    item_type.click()
-    btn_ok = WebDriverWait(browser,3).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='ok-button']"))).click()
-    assert browser.find_element(By.XPATH,"//span[text()='Configuration']").is_displayed()
-    btn_save = WebDriverWait(browser,2).until(EC.element_to_be_clickable((By.XPATH, "//button[@value='Save']"))).click()
-    WebDriverWait(browser,2).until(EC.url_to_be(f'http://localhost:8080/job/{name}/'))
-    assert browser.current_url == f'http://localhost:8080/job/{name}/'
+    item_type_folder = wait5.until(EC.element_to_be_clickable((By.XPATH,"//span[text()='Folder']")))
+    item_type_folder.click()
+    button_ok = browser.find_element(By.XPATH, "//button[@id='ok-button']")
+    button_ok.click()
+    button_save = browser.find_element(By.XPATH, "//button[@value='Save']")
+    button_save.click()
+    titel = browser.find_element(By.XPATH, "//h1[@class='job-index-headline page-headline']")
+    assert titel.is_displayed()

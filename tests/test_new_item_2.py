@@ -1,60 +1,61 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import uuid
 
 
-def test_open_new_item_page(browser):
+def test_open_new_item_page(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
-    assert "/view/all/newJob" in browser.current_url
 
-    WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
+    wait10.until(EC.visibility_of_element_located((By.ID, "name")))
 
     items_type_list = browser.find_element(By.ID, "items")
-    assert items_type_list.is_displayed()
-
     pipeline_item = browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
     pipeline_label = pipeline_item.find_element(By.CLASS_NAME, "jenkins-choice-list__item__label")
-    assert pipeline_item.is_displayed() and pipeline_label.text == "Pipeline"
+
+    assert "/view/all/newJob" in browser.current_url
+    assert items_type_list.is_displayed()
+    assert pipeline_item.is_displayed()
+    assert pipeline_label.text == "Pipeline"
 
 
-def test_validate_blank_name(browser):
+def test_validate_blank_name(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
-    assert "/view/all/newJob" in browser.current_url
 
-    name_field = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
-    assert name_field.is_displayed()
-    assert name_field.get_attribute("value") == ""
+    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
 
     ok_button = browser.find_element(By.ID, "ok-button")
+
+    assert "/view/all/newJob" in browser.current_url
+    assert name_field.get_attribute("value") == ""
     assert not ok_button.is_enabled()
 
-def test_validate_invalid_characters(browser):
+
+def test_validate_invalid_characters(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
-    assert "/view/all/newJob" in browser.current_url
 
-    name_field = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
+    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
     name_field.send_keys("Test")
 
-    WebDriverWait(browser, 10).until(EC.text_to_be_present_in_element_attribute((By.ID, "name"),"data-valid","true"))
+    wait10.until(EC.text_to_be_present_in_element_attribute((By.ID, "name"),"data-valid","true"))
     name_field.send_keys("?")
 
-    error_message = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".validation-error-area--visible .error")))
-    assert error_message.text == "‘?’ is an unsafe character"
+    error_message = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".validation-error-area--visible .error")))
 
     ok_button = browser.find_element(By.ID, "ok-button")
+
+    assert "/view/all/newJob" in browser.current_url
+    assert error_message.text == "‘?’ is an unsafe character"
     assert not ok_button.is_enabled()
 
 
-def test_create_item_with_valid_unique_name(browser):
+def test_create_item_with_valid_unique_name(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
-    assert "/view/all/newJob" in browser.current_url
 
-    name_field = WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.ID, "name")))
+    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
     item_name = f"TestJob_{uuid.uuid4().hex[:8]}"
     name_field.send_keys(item_name)
 
@@ -64,4 +65,4 @@ def test_create_item_with_valid_unique_name(browser):
     ok_button = browser.find_element(By.ID, "ok-button")
     ok_button.click()
 
-    WebDriverWait(browser, 10).until(EC.url_contains(f"/job/{item_name}/configure"))
+    wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
