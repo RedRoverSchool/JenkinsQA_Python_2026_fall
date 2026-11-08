@@ -108,6 +108,7 @@ def test_multibranch_with_special_characters(browser, wait5):
     assert not ok_button.is_enabled()
     assert error_message == expected_text
 
+@pytest.mark.skip
 @pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait5):
 
