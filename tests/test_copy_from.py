@@ -1,10 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import pytest
-from selenium.common.exceptions import TimeoutException
-
-
-
 
 class PageLocators:
     JENKINS_LOGO = (By.CLASS_NAME, "app-jenkins-logo")
@@ -14,9 +10,9 @@ class PageLocators:
     NEW_ITEM_NAME_INPUT = (By.ID, "name")
     NEW_ITEM_TYPE_PIPELINE = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
     NEW_ITEM_OK_BUTTON = (By.ID, "ok-button")
-    NEW_ITEM_COPY_FROM_INPUT = (By.XPATH, '//*[@id="from"]')
-    NEW_ITEM_COPY_FROM_DROPDOWN_ITEM = (By.CSS_SELECTOR, "a.jenkins-dropdown__item") #В DOM название этого класса еще и пробел содержит в конце
-
+    NEW_ITEM_TYPE_DUPLICATE = (By.ID, "duplicate-job")
+    NEW_ITEM_DUPLICATE_INPUT = (By.ID, "from")
+    NEW_ITEM_DROPDOWN_VALUES = (By.CSS_SELECTOR, "button.jenkins-dropdown__item")
 
     CONFIGURE_GENERAL_DESCRIPTION_INPUT = (By.NAME, "description")
     CONFIGURE_GENERAL_SAVE_BUTTON = (By.NAME, "Submit")
@@ -74,23 +70,10 @@ def test_dropdown_shows_matching_existing_items(browser, actions, create_item_wi
     actions.click(PageLocators.NEW_ITEM_TYPE_PIPELINE)
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
 
-    #actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_INPUT), Inputs.FIRST_JOB_NAME_VALID)
+    actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
+    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.FIRST_JOB_NAME_VALID)
+    #actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
+    options = browser.find_elements(*PageLocators.NEW_ITEM_DROPDOWN_VALUES)
 
-    try:
-        field = actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_INPUT)
-    except TimeoutException:
-        els = browser.find_elements(*PageLocators.NEW_ITEM_COPY_FROM_INPUT)
-        print("COUNT:", len(els), "DISPLAYED:", [e.is_displayed() for e in els])
-        if els:
-            print("PARENT HTML:", els[0].find_element(By.XPATH, "..").get_attribute("outerHTML")[:2000])
-        print("DUPLICATE:", [e.get_attribute("outerHTML")[:300]
-                             for e in browser.find_elements(By.XPATH, "//*[contains(text(),'Duplicate')]")])
-        raise
-    actions.enter_text(field, Inputs.FIRST_JOB_NAME_VALID)
-
-
-
-    actions.visibility(PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
-    options = browser.find_elements(*PageLocators.NEW_ITEM_COPY_FROM_DROPDOWN_ITEM)
     assert Inputs.FIRST_JOB_NAME_VALID in [o.text for o in options]
 
