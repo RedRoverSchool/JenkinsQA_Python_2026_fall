@@ -12,7 +12,7 @@ def test_create(browser):
     )
     create_item_button.click()
 
-    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline1']")
+    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline']")
     pipeline_button.click()
 
     field_name = browser.find_element(By.ID, "name")
