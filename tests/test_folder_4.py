@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
+
 def test_create_item_folder(browser,wait5,wait10):
     new_item = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item.click()
