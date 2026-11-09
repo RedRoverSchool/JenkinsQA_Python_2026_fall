@@ -305,7 +305,7 @@ def test_availability_of_health_metrics(browser, wait5):
     add_metric_btn.click()
 
     wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@id='tippy-2']"))
+        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
     )
     metric_list = browser.find_elements(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item']")
     metrics = [element.text for element in metric_list]
@@ -343,7 +343,7 @@ def test_health_metrics_child_item_with_given_name(browser, wait5):
     add_metric_btn.click()
 
     wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@id='tippy-2']"))
+        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
     )
     browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
                                    "and contains(text(),'Child item with the given name')]").click()
@@ -387,7 +387,7 @@ def test_health_metrics_child_item_with_worst_health(browser, wait5):
     browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
                                    "and contains(text(),'Child item with worst health')]").click()
     wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[contains(@descriptorid,'WorstChildHealthMetric')]"))
+        EC.element_to_be_clickable((By.XPATH, "//div[contains(@descriptorid,'WorstChildHealthMetric')]"))
     )
     recursive_checkbox = browser.find_element(By.XPATH, "//input[@name='_.recursive']")
     assert recursive_checkbox.is_displayed() == True
@@ -422,7 +422,7 @@ def test_health_metrics_health_of_the_primary_branch(browser, wait5):
     add_metric_btn.click()
 
     wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@id='tippy-2']"))
+        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
     )
     browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
                                    "and contains(text(),'Health of the primary branch of a repository')]").click()
