@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 @pytest.mark.dependency(name="project_created")
-def test_access_enable_disable_option(browser, wait5, wait10):
+def test_access_enable_disable_option(browser,wait10):
     project_name = "Freestyle_Project_Config_Test"
 
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
@@ -20,14 +20,15 @@ def test_access_enable_disable_option(browser, wait5, wait10):
     browser.find_element(By.CSS_SELECTOR, "button.jenkins-menu-dropdown-chevron").click()
 
     configure_locator = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
-    wait5.until(EC.element_to_be_clickable(configure_locator)).click()
+    wait10.until(EC.element_to_be_clickable(configure_locator)).click()
 
-    enable_disable_option = browser.find_element(By.ID, "enable-disable-project")
+    enable_disable_locator = (By.ID, "enable-disable-project")
+    wait10.until(EC.visibility_of_element_located(enable_disable_locator))
 
     assert f"/job/{project_name}/configure" in browser.current_url
     assert project_name in browser.find_element(By.TAG_NAME, "body").text
-    assert enable_disable_option.is_displayed()
-    assert enable_disable_option.is_selected()
+    assert browser.find_element(*enable_disable_locator).is_displayed()
+    assert browser.find_element(*enable_disable_locator).is_selected()
 
 
 @pytest.mark.dependency(name="project_disabled", depends=["project_created"])
