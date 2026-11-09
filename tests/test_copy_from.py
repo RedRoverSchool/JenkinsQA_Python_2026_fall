@@ -9,6 +9,7 @@ class PageLocators:
 
     NEW_ITEM_NAME_INPUT = (By.ID, "name")
     NEW_ITEM_TYPE_PIPELINE = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
+    NEW_ITEM_TYPE_FREESTYLE_PROJECT = (By.CLASS_NAME, "jenkins-choice-list__item__icon")
     NEW_ITEM_OK_BUTTON = (By.ID, "ok-button")
     NEW_ITEM_TYPE_DUPLICATE = (By.ID, "duplicate-job")
     NEW_ITEM_DUPLICATE_INPUT = (By.ID, "from")
@@ -58,7 +59,7 @@ def actions(browser, wait5):
 def create_item_with_configuration(browser, actions):
     actions.click(PageLocators.MAIN_NEW_ITEM)
     actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.FIRST_JOB_NAME_VALID)
-    actions.click(PageLocators.NEW_ITEM_TYPE_PIPELINE)
+    actions.click(PageLocators.NEW_ITEM_TYPE_FREESTYLE_PROJECT)
     actions.click(PageLocators.NEW_ITEM_OK_BUTTON)
     actions.enter_text(actions.visibility(PageLocators.CONFIGURE_GENERAL_DESCRIPTION_INPUT), Inputs.DESCRIPTION_TEXT_VALID)
     actions.click(PageLocators.CONFIGURE_GENERAL_SAVE_BUTTON)
