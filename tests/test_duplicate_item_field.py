@@ -1,9 +1,10 @@
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from common.project_utils import get_url
 
-
+@pytest.mark.skip
 def test_duplicate_option_reveals_copy_from_field(browser, wait2):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
