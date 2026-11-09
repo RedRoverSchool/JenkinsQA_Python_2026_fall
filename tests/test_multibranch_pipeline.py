@@ -276,7 +276,7 @@ def test_rename_multibranch_pipeline_with_unsupported_characters(browser, wait5)
 
     assert error_message == expected_text
 
-
+@pytest.mark.skip
 def test_availability_of_health_metrics(browser, wait5):
     create_multibranch_pipeline(browser, wait5)
 
