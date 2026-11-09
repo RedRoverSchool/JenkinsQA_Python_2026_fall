@@ -22,12 +22,13 @@ def test_access_enable_disable_option(browser, wait5, wait10):
     configure_locator = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
     wait5.until(EC.element_to_be_clickable(configure_locator)).click()
 
-    enable_disable_option = browser.find_element(By.ID, "enable-disable-project")
+    enable_disable_locator = (By.ID, "enable-disable-project")
+    wait10.until(EC.visibility_of_element_located(enable_disable_locator))
 
     assert f"/job/{project_name}/configure" in browser.current_url
     assert project_name in browser.find_element(By.TAG_NAME, "body").text
-    assert enable_disable_option.is_displayed()
-    assert enable_disable_option.is_selected()
+    assert browser.find_element(*enable_disable_locator).is_displayed()
+    assert browser.find_element(*enable_disable_locator).is_selected()
 
 
 @pytest.mark.dependency(name="project_disabled", depends=["project_created"])
