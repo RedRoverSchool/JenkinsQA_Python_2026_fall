@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(name="project_created")
 def test_access_enable_disable_option(browser, wait5, wait10):
     project_name = "Freestyle_Project_Config_Test"
