@@ -4,9 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-def test_freestyle_tests(browser):
-    wait = WebDriverWait(browser, 10)
-    new_item = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+def test_freestyle_tests(browser, wait10):
+    new_item = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
     new_item.click()
 
     item_name = "Freestyle Project 1"
@@ -19,16 +18,15 @@ def test_freestyle_tests(browser):
     ok_button = browser.find_element(By.CSS_SELECTOR, "button#ok-button")
     ok_button.click()
 
-    save_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[value='Save']")))
+    save_button = wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[value='Save']")))
     save_button.click()
 
-    wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"),item_name))
+    wait10.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"),item_name))
 
     assert item_name in browser.find_element(By.TAG_NAME, "h1").text
 
-def test_exetute_windows_step(browser):
-    wait = WebDriverWait(browser, 10)
-    new_item = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+def test_exetute_windows_step(browser, wait10):
+    new_item = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
     new_item.click()
 
     item_name = "Freestyle Project with Execute Windows step"
@@ -41,7 +39,7 @@ def test_exetute_windows_step(browser):
     ok_button = browser.find_element(By.CSS_SELECTOR, "button#ok-button")
     ok_button.click()
 
-    add_build_steps = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/span/button')))
+    add_build_steps = wait10.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/span/button')))
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_build_steps)
     add_build_steps.click()
 
@@ -73,12 +71,12 @@ def test_exetute_windows_step(browser):
     submit_button = browser.find_element(By.CSS_SELECTOR, "[name='Submit']")
     submit_button.click()
 
-    wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
+    wait10.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
     assert item_name in browser.find_element(By.TAG_NAME, "h1").text
-@pytest.mark.skip
-def test_execute_shell_and_invoke_ant(browser):
-    wait = WebDriverWait(browser, 10)
-    new_item = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+
+
+def test_execute_shell_and_invoke_ant(browser, wait10):
+    new_item = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
     new_item.click()
 
     item_name = "Freestyle Project with two Build Steps"
@@ -91,7 +89,7 @@ def test_execute_shell_and_invoke_ant(browser):
     ok_button = browser.find_element(By.CSS_SELECTOR, "button#ok-button")
     ok_button.click()
 
-    add_build_steps = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[suffix = 'builder']")))
+    add_build_steps = wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[suffix = 'builder']")))
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_build_steps)
     add_build_steps.click()
 
@@ -110,12 +108,12 @@ def test_execute_shell_and_invoke_ant(browser):
     advanced_button.click()
 
     error_validation = 333333333
-    error_field = browser.find_element(By.NAME, '_.unstableReturn')
+    error_field = browser.find_element(By.CSS_SELECTOR, "[name = '_.unstableReturn']")
     error_field.send_keys(error_validation)
     browser.find_element(By.TAG_NAME, "body").click()
 
     error_text = 'Invalid exit code value'
-    wait.until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[3]/div[1]/div[3]/div'), error_text))
+    wait10.until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[3]/div[1]/div[3]/div'), error_text))
     assert error_text in browser.find_element(By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[3]/div[1]/div[3]/div').text
 
     error_field.clear()
@@ -155,6 +153,6 @@ def test_execute_shell_and_invoke_ant(browser):
     save_button = browser.find_element(By.NAME, 'Submit')
     save_button.click()
 
-    wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
+    wait10.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
     assert item_name in browser.find_element(By.TAG_NAME, "h1").text
 
