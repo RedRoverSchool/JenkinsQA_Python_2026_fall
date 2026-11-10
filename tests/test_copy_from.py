@@ -1,3 +1,4 @@
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import pytest
@@ -14,6 +15,7 @@ class PageLocators:
     NEW_ITEM_TYPE_DUPLICATE = (By.ID, "duplicate-job")
     NEW_ITEM_DUPLICATE_INPUT = (By.ID, "from")
     NEW_ITEM_DROPDOWN_VALUES = (By.CSS_SELECTOR, ".jenkins-dropdown__item")
+    NEW_ITEM_DROPDOWN_NO_ITEMS = (By.CSS_SELECTOR, ".jenkins-dropdown__placeholder")
 
     CONFIGURE_GENERAL_DESCRIPTION_INPUT = (By.NAME, "description")
     CONFIGURE_GENERAL_SAVE_BUTTON = (By.NAME, "Submit")
@@ -21,6 +23,8 @@ class PageLocators:
 class Inputs:
     FIRST_JOB_NAME_VALID = "First Job"
     SECOND_JOB_NAME_VALID = "Second Job"
+
+    NEW_ITEM_DROPDOWN_NO_ITEMS_TEXT = "No items"
 
     MAIN_CREATED_JOB_TEMPLATE = "job_{}"
 
@@ -48,6 +52,13 @@ class PageActions:
     def wait_url_not_contains(self, text):
         self.wait.until_not(EC.url_contains(text),
                            message=f"URL not contains: {text}")
+
+    def is_absent(self, locator):
+        try:
+            self.wait.until(lambda d: not d.find_elements(*locator))
+            return True
+        except TimeoutException:
+            return False
 
 
 @pytest.fixture
@@ -80,3 +91,14 @@ def test_dropdown_shows_matching_existing_items(browser, actions, create_item_wi
 
     assert Inputs.FIRST_JOB_NAME_VALID in [o.text for o in options]
 
+
+def test_dropdown_shows_no_items_for_non_matching_value(browser, actions, create_item_with_configuration):
+    actions.click(PageLocators.MAIN_NEW_ITEM)
+    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
+
+    actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
+    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.SECOND_JOB_NAME_VALID)
+    no_items = actions.visibility(PageLocators.NEW_ITEM_DROPDOWN_NO_ITEMS)
+
+    assert no_items.text == Inputs.NEW_ITEM_DROPDOWN_NO_ITEMS_TEXT
+    assert actions.is_absent(PageLocators.NEW_ITEM_DROPDOWN_VALUES)
