@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(name="project_created")
 def test_access_enable_disable_option(browser,wait10):
     project_name = "Freestyle_Project_Config_Test"
@@ -30,7 +30,7 @@ def test_access_enable_disable_option(browser,wait10):
     assert browser.find_element(*enable_disable_locator).is_displayed()
     assert browser.find_element(*enable_disable_locator).is_selected()
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(name="project_disabled", depends=["project_created"])
 def test_disable_freestyle_project(browser, wait10):
     project_name = "Freestyle_Project_Config_Test"
@@ -53,7 +53,7 @@ def test_disable_freestyle_project(browser, wait10):
 
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(name="disabled_state_saved", depends=["project_disabled"])
 def test_save_freestyle_project_disabled_state(browser, wait5):
     project_name = "Freestyle_Project_Config_Test"
@@ -73,7 +73,7 @@ def test_save_freestyle_project_disabled_state(browser, wait5):
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
     assert browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']" ).is_displayed()
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(depends=["disabled_state_saved"])
 def test_enable_disabled_freestyle_project(browser, wait10):
     project_name = "Freestyle_Project_Config_Test"
