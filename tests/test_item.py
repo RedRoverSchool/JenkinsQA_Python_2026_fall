@@ -1,9 +1,8 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-import uuid
 
 
-def test_open_new_item_page(browser, wait10):
+def test_open_page(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
 
@@ -51,12 +50,12 @@ def test_validate_invalid_characters(browser, wait10):
     assert not ok_button.is_enabled()
 
 
-def test_create_item_with_valid_unique_name(browser, wait10):
+def test_create_with_valid_unique_name(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
 
     name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-    item_name = f"TestJob_{uuid.uuid4().hex[:8]}"
+    item_name = "TestJob"
     name_field.send_keys(item_name)
 
     pipeline_item = browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
