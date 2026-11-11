@@ -31,7 +31,9 @@ def test_create(browser, wait10, empty_name_on_new_item_page):
     browser.find_element(*SUBMIT_ITEM_BUTTON).click()
     wait10.until(EC.element_to_be_clickable(SAVE_FOLDER_BUTTON))
     browser.find_element(*SAVE_FOLDER_BUTTON).click()
-    wait10.until(EC.url_contains(FOLDER_NAME))
+    wait10.until(EC.text_to_be_present_in_element(FOLDER_HEADER, FOLDER_NAME))
+
+    assert browser.find_element(*FOLDER_HEADER).text == FOLDER_NAME
 
 def test_create_with_empty_name(browser, wait10, empty_name_on_new_item_page):
     assert not browser.find_element(*SUBMIT_ITEM_BUTTON).is_enabled()
