@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.support.wait import WebDriverWait
 
 def test_open_page(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
@@ -65,3 +65,34 @@ def test_create_with_valid_unique_name(browser, wait10):
     ok_button.click()
 
     wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
+
+
+def test_validate_existing_name(browser, wait10):
+    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
+
+    item_name = "TestJob"
+
+    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
+    name_field.send_keys(item_name)
+
+    browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
+    browser.find_element(By.ID, "ok-button").click()
+
+    wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
+
+    browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
+    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
+
+    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
+    name_field.send_keys(item_name)
+
+    error_locator = (By.CSS_SELECTOR, ".validation-error-area .error")
+    error_text = f"A job already exists with the name ‘{item_name}’"
+
+    WebDriverWait(browser, 20).until(EC.text_to_be_present_in_element(error_locator, error_text))
+
+    error_message = browser.find_element(By.CSS_SELECTOR, ".validation-error-area .error")
+    ok_button = browser.find_element(By.ID, "ok-button")
+
+    assert error_message.text == error_text
+    assert not ok_button.is_enabled()
