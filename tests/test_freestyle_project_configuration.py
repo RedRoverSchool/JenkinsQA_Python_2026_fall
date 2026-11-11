@@ -3,24 +3,27 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-@pytest.mark.skip
+
 @pytest.mark.dependency(name="project_created")
-def test_access_enable_disable_option(browser,wait10):
+def test_access_enable_disable_option(browser, wait10):
     project_name = "Freestyle_Project_Config_Test"
 
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
     browser.find_element(By.ID, "name").send_keys(project_name)
 
-    browser.find_element(By.XPATH, "//span[normalize-space()='Freestyle project']/parent::label").click()
+    browser.find_element(By.XPATH,"//span[normalize-space()='Freestyle project']/parent::label").click()
     browser.find_element(By.ID, "ok-button").submit()
 
     wait10.until(EC.url_contains(f"/job/{project_name}/"))
 
     browser.find_element(By.CSS_SELECTOR, "a[href='/']").click()
-    browser.find_element(By.CSS_SELECTOR, "button.jenkins-menu-dropdown-chevron").click()
 
-    configure_locator = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
-    wait10.until(EC.element_to_be_clickable(configure_locator)).click()
+    dropdown_locator = ( By.CSS_SELECTOR,"button.jenkins-menu-dropdown-chevron")
+    wait10.until(EC.element_to_be_clickable(dropdown_locator)).click()
+
+    configure_locator = ( By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']" )
+    wait10.until(EC.visibility_of_element_located(configure_locator))
+    browser.find_element(*configure_locator).click()
 
     enable_disable_locator = (By.ID, "enable-disable-project")
     wait10.until(EC.visibility_of_element_located(enable_disable_locator))
@@ -30,7 +33,7 @@ def test_access_enable_disable_option(browser,wait10):
     assert browser.find_element(*enable_disable_locator).is_displayed()
     assert browser.find_element(*enable_disable_locator).is_selected()
 
-@pytest.mark.skip
+
 @pytest.mark.dependency(name="project_disabled", depends=["project_created"])
 def test_disable_freestyle_project(browser, wait10):
     project_name = "Freestyle_Project_Config_Test"
@@ -53,7 +56,7 @@ def test_disable_freestyle_project(browser, wait10):
 
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
 
-@pytest.mark.skip
+
 @pytest.mark.dependency(name="disabled_state_saved", depends=["project_disabled"])
 def test_save_freestyle_project_disabled_state(browser, wait5):
     project_name = "Freestyle_Project_Config_Test"
@@ -73,7 +76,7 @@ def test_save_freestyle_project_disabled_state(browser, wait5):
     assert "This project is currently disabled" in browser.find_element(By.TAG_NAME, "body").text
     assert browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']" ).is_displayed()
 
-@pytest.mark.skip
+
 @pytest.mark.dependency(depends=["disabled_state_saved"])
 def test_enable_disabled_freestyle_project(browser, wait10):
     project_name = "Freestyle_Project_Config_Test"
@@ -85,13 +88,13 @@ def test_enable_disabled_freestyle_project(browser, wait10):
 
     browser.find_element( By.CSS_SELECTOR,"button[name='Submit'][value='Enable']").click()
 
-    wait10.until(EC.text_to_be_present_in_element(
-        (By.TAG_NAME, "body"),
-        project_name
+    wait10.until(EC.invisibility_of_element_located(
+        (By.CSS_SELECTOR, "button[name='Submit'][value='Enable']")
     ))
 
     assert "This project is currently disabled" not in browser.find_element(By.TAG_NAME, "body").text
     assert len(browser.find_elements(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']")) == 0
+
 
 def test_environment_options_are_available(browser, wait10):
     project_name = "Freestyle_Environment_Test"
