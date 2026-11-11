@@ -252,3 +252,33 @@ def test_error_message_for_invalid_git_repository_url(browser, wait10):
     )
 
     assert "Failed to connect to repository" in error_message.text
+
+
+def test_create_project_without_build_triggers(browser, wait10):
+    project_name = "Freestyle_Build_Triggers_Default_Test"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+
+    name_field = browser.find_element(By.ID, "name")
+    name_field.send_keys(project_name)
+
+    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
+    browser.find_element(By.ID, "ok-button").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    remote_trigger = browser.find_element(By.ID, "cb13").is_selected()
+    build_after_other_projects = browser.find_element(By.ID, "cb14").is_selected()
+    build_periodically = browser.find_element(By.ID, "cb15").is_selected()
+    github_hook_trigger = browser.find_element(By.ID, "cb16").is_selected()
+    poll_scm = browser.find_element(By.ID, "cb17").is_selected()
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+
+    assert remote_trigger is False
+    assert build_after_other_projects is False
+    assert build_periodically is False
+    assert github_hook_trigger is False
+    assert poll_scm is False
