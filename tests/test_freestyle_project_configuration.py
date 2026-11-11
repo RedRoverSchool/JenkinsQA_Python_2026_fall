@@ -252,3 +252,33 @@ def test_error_message_for_invalid_git_repository_url(browser, wait10):
     )
 
     assert "Failed to connect to repository" in error_message.text
+
+
+def test_build_triggers_options_are_available(browser, wait10):
+    project_name = "Freestyle_Build_Triggers_Options_Test"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+
+    name_field = browser.find_element(By.ID, "name")
+    name_field.send_keys(project_name)
+
+    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
+    browser.find_element(By.ID, "ok-button").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    triggers_section = browser.find_element(By.ID, "54-72-69-67-67-65-72-73")
+    triggers_section.click()
+
+    remote_trigger = browser.find_element(By.ID, "cb13")
+    build_after_other_projects = browser.find_element(By.ID, "cb14")
+    build_periodically = browser.find_element(By.ID, "cb15")
+    github_hook_trigger = browser.find_element(By.ID, "cb16")
+    poll_scm = browser.find_element(By.ID, "cb17")
+
+    assert triggers_section.is_displayed()
+    assert remote_trigger.is_displayed() and remote_trigger.is_enabled()
+    assert build_after_other_projects.is_displayed() and build_after_other_projects.is_enabled()
+    assert poll_scm.is_displayed() and poll_scm.is_enabled()
+    assert build_periodically.is_displayed() and build_periodically.is_enabled()
+    assert github_hook_trigger.is_displayed() and github_hook_trigger.is_enabled()
