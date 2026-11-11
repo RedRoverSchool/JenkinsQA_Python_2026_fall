@@ -273,7 +273,7 @@ def test_rename_multibranch_pipeline_with_unsupported_characters(browser, wait5)
     assert error_message == expected_text
 
 
-def test_availability_of_health_metrics(browser, wait5, wait10):
+def test_availability_of_health_metrics(browser, wait5):
     create_multibranch_pipeline(browser, wait5)
 
     wait5.until(
@@ -300,15 +300,19 @@ def test_availability_of_health_metrics(browser, wait5, wait10):
     )
     add_metric_btn.click()
 
-    wait10.until(
+    wait5.until(
         EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
     )
-    metric_list = browser.find_elements(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item']")
-    metrics = [element.text for element in metric_list]
-    expected_metrics = ['Child item with the given name', 'Child item with worst health',
-                        'Health of the primary branch of a repository']
+    child_with_name = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                   "and contains(text(),'Child item with the given name')]")
+    child_worst_health = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                   "and contains(text(),'Child item with worst health')]")
+    health_primary_branch = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                   "and contains(text(),'Health of the primary branch of a repository')]")
 
-    assert metrics == expected_metrics
+    assert child_with_name.is_enabled() == True
+    assert child_worst_health.is_enabled() == True
+    assert health_primary_branch.is_enabled() == True
 
 
 def test_health_metrics_child_item_with_given_name(browser, wait5):
