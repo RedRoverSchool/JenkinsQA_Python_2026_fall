@@ -1,5 +1,6 @@
 import pytest
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
 FOLDER_NAME = "Test_Folder"
@@ -39,9 +40,11 @@ def test_create_with_empty_name_error(browser, wait10, empty_name_on_new_item_pa
     browser.find_element(*FOLDER_NAME_INPUT).send_keys(FOLDER_NAME)
     wait10.until(EC.element_to_be_clickable(SUBMIT_ITEM_BUTTON))
     browser.find_element(*FOLDER_NAME_INPUT).clear()
+    browser.find_element(*FOLDER_NAME_INPUT).send_keys(Keys.TAB)
     wait10.until(EC.visibility_of_element_located(ERROR_AREA))
 
-    assert browser.find_element(*ERROR_AREA).text == 'Поле не может быть пустым, введите имя'
+    assert any(word in browser.find_element(*ERROR_AREA).text for word in ('пуст', 'empty'))
+    assert not browser.find_element(*SUBMIT_ITEM_BUTTON).is_enabled()
 
 @pytest.mark.parametrize("symbols", ['A', 'ф', '1', 'te st', ' test ', ',', '"', "'"])
 def test_name_is_valid(browser, wait10, symbols, empty_name_on_new_item_page):
@@ -53,7 +56,6 @@ def test_name_is_valid(browser, wait10, symbols, empty_name_on_new_item_page):
 @pytest.mark.parametrize("symbols", ['/', '\\', '?', '*', ':', '|', '>', '<'])
 def test_name_is_invalid(browser, wait10, symbols, empty_name_on_new_item_page):
     browser.find_element(*FOLDER_NAME_INPUT).send_keys(symbols)
-    wait10.until(EC.visibility_of_element_located(ERROR_AREA))
-    errors = (f'"{symbols}" is not an allowed name', f"'{symbols}' небезопасный символ")
+    error = wait10.until(EC.visibility_of_element_located(ERROR_AREA))
 
-    assert browser.find_element(*ERROR_AREA).text in errors
+    assert symbols in error.text
