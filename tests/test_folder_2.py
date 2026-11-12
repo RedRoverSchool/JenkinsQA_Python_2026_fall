@@ -97,7 +97,7 @@ def test_verify_error_message_and_red_highlight_on_duplicate_name(browser, creat
     text_found = WebDriverWait(browser, 10).until(
         EC.text_to_be_present_in_element((By.CSS_SELECTOR, "[class*='validation-error-area--visible']"), ERROR_MESSAGE))
 
-    assert red_bordered_input_field.is_displayed() and text_found, "Expected error message did nit appear under the input field"
+    assert red_bordered_input_field.is_displayed() and text_found, "Expected error message did not appear under the input field"
 
 
 
