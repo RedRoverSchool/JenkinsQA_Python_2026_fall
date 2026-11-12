@@ -6,7 +6,7 @@ from common.jenkins_utils import logout
 
 
 def test_jenkins_login(browser):
-    browser.get("http://localhost:8080/login?from=%2F")
+    browser.get(get_url())
 
     assert browser.title == "Sign in - Jenkins"
     browser.find_element(By.ID, "j_username").send_keys("test")
