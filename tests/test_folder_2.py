@@ -1,10 +1,8 @@
 import pytest
-from selenium.common import WebDriverException
 from selenium.webdriver.common.by import By
 import random
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
 
 @pytest.fixture
 def create_folder(browser, wait10, wait5):
@@ -23,9 +21,7 @@ def create_folder(browser, wait10, wait5):
     )
     browser.execute_script("arguments[0].click();", ok_button)
 
-
     wait10.until(EC.url_contains("/configure"))
-    assert "/configure" in browser.current_url
 
     jenkins_logo = browser.find_element(By.CSS_SELECTOR, ".app-jenkins-logo")
     jenkins_logo.click()
@@ -35,24 +31,8 @@ def create_folder(browser, wait10, wait5):
     )
     print(f"Создана папке - {FOLDER_NAME}")
     folder_data = {"name": FOLDER_NAME,}
-    yield folder_data
+    return folder_data
 
-    try:
-        browser.get(f"http://localhost:8080/job/{FOLDER_NAME}/")
-        delete_button = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//a[@data-title='Delete Folder']")))
-        delete_button.click()
-        try:
-            wait5.until(EC.alert_is_present())
-            browser.switch_to.alert.accept()
-        except:
-            ok_button = wait5.until(
-                EC.element_to_be_clickable((By.XPATH, "//button[@data-id='ok' and contains(text(), 'Yes')]"))
-            )
-            ok_button.click()
-        print(f"Удалена папка - {FOLDER_NAME}")
-    except WebDriverException as e:
-        print(f"Не удалось автоматически удалить папку {FOLDER_NAME}")
 
 def test_create_and_verify_if_the_folder_was_created(browser, create_folder, wait10):
     FOLDER_NAME = create_folder["name"]
