@@ -4,13 +4,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from common.project_utils import get_url
 
-@pytest.mark.skip
-def test_duplicate_option_reveals_copy_from_field(browser, wait2):
-    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
+def create_freestyle_item(browser, wait2, item_name):
+    new_item_link = wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
     new_item_link.click()
 
     name_field = wait2.until(EC.visibility_of_element_located((By.ID, "name")))
-    name_field.send_keys("FirstTestItem")
+    name_field.send_keys(item_name)
 
     freestyle_option = browser.find_element(
         By.CSS_SELECTOR,
@@ -24,9 +23,13 @@ def test_duplicate_option_reveals_copy_from_field(browser, wait2):
     save_button = wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[name='Submit'][value='Save']")))
     save_button.click()
 
-    browser.get(get_url())
+def test_duplicate_option_reveals_copy_from_field(browser, wait2, wait10):
+    create_freestyle_item(browser, wait2, "FirstTestItem")
 
-    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
+    browser.get(get_url())
+    new_item_link = wait10.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))
+    )
     new_item_link.click()
 
     duplicate_option = wait2.until(EC.element_to_be_clickable((By.ID, "duplicate-job")))
