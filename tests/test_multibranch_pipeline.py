@@ -461,3 +461,29 @@ def test_delete_multibranch_pipeline_via_side_panel(browser, wait5):
 
     assert welcome_title.text == "Welcome to Jenkins!"
 
+def test_cancel_pipeline_deletion(browser, wait5):
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
+
+    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
+    browser.find_element(By.XPATH, link_selector).click()
+
+    wait5.until(
+        EC.visibility_of_element_located((By.ID, "side-panel"))
+    )
+    browser.find_element(By.XPATH, "//a[@data-title='Delete Multibranch Pipeline']").click()
+
+    dialog = wait5.until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
+    )
+    cancel_btn = dialog.find_element(By.XPATH, ".//button[@data-id='cancel']")
+    cancel_btn.click()
+
+    title = browser.find_element(By.XPATH, "//h1[contains(@class,'job-index-headline')]")
+
+    assert title.text == PIPELINE_NAME
+    assert f"job/{PIPELINE_NAME}/" in browser.current_url
