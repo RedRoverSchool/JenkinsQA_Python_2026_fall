@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+
 def test_open_page(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
@@ -85,6 +86,8 @@ def test_validate_existing_name(browser, wait10):
 
     name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
     name_field.send_keys(item_name)
+
+    browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
 
     error_locator = (By.CSS_SELECTOR, ".validation-error-area .error")
     error_text = f"A job already exists with the name ‘{item_name}’"
