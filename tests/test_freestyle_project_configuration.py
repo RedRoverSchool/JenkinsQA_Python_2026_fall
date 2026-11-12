@@ -312,3 +312,44 @@ def test_create_project_without_build_triggers(browser, wait10):
     assert build_periodically is False
     assert github_hook_trigger is False
     assert poll_scm is False
+
+def test_configure_remote_build_trigger_with_authentication_token(browser, wait10):
+    project_name = "Freestyle_Remote_Trigger_Test"
+    authentication_token = "RemoteBuildToken123"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+
+    name_field = browser.find_element(By.ID, "name")
+    name_field.send_keys(project_name)
+
+    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
+    browser.find_element(By.ID, "ok-button").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    remote_trigger_label = browser.find_element(
+        By.XPATH, "//label[contains(., 'Trigger builds remotely')]"
+    )
+
+    browser.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", remote_trigger_label
+    )
+
+    remote_trigger_label.click()
+
+    token_field = browser.find_element(By.NAME, "authToken")
+    token_field.send_keys(authentication_token)
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+
+    remote_trigger = browser.find_element(By.ID, "cb13")
+
+    assert remote_trigger.is_selected()
