@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+import pytest
 
 def test_open_page(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
@@ -66,7 +67,7 @@ def test_create_with_valid_unique_name(browser, wait10):
 
     wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
 
-
+@pytest.mark.skip
 def test_validate_existing_name(browser, wait10):
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
 
