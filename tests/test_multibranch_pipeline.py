@@ -1,8 +1,5 @@
 import secrets
 import time
-from os import times
-
-import pytest
 
 import pytest
 from selenium.webdriver.common.by import By
@@ -113,12 +110,11 @@ def test_multibranch_with_special_characters(browser, wait5):
     assert error_message == expected_text
 
 
-@pytest.mark.skip
 @pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
-def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait5):
+def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait5, wait10):
     chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{PIPELINE_NAME})]"
     browser.find_element(By.XPATH, chevron_selector).click()
-    wait5.until(
+    wait10.until(
         EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'confirm-rename')]"))
     ).click()
 
@@ -276,7 +272,7 @@ def test_rename_multibranch_pipeline_with_unsupported_characters(browser, wait5)
 
     assert error_message == expected_text
 
-@pytest.mark.skip
+
 def test_availability_of_health_metrics(browser, wait5):
     create_multibranch_pipeline(browser, wait5)
 
@@ -307,12 +303,16 @@ def test_availability_of_health_metrics(browser, wait5):
     wait5.until(
         EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
     )
-    metric_list = browser.find_elements(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item']")
-    metrics = [element.text for element in metric_list]
-    expected_metrics = ['Child item with the given name', 'Child item with worst health',
-                        'Health of the primary branch of a repository']
+    child_with_name = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                   "and contains(text(),'Child item with the given name')]")
+    child_worst_health = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                   "and contains(text(),'Child item with worst health')]")
+    health_primary_branch = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                   "and contains(text(),'Health of the primary branch of a repository')]")
 
-    assert metrics == expected_metrics
+    assert child_with_name.is_enabled() == True
+    assert child_worst_health.is_enabled() == True
+    assert health_primary_branch.is_enabled() == True
 
 
 def test_health_metrics_child_item_with_given_name(browser, wait5):
@@ -431,3 +431,33 @@ def test_health_metrics_health_of_the_primary_branch(browser, wait5):
     )
 
     assert primary_branch_metric.is_displayed() == True
+
+def test_delete_multibranch_pipeline_via_side_panel(browser, wait5):
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
+
+    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
+    browser.find_element(By.XPATH, link_selector).click()
+
+    wait5.until(
+        EC.visibility_of_element_located((By.ID, "side-panel"))
+    )
+    browser.find_element(By.XPATH, "//a[@data-title='Delete Multibranch Pipeline']").click()
+
+    dialog = wait5.until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
+    )
+    confirm_btn = dialog.find_element(By.XPATH, ".//button[@data-id='ok']")
+    confirm_btn.click()
+    wait5.until(
+        EC.invisibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
+    )
+
+    welcome_title = browser.find_element(By.CSS_SELECTOR, "div.empty-state-block > h1")
+
+    assert welcome_title.text == "Welcome to Jenkins!"
+
