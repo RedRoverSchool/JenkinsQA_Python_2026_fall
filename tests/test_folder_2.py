@@ -5,9 +5,6 @@ import random
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from conftest import wait10
-from old.test_meirman import browser
-
 
 @pytest.fixture
 def create_folder(browser, wait10, wait5):
@@ -39,7 +36,7 @@ def create_folder(browser, wait10, wait5):
     print(f"Создана папке - {FOLDER_NAME}")
     folder_data = {"name": FOLDER_NAME,}
     yield folder_data
-    CURRENT_FOLDER_NAME = folder_data["name"]
+
     try:
         browser.get(f"http://localhost:8080/job/{FOLDER_NAME}/")
         delete_button = wait5.until(
@@ -89,6 +86,18 @@ def test_verify_renaming_with_a_valid_name(browser, create_folder, wait10):
     assert f"{NEW_NAME}" in browser.page_source, f"Ошибка: Обновленное имя папки '{NEW_NAME}' не отображается на странице!"
 
 
+def test_verify_error_message_and_red_highlight_on_duplicate_name(browser, create_folder, wait10):
+    FOLDER_NAME = create_folder["name"]
+    ERROR_MESSAGE = f"A job already exists with the name ‘{FOLDER_NAME}’"
+    ADD_NEW_ITEM = browser.find_element(By.CSS_SELECTOR, '[href="/view/all/newJob"]')
+    ADD_NEW_ITEM.click()
+    input_name_field = browser.find_element(By.XPATH, "//input[@name='name']")
+    input_name_field.send_keys(FOLDER_NAME)
+    red_bordered_input_field = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[class*='validation-error-area--visible']")))
+    text_found = WebDriverWait(browser, 10).until(
+        EC.text_to_be_present_in_element((By.CSS_SELECTOR, "[class*='validation-error-area--visible']"), ERROR_MESSAGE))
+
+    assert red_bordered_input_field.is_displayed() and text_found, "Expected error message did nit appear under the input field"
 
 
 
