@@ -313,6 +313,8 @@ def test_create_project_without_build_triggers(browser, wait10):
     assert github_hook_trigger is False
     assert poll_scm is False
 
+
+
 def test_configure_remote_build_trigger_with_authentication_token(browser, wait10):
     project_name = "Freestyle_Remote_Trigger_Test"
     authentication_token = "RemoteBuildToken123"
