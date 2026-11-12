@@ -432,3 +432,32 @@ def test_health_metrics_health_of_the_primary_branch(browser, wait5):
 
     assert primary_branch_metric.is_displayed() == True
 
+def test_delete_multibranch_pipeline_via_side_panel(browser, wait5):
+    create_multibranch_pipeline(browser, wait5)
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
+    )
+    browser.find_element(By.ID, "jenkins-head-icon").click()
+
+    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
+    browser.find_element(By.XPATH, link_selector).click()
+
+    wait5.until(
+        EC.visibility_of_element_located((By.ID, "side-panel"))
+    )
+    browser.find_element(By.XPATH, "//a[@data-title='Delete Multibranch Pipeline']").click()
+
+    dialog = wait5.until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
+    )
+    confirm_btn = dialog.find_element(By.XPATH, ".//button[@data-id='ok']")
+    confirm_btn.click()
+    wait5.until(
+        EC.invisibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
+    )
+
+    welcome_title = browser.find_element(By.CSS_SELECTOR, "div.empty-state-block > h1")
+
+    assert welcome_title.text == "Welcome to Jenkins!"
+
