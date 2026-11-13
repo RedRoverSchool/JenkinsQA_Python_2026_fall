@@ -76,6 +76,7 @@ def test_exetute_windows_step(browser, wait10):
     wait10.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
     assert item_name in browser.find_element(By.TAG_NAME, "h1").text
 
+
 def test_execute_shell_and_invoke_ant(browser, wait10):
     new_item = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
     new_item.click()
