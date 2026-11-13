@@ -89,7 +89,7 @@ def test_enable_disabled_freestyle_project(browser, wait10):
     browser.find_element( By.CSS_SELECTOR,"button[name='Submit'][value='Enable']").click()
 
     wait10.until(EC.invisibility_of_element_located(
-        (By.CSS_SELECTOR, "button[name='Submit'][value='Enable']")
+        (By.XPATH, "//*[contains(text(), 'This project is currently disabled')]")
     ))
 
     assert "This project is currently disabled" not in browser.find_element(By.TAG_NAME, "body").text
