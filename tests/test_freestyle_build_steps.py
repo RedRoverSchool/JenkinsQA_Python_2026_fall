@@ -2,7 +2,7 @@ from selenium import webdriver
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.expected_conditions import element_to_be_clickable
+from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
 from selenium.webdriver.support.wait import WebDriverWait
 
 def test_freestyle_tests(browser, wait10):
@@ -250,3 +250,33 @@ def test_invoke_grand_script_and_set_build_status(browser, wait10):
 
     wait10.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
     assert item_name in browser.find_element(By.TAG_NAME, "h1").text
+
+
+def test_helper_tooltip(browser, wait5):
+    new_item = wait5.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+    new_item.click()
+
+    item_name = "Freestyle Project to check helper tooltip"
+    name_field = browser.find_element(By.CSS_SELECTOR, "input#name")
+    name_field.send_keys(item_name)
+
+    freestyle = browser.find_element(By.XPATH, "//*[text()='Freestyle project']")
+    freestyle.click()
+
+    ok_button = browser.find_element(By.CSS_SELECTOR, "button#ok-button")
+    ok_button.click()
+
+    add_build_steps = wait5.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[suffix = 'builder']")))
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_build_steps)
+    add_build_steps.click()
+
+    invoke_ant_dropdown = browser.find_element(By.XPATH, '//*[@id="tippy-5"]/div/div/div/div[2]/button[3]')
+    invoke_ant_dropdown.click()
+
+    helper = wait5.until(visibility_of_element_located((By.XPATH, '//a[@aria-label="Help for feature: Targets"]/child::span')))
+    helper.click()
+    ant_helper = browser.find_element(By.CSS_SELECTOR, 'a[href="https://plugins.jenkins.io/ant"]')
+
+    assert ant_helper.is_displayed()
+    helper.click()
+    assert not ant_helper.is_displayed()
