@@ -20,6 +20,6 @@ def test_add_description_to_multiconfiguration_project(browser, wait5):
     project_description.send_keys("This is my multi-configuration project")
     browser.find_element(By.CSS_SELECTOR, ".jenkins-button.jenkins-submit-button.jenkins-button--primary").click()
 
-    assert project_description.text in browser.find_element(By.CSS_SELECTOR, ".matrix-project-headline.page-headline").text
+    assert project_description.text in browser.find_element(By.TAG_NAME, "h1").text
 
 
