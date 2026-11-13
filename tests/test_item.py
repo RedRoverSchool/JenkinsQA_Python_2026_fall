@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+import pytest
 
 
 def test_open_page(browser, wait10):
@@ -50,7 +51,6 @@ def test_validate_invalid_characters(browser, wait10):
     assert error_message.text == "‘?’ is an unsafe character"
     assert not ok_button.is_enabled()
 
-
 def test_create_with_valid_unique_name(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
@@ -66,7 +66,6 @@ def test_create_with_valid_unique_name(browser, wait10):
     ok_button.click()
 
     wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
-
 
 def test_validate_existing_name(browser, wait10):
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
