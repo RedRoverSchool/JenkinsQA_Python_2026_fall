@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from common.project_utils import get_url
 import pytest
 
 
@@ -51,6 +52,8 @@ def test_validate_invalid_characters(browser, wait10):
     assert error_message.text == "‘?’ is an unsafe character"
     assert not ok_button.is_enabled()
 
+
+@pytest.mark.dependency()
 def test_create_with_valid_unique_name(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
@@ -98,3 +101,18 @@ def test_validate_existing_name(browser, wait10):
 
     assert error_message.text == error_text
     assert not ok_button.is_enabled()
+
+
+@pytest.mark.dependency(depends=["test_create_with_valid_unique_name"])
+def test_item_appears_on_dashboard(browser, wait10):
+    wait10.until(EC.element_to_be_clickable((By.LINK_TEXT, "TestJob"))).click()
+
+    wait10.until(EC.element_to_be_clickable((By.LINK_TEXT, "Configure"))).click()
+
+    wait10.until(EC.url_contains("/job/TestJob/configure"))
+
+    browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
+
+    wait10.until(EC.url_to_be(get_url()))
+
+    wait10.until(EC.visibility_of_element_located((By.LINK_TEXT, "TestJob")))
