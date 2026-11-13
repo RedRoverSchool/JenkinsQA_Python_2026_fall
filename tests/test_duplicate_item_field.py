@@ -23,7 +23,6 @@ def create_freestyle_item(browser, wait2, item_name):
     save_button = wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[name='Submit'][value='Save']")))
     save_button.click()
 
-@pytest.mark.skip
 def test_duplicate_option_reveals_copy_from_field(browser, wait2, wait10):
     create_freestyle_item(browser, wait2, "FirstTestItem")
 
