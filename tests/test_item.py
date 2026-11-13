@@ -51,7 +51,6 @@ def test_validate_invalid_characters(browser, wait10):
     assert error_message.text == "‘?’ is an unsafe character"
     assert not ok_button.is_enabled()
 
-
 def test_create_with_valid_unique_name(browser, wait10):
     new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
