@@ -96,6 +96,7 @@ def test_enable_disabled_freestyle_project(browser, wait10):
     assert len(browser.find_elements(By.CSS_SELECTOR, "button[name='Submit'][value='Enable']")) == 0
 
 
+@pytest.mark.dependency(name="environment_project_created")
 def test_environment_options_are_available(browser, wait10):
     project_name = "Freestyle_Environment_Test"
 
@@ -124,18 +125,17 @@ def test_environment_options_are_available(browser, wait10):
     assert ant.is_displayed()
 
 
+@pytest.mark.dependency(depends=["environment_project_created"])
 def test_create_project_without_environment_settings(browser, wait10):
-    project_name = "Freestyle_Environment_Default_Test"
+    browser.find_element( By.CSS_SELECTOR,"a[href='job/Freestyle_Environment_Test/']").click()
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
-    browser.find_element(By.ID, "name").send_keys(project_name)
+    wait10.until(EC.url_contains("/job/Freestyle_Environment_Test/"))
 
-    browser.find_element(By.XPATH, "//span[normalize-space()='Freestyle project']/parent::label").click()
-    browser.find_element(By.ID, "ok-button").submit()
+    browser.find_element( By.CSS_SELECTOR, "a[href='/job/Freestyle_Environment_Test/configure']").click()
 
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+    wait10.until(EC.url_contains("/configure"))
 
-    browser.find_element(By.XPATH, "//button[.//span[normalize-space()='Environment']]").click()
+    browser.find_element( By.XPATH, "//button[.//span[normalize-space()='Environment']]" ).click()
 
     timestamps = browser.find_element(By.ID, "cb21")
     delete_workspace = browser.find_element(By.ID, "cb18")
