@@ -354,3 +354,42 @@ def test_configure_remote_build_trigger_with_authentication_token(browser, wait1
     remote_trigger = browser.find_element(By.ID, "cb13")
 
     assert remote_trigger.is_selected()
+
+
+def test_configure_build_periodically_with_valid_schedule(browser, wait10):
+    project_name = "Freestyle_Build_Periodically_Test"
+    schedule = "H/5 * * * *"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+
+    name_field = browser.find_element(By.ID, "name")
+    name_field.send_keys(project_name)
+
+    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
+    browser.find_element(By.ID, "ok-button").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    periodic_trigger_label = browser.find_element(By.XPATH, "//label[contains(., 'Build periodically')]")
+
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", periodic_trigger_label)
+    periodic_trigger_label.click()
+
+    schedule_field = browser.find_element(By.CSS_SELECTOR, "textarea[name='_.spec']")
+    schedule_field.send_keys(schedule)
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+
+    periodic_trigger = browser.find_element(By.CSS_SELECTOR, "input[name='hudson-triggers-TimerTrigger']")
+    saved_schedule = browser.find_element(By.CSS_SELECTOR, "textarea[name='_.spec']")
+
+    assert periodic_trigger.is_selected()
+    assert saved_schedule.get_attribute("value") == schedule
