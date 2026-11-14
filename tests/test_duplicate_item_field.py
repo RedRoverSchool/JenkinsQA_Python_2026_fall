@@ -22,15 +22,15 @@ def create_freestyle_item(browser, wait2, item_name):
 
     save_button = wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[name='Submit'][value='Save']")))
     save_button.click()
-
 @pytest.mark.skip
 def test_duplicate_option_reveals_copy_from_field(browser, wait2, wait10):
     create_freestyle_item(browser, wait2, "FirstTestItem")
 
+    wait10.until(EC.url_contains("/job/"))
+
     browser.get(get_url())
-    new_item_link = wait10.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))
-    )
+
+    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
     new_item_link.click()
 
     duplicate_option = wait2.until(EC.element_to_be_clickable((By.ID, "duplicate-job")))

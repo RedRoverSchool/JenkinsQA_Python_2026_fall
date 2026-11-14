@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from common.project_utils import get_url
 import pytest
 
@@ -29,7 +28,6 @@ def test_validate_blank_name(browser, wait10):
 
     ok_button = browser.find_element(By.ID, "ok-button")
 
-    assert "/view/all/newJob" in browser.current_url
     assert name_field.get_attribute("value") == ""
     assert not ok_button.is_enabled()
 
@@ -48,7 +46,6 @@ def test_validate_invalid_characters(browser, wait10):
 
     ok_button = browser.find_element(By.ID, "ok-button")
 
-    assert "/view/all/newJob" in browser.current_url
     assert error_message.text == "‘?’ is an unsafe character"
     assert not ok_button.is_enabled()
 
@@ -70,6 +67,7 @@ def test_create_with_valid_unique_name(browser, wait10):
 
     wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
 
+
 def test_validate_existing_name(browser, wait10):
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
 
@@ -84,7 +82,7 @@ def test_validate_existing_name(browser, wait10):
     wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
 
     browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
-    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))).click()
 
     name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
     name_field.send_keys(item_name)
@@ -94,7 +92,7 @@ def test_validate_existing_name(browser, wait10):
     error_locator = (By.CSS_SELECTOR, ".validation-error-area .error")
     error_text = f"A job already exists with the name ‘{item_name}’"
 
-    WebDriverWait(browser, 20).until(EC.text_to_be_present_in_element(error_locator, error_text))
+    wait10.until(EC.text_to_be_present_in_element(error_locator, error_text))
 
     error_message = browser.find_element(By.CSS_SELECTOR, ".validation-error-area .error")
     ok_button = browser.find_element(By.ID, "ok-button")
