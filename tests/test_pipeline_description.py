@@ -135,14 +135,15 @@ def test_description_via_drop_down_menu(browser, wait10):
     actions.perform()
     chevron = wait10.until(EC.visibility_of_element_located(DROPDOWN_CHEVRON))
     chevron.click()
-    configue = browser.find_element(*DROPDOWN_CONFIGURE)
+    configue = wait10.until(EC.element_to_be_clickable(DROPDOWN_CONFIGURE))
     configue.click()
     wait10.until(EC.url_contains(TEST_TEXT))
     wait10.until(EC.url_contains("configure"))
-    desc = browser.find_element(*DESCRIPTION_FLD)
+    desc = wait10.until(EC.element_to_be_clickable(DESCRIPTION_FLD))
     desc.click()
     desc.clear()
     desc.send_keys(TEST_TEXT)
+    wait10.until(EC.text_to_be_present_in_element_value(DESCRIPTION_FLD, TEST_TEXT))
     assert desc.get_attribute('value') == TEST_TEXT, desc.get_attribute("value")
 
 
