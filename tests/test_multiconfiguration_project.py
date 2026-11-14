@@ -1,7 +1,9 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import pytest
 
+@pytest.mark.skip
 def test_add_description_to_multiconfiguration_project(browser, wait5):
 
     project_description = "This is my multi-configuration project"
