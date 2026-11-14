@@ -22,7 +22,8 @@ PIPELINE_LINK = (By.XPATH, f"//a[contains(@href, 'job/{TEST_TEXT}')]")
 JOB_NAME = (By.XPATH, "//*[@id='job_random_name']/td[3]/a/span")
 DROPDOWN_CHEVRON = (By.XPATH, f"//*[@id='job_random_name']/td[3]/a/button")
 DROPDOWN_CONFIGURE = (By.XPATH, "//*[@id='tippy-4']/div/div/div/a[2]")
-
+PREVIEW_BTN = (By.XPATH, "//*[@id='jenkins']/dialog[2]/div[2]/form/div[1]/div/div[1]/div[1]/a[1]")
+PREVIEW_FLD = (By.XPATH, "//*[@id='jenkins']/dialog[2]/div[2]/form/div[1]/div/div[1]/div[2]")
 
 
 @pytest.mark.dependency()
@@ -154,10 +155,8 @@ def test_preview_description(browser, wait10):
     desc_textarea_fld.click()
     desc_textarea_fld.clear()
     desc_textarea_fld.send_keys(TEST_TEXT)
-    PREVIEW_BTN = (By.XPATH, "//*[@id='jenkins']/dialog[2]/div[2]/form/div[1]/div/div[1]/div[1]/a[1]")
     preview_btn = browser.find_element(*PREVIEW_BTN)
     preview_btn.click()
-    PREVIEW_FLD = (By.XPATH, "//*[@id='jenkins']/dialog[2]/div[2]/form/div[1]/div/div[1]/div[2]")
     preview_fld = browser.find_element(*PREVIEW_FLD)
     wait10.until(EC.text_to_be_present_in_element(PREVIEW_FLD, TEST_TEXT))
     text = preview_fld.text
