@@ -3,6 +3,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 TEST_TEXT = 'random_name'
 TEXT_AFTER = 'test_text'
@@ -18,7 +19,11 @@ EDIT_DESCRIPTION_BTN = (By.XPATH, "//*[@id='description-link']/span")
 DESCRIPTION_TEXTAREA_FLD = (By.XPATH, "//*[@id='description-textarea']")
 SAVE_BTN_2 = (By.XPATH, "//*[@id='bottom-sticker']/div/button[2]")
 PIPELINE_LINK = (By.XPATH, f"//a[contains(@href, 'job/{TEST_TEXT}')]")
-
+JOB_NAME = (By.XPATH, "//*[@id='job_random_name']/td[3]/a/span")
+DROPDOWN_CHEVRON = (By.XPATH, f"//*[@id='job_random_name']/td[3]/a/button")
+DROPDOWN_CONFIGURE = (By.XPATH, "//*[@id='tippy-4']/div/div/div/a[2]")
+PREVIEW_BTN = (By.XPATH, "//*[@id='jenkins']/dialog[2]/div[2]/form/div[1]/div/div[1]/div[1]/a[1]")
+PREVIEW_FLD = (By.XPATH, "//*[@id='jenkins']/dialog[2]/div[2]/form/div[1]/div/div[1]/div[2]")
 
 
 @pytest.mark.dependency()
@@ -121,3 +126,40 @@ def test_clear_description_field(browser, wait10):
 
     wait10.until(description_is_empty)
     assert description_is_empty(browser), "Ошибка: блок с описанием не пустой"
+
+@pytest.mark.dependency(depends=["test_access_description_via_new_item"])
+def test_description_via_drop_down_menu(browser, wait10):
+    job_name = browser.find_element(*JOB_NAME)
+    actions = ActionChains(browser)
+    actions.move_to_element(job_name)
+    actions.perform()
+    chevron = wait10.until(EC.visibility_of_element_located(DROPDOWN_CHEVRON))
+    chevron.click()
+    configue = wait10.until(EC.element_to_be_clickable(DROPDOWN_CONFIGURE))
+    configue.click()
+    wait10.until(EC.url_contains(TEST_TEXT))
+    wait10.until(EC.url_contains("configure"))
+    desc = wait10.until(EC.element_to_be_clickable(DESCRIPTION_FLD))
+    desc.click()
+    desc.clear()
+    desc.send_keys(TEST_TEXT)
+    wait10.until(EC.text_to_be_present_in_element_value(DESCRIPTION_FLD, TEST_TEXT))
+    assert desc.get_attribute('value') == TEST_TEXT, desc.get_attribute("value")
+
+
+@pytest.mark.dependency(depends=["test_access_description_via_click_pipeline_name"])
+def test_preview_description(browser, wait10):
+    wait10.until(EC.element_to_be_clickable(PIPELINE_LINK)).click()
+    edit_desc_btn = browser.find_element(*EDIT_DESCRIPTION_BTN)
+    edit_desc_btn.click()
+    desc_textarea_fld = browser.find_element(*DESCRIPTION_TEXTAREA_FLD)
+    desc_textarea_fld.click()
+    desc_textarea_fld.clear()
+    desc_textarea_fld.send_keys(TEST_TEXT)
+    preview_btn = browser.find_element(*PREVIEW_BTN)
+    preview_btn.click()
+    preview_fld = browser.find_element(*PREVIEW_FLD)
+    wait10.until(EC.text_to_be_present_in_element(PREVIEW_FLD, TEST_TEXT))
+    text = preview_fld.text
+    assert text == TEST_TEXT
+
