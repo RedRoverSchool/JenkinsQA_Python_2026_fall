@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def test_add_description_to_multiconfiguration_project(browser, wait5):
+def test_add_description_to_multiconfiguration_project(browser, wait2):
 
     project_description = "This is my multi-configuration project"
 
@@ -13,13 +13,15 @@ def test_add_description_to_multiconfiguration_project(browser, wait5):
     browser.find_element(By.XPATH, "//span[text()='Multi-configuration project']").click()
     browser.find_element(By.ID, "ok-button").click()
 
-    wait5.until(EC.visibility_of_element_located((By.NAME, "description")))
+    wait2.until(EC.visibility_of_element_located((By.NAME, "description")))
 
-    project_description = browser.find_element(By.NAME, "description")
-    project_description.click()
-    project_description.send_keys("This is my multi-configuration project")
+    description_field = browser.find_element(By.NAME, "description")
+    description_field.click()
+    description_field.send_keys(project_description)
     browser.find_element(By.CSS_SELECTOR, ".jenkins-button.jenkins-submit-button.jenkins-button--primary").click()
 
-    assert project_description.text in browser.find_element(By.TAG_NAME, "h1").text
+    wait2.until(EC.visibility_of_element_located((By.ID, "description-content")))
+
+    assert project_description in browser.find_element(By.ID, "description-content").text
 
 
