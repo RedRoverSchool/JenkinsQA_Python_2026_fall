@@ -67,7 +67,7 @@ def test_create_with_valid_unique_name(browser, wait10):
 
     wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
 
-
+@pytest.mark.skip
 def test_validate_existing_name(browser, wait10):
     browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
 

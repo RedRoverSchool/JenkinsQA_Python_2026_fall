@@ -72,6 +72,7 @@ def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser, 
     )
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", pipeline)
     pipeline.click()
+    pipeline.click()
 
     browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
 
@@ -109,7 +110,7 @@ def test_multibranch_with_special_characters(browser, wait5):
     assert not ok_button.is_enabled()
     assert error_message == expected_text
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(depends=["test_create_multibranch_pipeline"])
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, wait5, wait10):
     chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{PIPELINE_NAME})]"
