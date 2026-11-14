@@ -321,6 +321,7 @@ def test_invoke_maven_and_set_with_timeout(browser, wait5):
     jvm_options.send_keys(input_text)
 
     inject_build_checkbox = browser.find_element(By.XPATH, '//input[@name="_.injectBuildVariables"]/following-sibling::label')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", inject_build_checkbox)
     inject_build_checkbox.click()
 
     use_private_checkbox = browser.find_element(By.XPATH, '//input[@name="_.usePrivateRepository"]/following-sibling::label')
