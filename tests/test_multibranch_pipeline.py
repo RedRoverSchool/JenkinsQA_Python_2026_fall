@@ -304,11 +304,12 @@ def test_availability_of_health_metrics(browser, wait5):
         EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
     )
     child_with_name = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Child item with the given name')]")
+                                                     "and contains(text(),'Child item with the given name')]")
     child_worst_health = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Child item with worst health')]")
-    health_primary_branch = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Health of the primary branch of a repository')]")
+                                                        "and contains(text(),'Child item with worst health')]")
+    health_primary_branch = browser.find_element(By.XPATH,
+                                                 "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
+                                                 "and contains(text(),'Health of the primary branch of a repository')]")
 
     assert child_with_name.is_enabled() == True
     assert child_worst_health.is_enabled() == True
@@ -432,6 +433,7 @@ def test_health_metrics_health_of_the_primary_branch(browser, wait5):
 
     assert primary_branch_metric.is_displayed() == True
 
+
 def test_all_health_metrics_are_added(browser, wait5):
     create_multibranch_pipeline(browser, wait5)
 
@@ -454,39 +456,30 @@ def test_all_health_metrics_are_added(browser, wait5):
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", health_metrics_btn)
     health_metrics_btn.click()
 
+    add_metric_locator = (By.XPATH, "//button[@suffix='healthMetrics']")
     add_metric_btn = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@suffix='healthMetrics']"))
+        EC.element_to_be_clickable(add_metric_locator)
     )
 
-    add_metric_btn.click()
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    child_with_name = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Child item with the given name')]")
-    child_with_name.click()
+    metrics = ["Child item with the given name",
+               "Child item with worst health",
+               "Health of the primary branch of a repository"]
 
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_metric_btn)
-    add_metric_btn.click()
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    child_worst_health = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Child item with worst health')]")
-    child_worst_health.click()
+    for metric in metrics:
+        browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_metric_btn)
+        wait5.until(
+            EC.element_to_be_clickable(add_metric_locator)
+        ).click()
 
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_metric_btn)
-    add_metric_btn.click()
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    health_primary_branch = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Health of the primary branch of a repository')]")
-    health_primary_branch.click()
+        option_locator = (By.XPATH, f"//button[contains(@class, 'jenkins-dropdown__item') "
+                                    f"and contains(., '{metric}')]")
+        wait5.until(
+            EC.element_to_be_clickable(option_locator)
+        ).click()
 
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_metric_btn)
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//button[@suffix='healthMetrics']"))
+    wait5.until_not(
+        EC.element_to_be_clickable(add_metric_locator)
     )
 
     assert not add_metric_btn.is_enabled()
@@ -520,6 +513,7 @@ def test_delete_multibranch_pipeline_via_side_panel(browser, wait5):
     welcome_title = browser.find_element(By.CSS_SELECTOR, "div.empty-state-block > h1")
 
     assert welcome_title.text == "Welcome to Jenkins!"
+
 
 def test_cancel_pipeline_deletion(browser, wait5):
     create_multibranch_pipeline(browser, wait5)
