@@ -479,3 +479,4 @@ def test_build_triggers_helper_tooltips(browser, wait10):
 
     assert len(help_results) == 3
     assert all(help_results)
+
