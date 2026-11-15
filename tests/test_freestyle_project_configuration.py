@@ -386,3 +386,52 @@ def test_configure_poll_scm_with_valid_schedule(browser, wait10):
     assert poll_scm_enabled
     assert saved_schedule == schedule
 
+@pytest.mark.dependency(name="build_after_other_projects_configured", depends=["poll_scm_configured"])
+def test_configure_build_after_other_projects_are_built(browser, wait10):
+    project_name = "Freestyle_Build_Triggers_Options_Test"
+
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='job/{project_name}/']"))).click()
+
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']"))).click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    build_after_projects_checkbox = browser.find_element(By.ID, "cb14")
+
+    if not build_after_projects_checkbox.is_selected():
+        build_after_projects_label = browser.find_element(By.XPATH, "//label[contains(., 'Build after other projects are built')]")
+        browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", build_after_projects_label)
+        build_after_projects_label.click()
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    projects_to_watch = wait10.until(EC.visibility_of_element_located((By.NAME, "_.upstreamProjects")))
+
+    success_radio = browser.find_element(By.CSS_SELECTOR, "input[name='ReverseBuildTrigger.threshold'][value='SUCCESS']")
+
+    build_after_projects_enabled = browser.find_element(By.ID, "cb14").is_selected()
+    projects_to_watch_displayed = projects_to_watch.is_displayed()
+    projects_to_watch_enabled = projects_to_watch.is_enabled()
+
+    success_selected = success_radio.is_selected()
+
+    unstable_displayed = browser.find_element(By.XPATH, "//div[contains(@class, 'jenkins-radio')][.//input[@value='UNSTABLE']]/label").is_displayed()
+    failure_displayed = browser.find_element(By.XPATH, "//div[contains(@class, 'jenkins-radio')][.//input[@value='FAILURE']]/label").is_displayed()
+    aborted_displayed = browser.find_element(By.XPATH, "//div[contains(@class, 'jenkins-radio')][.//input[@value='ABORTED']]/label").is_displayed()
+
+    assert build_after_projects_enabled
+    assert projects_to_watch_displayed
+    assert projects_to_watch_enabled
+    assert success_selected
+    assert unstable_displayed
+    assert failure_displayed
+    assert aborted_displayed
+
