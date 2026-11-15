@@ -385,3 +385,4 @@ def test_configure_poll_scm_with_valid_schedule(browser, wait10):
 
     assert poll_scm_enabled
     assert saved_schedule == schedule
+
