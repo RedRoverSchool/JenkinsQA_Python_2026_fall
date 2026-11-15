@@ -17,6 +17,9 @@ class PageLocators:
     NEW_ITEM_DROPDOWN_VALUES = (By.CSS_SELECTOR, ".jenkins-dropdown__item")
     NEW_ITEM_DROPDOWN_NO_ITEMS = (By.CSS_SELECTOR, ".jenkins-dropdown__placeholder")
 
+    NEW_ITEM_CREATION_ERROR_HEADER = (By.CSS_SELECTOR, "#main-panel h1")
+    NEW_ITEM_CREATION_ERROR_MESSAGE = (By.CSS_SELECTOR, "#main-panel p")
+
     CONFIGURE_GENERAL_DESCRIPTION_INPUT = (By.NAME, "description")
     CONFIGURE_GENERAL_SAVE_BUTTON = (By.NAME, "Submit")
 
@@ -25,8 +28,6 @@ class Inputs:
     SECOND_JOB_NAME_VALID = "Second Job"
 
     NEW_ITEM_DROPDOWN_NO_ITEMS_TEXT = "No items"
-
-    MAIN_CREATED_JOB_TEMPLATE = "job_{}"
 
     DESCRIPTION_TEXT_VALID = "Description"
 
@@ -46,8 +47,8 @@ class PageActions:
         return self.wait.until(EC.visibility_of_element_located(locator),
                            message=f"Not visible: {locator}")
 
-    def enter_text(self, input, text):
-        return input.send_keys(text)
+    def enter_text(self, locator, text):
+        return locator.send_keys(text)
 
     def wait_url_not_contains(self, text):
         self.wait.until_not(EC.url_contains(text),
@@ -102,3 +103,24 @@ def test_dropdown_shows_no_items_for_non_matching_value(browser, actions, create
 
     assert no_items.text == Inputs.NEW_ITEM_DROPDOWN_NO_ITEMS_TEXT
     assert actions.is_absent(PageLocators.NEW_ITEM_DROPDOWN_VALUES)
+
+
+def test_error_on_non_existed_item(browser, actions, create_item_with_configuration):
+    actions.click(PageLocators.MAIN_NEW_ITEM)
+    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
+
+    actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
+    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.SECOND_JOB_NAME_VALID)
+    actions.click(PageLocators.NEW_ITEM_OK_BUTTON)
+
+    actions.wait_url_not_contains("newJob")
+    error_header = actions.visibility(PageLocators.NEW_ITEM_CREATION_ERROR_HEADER).text
+    error_message = actions.visibility(PageLocators.NEW_ITEM_CREATION_ERROR_MESSAGE).text
+
+    assert error_header == "Error", f"Error header is {error_header}"
+    assert error_message == f"No such job: {Inputs.SECOND_JOB_NAME_VALID}", f"Error message is {error_message}"
+
+    actions.click(PageLocators.JENKINS_LOGO)
+    actions.wait_url_not_contains("createItem")
+
+    assert actions.is_absent((By.XPATH, f"//table[@id='projectstatus']//*[contains(text(), '{Inputs.SECOND_JOB_NAME_VALID}')]"))
