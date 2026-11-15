@@ -350,3 +350,39 @@ def test_configure_build_periodically_with_valid_schedule(browser, wait10):
 
     assert periodic_trigger
     assert saved_schedule == schedule
+
+
+@pytest.mark.dependency(name="poll_scm_configured", depends=["build_periodically_configured"])
+def test_configure_poll_scm_with_valid_schedule(browser, wait10):
+    project_name = "Freestyle_Build_Triggers_Options_Test"
+    schedule = "H/5 * * * *"
+
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='job/{project_name}/']"))).click()
+
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']"))).click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    poll_scm_label = browser.find_element(By.XPATH, "//label[contains(., 'Poll SCM')]")
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", poll_scm_label)
+    poll_scm_label.click()
+
+    poll_scm_schedule = browser.find_element( By.XPATH, "//label[contains(., 'Poll SCM')]/following::textarea[1]" )
+    poll_scm_schedule.send_keys(schedule)
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+
+    poll_scm_enabled = browser.find_element(By.ID, "cb17").is_selected()
+
+    saved_schedule = browser.find_element(By.XPATH, "//label[contains(., 'Poll SCM')]/following::textarea[1]").get_attribute("value")
+
+    assert poll_scm_enabled
+    assert saved_schedule == schedule
+
