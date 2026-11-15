@@ -435,3 +435,48 @@ def test_configure_build_after_other_projects_are_built(browser, wait10):
     assert failure_displayed
     assert aborted_displayed
 
+
+@pytest.mark.dependency(
+    name="build_triggers_helper_tooltips_checked",
+    depends=["build_after_other_projects_configured"]
+)
+def test_build_triggers_helper_tooltips(browser, wait10):
+    project_name = "Freestyle_Build_Triggers_Options_Test"
+
+    project_link = (By.CSS_SELECTOR, f"a[href='job/{project_name}/']")
+    configure_link = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
+
+    wait10.until(EC.element_to_be_clickable(project_link)).click()
+    wait10.until(EC.element_to_be_clickable(configure_link)).click()
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+
+    browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
+
+    jenkins_url = browser.current_url.split("/job/")[0]
+
+    help_buttons = [
+        ("Build periodically", "Provides a cron -like feature to periodically execute this project."),
+        ("Poll SCM", "Configure Jenkins to poll changes in SCM."),
+        ("Build after other projects are built",
+         "Set up a trigger so that when some other projects finish building, a new build is scheduled for this project.")
+    ]
+
+    help_urls = []
+
+    for name, expected_text in help_buttons:
+        locator = (By.CSS_SELECTOR, f"a[aria-label='Help for feature: {name}']")
+        button = wait10.until(EC.presence_of_element_located(locator))
+        help_urls.append((button.get_attribute("helpurl"), expected_text))
+
+    help_results = []
+
+    for help_url, expected_text in help_urls:
+        browser.get(jenkins_url + help_url)
+        help_text = wait10.until(
+            EC.presence_of_element_located((By.TAG_NAME, "body"))
+        ).text
+        help_results.append(expected_text in help_text)
+
+    assert len(help_results) == 3
+    assert all(help_results)
+
