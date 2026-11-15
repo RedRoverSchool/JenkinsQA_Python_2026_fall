@@ -223,6 +223,7 @@ def test_error_message_for_invalid_git_repository_url(browser, wait10):
     assert "Failed to connect to repository" in error_message.text
 
 
+@pytest.mark.dependency(name="build_triggers_project_created")
 def test_build_triggers_options_are_available(browser, wait10):
     project_name = "Freestyle_Build_Triggers_Options_Test"
 
@@ -245,26 +246,36 @@ def test_build_triggers_options_are_available(browser, wait10):
     github_hook_trigger = browser.find_element(By.ID, "cb16")
     poll_scm = browser.find_element(By.ID, "cb17")
 
-    assert triggers_section.is_displayed()
-    assert remote_trigger.is_displayed() and remote_trigger.is_enabled()
-    assert build_after_other_projects.is_displayed() and build_after_other_projects.is_enabled()
-    assert poll_scm.is_displayed() and poll_scm.is_enabled()
-    assert build_periodically.is_displayed() and build_periodically.is_enabled()
-    assert github_hook_trigger.is_displayed() and github_hook_trigger.is_enabled()
+    triggers_displayed = triggers_section.is_displayed()
+    remote_displayed = remote_trigger.is_displayed() and remote_trigger.is_enabled()
+    build_after_displayed = build_after_other_projects.is_displayed() and build_after_other_projects.is_enabled()
+    periodic_displayed = build_periodically.is_displayed() and build_periodically.is_enabled()
+    github_displayed = github_hook_trigger.is_displayed() and github_hook_trigger.is_enabled()
+    poll_scm_displayed = poll_scm.is_displayed() and poll_scm.is_enabled()
 
-
-def test_create_project_without_build_triggers(browser, wait10):
-    project_name = "Freestyle_Build_Triggers_Default_Test"
-
-    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
-
-    name_field = browser.find_element(By.ID, "name")
-    name_field.send_keys(project_name)
-
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
-    browser.find_element(By.ID, "ok-button").click()
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
 
     wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    assert triggers_displayed
+    assert remote_displayed
+    assert build_after_displayed
+    assert periodic_displayed
+    assert github_displayed
+    assert poll_scm_displayed
+
+
+@pytest.mark.dependency(name="build_triggers_default_checked",depends=["build_triggers_project_created"])
+def test_build_triggers_are_disabled_by_default(browser, wait10):
+    project_name = "Freestyle_Build_Triggers_Options_Test"
+
+    project_link = (By.CSS_SELECTOR, f"a[href='job/{project_name}/']")
+    wait10.until(EC.element_to_be_clickable(project_link)).click()
+
+    configure_link = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
+    wait10.until(EC.element_to_be_clickable(configure_link)).click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
 
     browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
 
@@ -283,82 +294,59 @@ def test_create_project_without_build_triggers(browser, wait10):
     assert poll_scm is False
 
 
+@pytest.mark.dependency(name="remote_build_trigger_configured",depends=["build_triggers_default_checked"])
 def test_configure_remote_build_trigger_with_authentication_token(browser, wait10):
-    project_name = "Freestyle_Remote_Trigger_Test"
-    authentication_token = "RemoteBuildToken123"
+    project_name = "Freestyle_Build_Triggers_Options_Test"
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+    wait10.until(EC.element_to_be_clickable( (By.CSS_SELECTOR, f"a[href='job/{project_name}/']"))).click()
 
-    name_field = browser.find_element(By.ID, "name")
-    name_field.send_keys(project_name)
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']"))).click()
 
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
-    browser.find_element(By.ID, "ok-button").click()
-
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
     browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
 
-    remote_trigger_label = browser.find_element(
-        By.XPATH, "//label[contains(., 'Trigger builds remotely')]"
-    )
-
-    browser.execute_script(
-        "arguments[0].scrollIntoView({block: 'center'});", remote_trigger_label
-    )
-
+    remote_trigger_label = browser.find_element(By.XPATH, "//label[contains(., 'Trigger builds remotely')]")
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", remote_trigger_label)
     remote_trigger_label.click()
 
-    token_field = browser.find_element(By.NAME, "authToken")
-    token_field.send_keys(authentication_token)
-
+    browser.find_element(By.NAME, "authToken").send_keys("RemoteBuildToken123")
     browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
 
     wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
-    browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']").click()
+    browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']" ).click()
 
     wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+    remote_trigger_enabled = browser.find_element(By.ID, "cb13").is_selected()
 
-    remote_trigger = browser.find_element(By.ID, "cb13")
-
-    assert remote_trigger.is_selected()
+    assert remote_trigger_enabled
 
 
+@pytest.mark.dependency(name="build_periodically_configured", depends=["remote_build_trigger_configured"])
 def test_configure_build_periodically_with_valid_schedule(browser, wait10):
-    project_name = "Freestyle_Build_Periodically_Test"
+    project_name = "Freestyle_Build_Triggers_Options_Test"
     schedule = "H/5 * * * *"
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='job/{project_name}/']") )).click()
 
-    name_field = browser.find_element(By.ID, "name")
-    name_field.send_keys(project_name)
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']"))).click()
 
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
-    browser.find_element(By.ID, "ok-button").click()
-
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
     browser.find_element(By.CSS_SELECTOR, "div.jenkins-section__title").click()
 
     periodic_trigger_label = browser.find_element(By.XPATH, "//label[contains(., 'Build periodically')]")
-
     browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", periodic_trigger_label)
     periodic_trigger_label.click()
 
-    schedule_field = browser.find_element(By.CSS_SELECTOR, "textarea[name='_.spec']")
-    schedule_field.send_keys(schedule)
-
+    browser.find_element(By.CSS_SELECTOR, "textarea[name='_.spec']").send_keys(schedule)
     browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
 
     wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
     browser.find_element(By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']").click()
 
     wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
 
-    periodic_trigger = browser.find_element(By.CSS_SELECTOR, "input[name='hudson-triggers-TimerTrigger']")
-    saved_schedule = browser.find_element(By.CSS_SELECTOR, "textarea[name='_.spec']")
+    periodic_trigger = browser.find_element(By.CSS_SELECTOR, "input[name='hudson-triggers-TimerTrigger']").is_selected()
+    saved_schedule = browser.find_element(By.CSS_SELECTOR, "textarea[name='_.spec']").get_attribute("value")
 
-    assert periodic_trigger.is_selected()
-    assert saved_schedule.get_attribute("value") == schedule
+    assert periodic_trigger
+    assert saved_schedule == schedule
