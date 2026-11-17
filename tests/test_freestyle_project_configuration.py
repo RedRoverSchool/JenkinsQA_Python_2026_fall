@@ -562,7 +562,21 @@ def test_multiple_post_build_actions_can_be_added(browser, wait10):
 
         print("CI click diagnostics:", diagnostics)
 
-        wait10.until(EC.element_to_be_clickable(add_button)).click()
+        add_element = wait10.until(EC.element_to_be_clickable(add_button))
+
+        print("Before click:", browser.execute_script("""
+                const add = arguments[0];
+                const rect = add.getBoundingClientRect();
+
+                return {
+                    scrollY: window.scrollY,
+                    addTop: rect.top,
+                    addBottom: rect.bottom,
+                    addCenterY: rect.top + rect.height / 2
+                };
+            """, add_element))
+
+        add_element.click()
 
         action_locator = (
             By.XPATH,
