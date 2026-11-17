@@ -533,7 +533,7 @@ def test_multiple_post_build_actions_can_be_added(browser, wait10):
 
     for action in ["Archive the artifacts", "E-mail Notification"]:
         add_element = browser.find_element(*add_button)
-        browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_element)
+        browser.execute_script("arguments[0].scrollIntoView({block: 'start'});", add_element)
         wait10.until(EC.element_to_be_clickable(add_button)).click()
 
         action_locator = (By.XPATH,
