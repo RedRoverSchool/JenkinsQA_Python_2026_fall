@@ -528,13 +528,39 @@ def test_multiple_post_build_actions_can_be_added(browser, wait10):
     wait10.until(EC.element_to_be_clickable(configure_link)).click()
     wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
 
-    browser.find_element(By.CSS_SELECTOR, "button[data-section-id='50-6f-73-74-2d-62-75-69-6c-64-20-41-63-74-69-6f-6e-73']").click()
+    browser.find_element(
+        By.CSS_SELECTOR,
+        "button[data-section-id='50-6f-73-74-2d-62-75-69-6c-64-20-41-63-74-69-6f-6e-73']"
+    ).click()
 
     add_button = (By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']")
 
     for action in ["Archive the artifacts", "E-mail Notification"]:
         add_element = browser.find_element(*add_button)
-        browser.execute_script("arguments[0].scrollIntoView({block: 'start'});", add_element)
+        browser.execute_script(
+            "arguments[0].scrollIntoView({block: 'start'});",
+            add_element
+        )
+
+        diagnostics = browser.execute_script("""
+            const add = arguments[0];
+            const save = document.querySelector("button[name='Submit'][value='Save']");
+            const a = add.getBoundingClientRect();
+            const s = save.getBoundingClientRect();
+            const x = a.left + a.width / 2;
+            const y = a.top + a.height / 2;
+            const hit = document.elementFromPoint(x, y);
+
+            return {
+                viewport: {width: window.innerWidth, height: window.innerHeight},
+                scrollY: window.scrollY,
+                add: {top: a.top, bottom: a.bottom, x: x, y: y},
+                save: {top: s.top, bottom: s.bottom},
+                elementAtAddCenter: hit ? hit.outerHTML : null
+            };
+        """, add_element)
+
+        print("CI click diagnostics:", diagnostics)
 
         wait10.until(EC.element_to_be_clickable(add_button)).click()
 
@@ -544,9 +570,12 @@ def test_multiple_post_build_actions_can_be_added(browser, wait10):
         )
         wait10.until(EC.element_to_be_clickable(action_locator)).click()
 
-    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+    browser.find_element(
+        By.CSS_SELECTOR,
+        "button[name='Submit'][value='Save']"
+    ).click()
+
     wait10.until(EC.url_contains(f"/job/{project_name}/"))
 
     assert "Archive the artifacts" in browser.page_source
     assert "E-mail Notification" in browser.page_source
-
