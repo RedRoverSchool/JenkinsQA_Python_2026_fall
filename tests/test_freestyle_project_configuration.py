@@ -516,3 +516,38 @@ def test_post_build_actions_options_are_available(browser, wait10):
 
     assert all(action in available_actions for action in expected_actions)
 
+
+@pytest.mark.dependency(depends=["post_build_project_created"])
+def test_multiple_post_build_actions_can_be_added(browser, wait10):
+    project_name = "Freestyle_Post_Build_Actions_Test"
+
+    project_link = (By.CSS_SELECTOR, f"a[href='job/{project_name}/']")
+    configure_link = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
+
+    wait10.until(EC.element_to_be_clickable(project_link)).click()
+    wait10.until(EC.element_to_be_clickable(configure_link)).click()
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+
+    browser.find_element(By.CSS_SELECTOR, "button[data-section-id='50-6f-73-74-2d-62-75-69-6c-64-20-41-63-74-69-6f-6e-73']").click()
+
+    add_button = (By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']")
+
+    for action in ["Archive the artifacts", "E-mail Notification"]:
+        add_element = browser.find_element(*add_button)
+        browser.execute_script("arguments[0].scrollIntoView({block: 'start'});", add_element)
+        browser.execute_script("window.scrollBy(0, 250);")
+
+        wait10.until(EC.element_to_be_clickable(add_button)).click()
+
+        action_locator = (By.XPATH, f"//button[contains(@class, 'jenkins-dropdown__item') and normalize-space()='{action}']")
+        wait10.until(EC.element_to_be_clickable(action_locator)).click()
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    wait10.until(EC.element_to_be_clickable(configure_link)).click()
+    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+
+    assert "Archive the artifacts" in browser.page_source
+    assert "E-mail Notification" in browser.page_source
+
