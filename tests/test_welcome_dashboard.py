@@ -1,4 +1,3 @@
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -43,3 +42,33 @@ def test_create_job(browser, wait5):
 
     job = browser.find_element(By.XPATH, f"//a[@href='job/{JOB_NAME}/' and contains(@class,'jenkins-table__link')]")
     assert job.is_displayed()
+
+def test_manage_jenkins(browser, wait5):
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//a[contains(@id,'ManageJenkinsAction')]"))
+    ).click()
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//section[contains(@class,'jenkins-section')]"))
+    )
+
+    expected_groups = ['System Configuration',
+                       'Security',
+                       'Status Information',
+                       'Troubleshooting',
+                       'Tools and Actions']
+
+    expected_options = ['System', 'Tools', 'Plugins', 'Nodes', 'Clouds', 'Appearance',
+                        'Security', 'Credentials', 'Credential Providers', 'Users',
+                        'System Information', 'Logs', 'Load Statistics', 'About Jenkins',
+                        'Manage Old Data',
+                        'Reload Configuration from Disk', 'Jenkins CLI', 'Script Console', 'Prepare for Shutdown']
+
+    groups = [el.text for el in browser.find_elements(By.XPATH, "//section[contains(@class,'jenkins-section')]/h2")]
+    options = [el.text for el in browser.find_elements(By.XPATH, "//section[contains(@class,'jenkins-section')]//dt")]
+
+    assert groups == expected_groups
+    assert options == expected_options
+
+
