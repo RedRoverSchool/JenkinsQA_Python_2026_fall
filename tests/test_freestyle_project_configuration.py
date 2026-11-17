@@ -480,3 +480,39 @@ def test_build_triggers_helper_tooltips(browser, wait10):
     assert len(help_results) == 3
     assert all(help_results)
 
+
+@pytest.mark.dependency(name="post_build_project_created")
+def test_post_build_actions_options_are_available(browser, wait10):
+    project_name = "Freestyle_Post_Build_Actions_Test"
+    expected_actions = [
+        "Aggregate downstream test results",
+        "Archive the artifacts",
+        "Build other projects",
+        "Publish JUnit test result report",
+        "Record fingerprints of files to track usage",
+        "Git Publisher",
+        "E-mail Notification",
+        "Editable Email Notification",
+        "Set GitHub commit status (universal)",
+        "Delete workspace when build is done"
+    ]
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+    browser.find_element(By.ID, "name").send_keys(project_name)
+    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
+    browser.find_element(By.ID, "ok-button").click()
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    browser.find_element(By.CSS_SELECTOR, "button[data-section-id='50-6f-73-74-2d-62-75-69-6c-64-20-41-63-74-69-6f-6e-73']").click()
+    add_button = browser.find_element(By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']")
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_button)
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']"))).click()
+
+    action_items = wait10.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "button.jenkins-dropdown__item")))
+    available_actions = [item.get_attribute("textContent").strip() for item in action_items]
+
+    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    assert all(action in available_actions for action in expected_actions)
+
