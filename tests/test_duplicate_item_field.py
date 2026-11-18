@@ -92,3 +92,15 @@ def test_created_item_visible_on_dashboard(browser, wait2, wait10):
     )
 
     assert item_link.is_displayed()
+
+def test_item_visible_after_skipping_save(browser, wait2, wait10):
+    item_name = "SkipSaveItem"
+
+    create_freestyle_item(browser, wait2, wait10, item_name, save=False)
+
+    return_to_dashboard(browser, wait10)
+
+    item_link = wait10.until(
+        EC.visibility_of_element_located((By.LINK_TEXT, item_name))
+    )
+    assert item_link.is_displayed()
