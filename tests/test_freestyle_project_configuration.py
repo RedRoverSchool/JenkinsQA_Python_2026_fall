@@ -551,3 +551,31 @@ def test_multiple_post_build_actions_can_be_added(browser, wait10):
     assert "Archive the artifacts" in browser.page_source
     assert "E-mail Notification" in browser.page_source
 
+@pytest.mark.dependency(name="save_apply_project_created")
+def test_save_apply_buttons_are_available(browser, wait10):
+    project_name = "Freestyle_Save_Apply_Test"
+
+    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
+
+    name_field = browser.find_element(By.ID, "name")
+    name_field.send_keys(project_name)
+
+    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
+    browser.find_element(By.ID, "ok-button").click()
+
+    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+
+    save_button = browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']")
+    apply_button = browser.find_element(By.CSS_SELECTOR, "button[name='Apply']")
+
+    save_displayed = save_button.is_displayed() and save_button.is_enabled()
+    apply_displayed = apply_button.is_displayed() and apply_button.is_enabled()
+
+    configuration_url = browser.current_url
+    save_button.click()
+
+    wait10.until(EC.url_changes(configuration_url))
+
+    assert save_displayed
+    assert apply_displayed
+
