@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import pages
 import time
 
-class BasePage:
+class BaseModel:
 
     def __init__(self, driver):
         self.driver = driver
