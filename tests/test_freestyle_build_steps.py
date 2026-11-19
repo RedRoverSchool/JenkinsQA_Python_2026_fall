@@ -280,3 +280,113 @@ def test_helper_tooltip(browser, wait5):
     assert ant_helper.is_displayed()
     helper.click()
     assert not ant_helper.is_displayed()
+
+
+def test_invoke_maven_and_set_with_timeout(browser, wait5):
+    new_item = wait5.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+    new_item.click()
+
+    item_name = "Freestyle Project with two Build Steps"
+    name_field = browser.find_element(By.CSS_SELECTOR, "input#name")
+    name_field.send_keys(item_name)
+
+    freestyle = browser.find_element(By.XPATH, "//*[text()='Freestyle project']")
+    freestyle.click()
+
+    ok_button = browser.find_element(By.CSS_SELECTOR, "button#ok-button")
+    ok_button.click()
+
+    add_build_steps = wait5.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[suffix = 'builder']")))
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_build_steps)
+    add_build_steps.click()
+
+    invoke_tl_maven = browser.find_element(By.XPATH, '//*[@id="tippy-5"]/div/div/div/div[2]/button[5]')
+    invoke_tl_maven.click()
+
+    goals = browser.find_element(By.CSS_SELECTOR, 'input[name="_.targets"]')
+    input_text = "Test123"
+    goals.send_keys(input_text)
+
+    advanced_invoke_tl = browser.find_element(By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[2]/div[1]/button')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", advanced_invoke_tl)
+    advanced_invoke_tl.click()
+
+    pom = wait5.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input[name="_.pom"]')))
+    pom.send_keys(input_text)
+
+    properties = browser.find_element(By.CSS_SELECTOR, 'textarea[name="_.properties"]')
+    properties.send_keys(input_text)
+
+    jvm_options = browser.find_element(By.CSS_SELECTOR, 'input[name="_.jvmOptions"]')
+    jvm_options.send_keys(input_text)
+
+    inject_build_checkbox = browser.find_element(By.XPATH, '//input[@name="_.injectBuildVariables"]/following-sibling::label')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", inject_build_checkbox)
+    inject_build_checkbox.click()
+
+    use_private_checkbox = browser.find_element(By.XPATH, '//input[@name="_.usePrivateRepository"]/following-sibling::label')
+    use_private_checkbox.click()
+
+    settings_file_dropdown = browser.find_element(By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[3]/div[6]/div[3]/select')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", settings_file_dropdown)
+    settings_file_dropdown.click()
+
+    settings_file_in = browser.find_element(By.XPATH, '//option[contains(text(), "Settings file in")]')
+    settings_file_in.click()
+
+    file_path = wait5.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input[name="_.path"]')))
+    file_path.send_keys(input_text)
+
+    global_settings_dropdown = browser.find_element(By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[3]/div[8]/div[3]/select')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", global_settings_dropdown)
+    global_settings_dropdown.click()
+
+    global_settings_file_option = wait5.until(EC.visibility_of_element_located((By.XPATH, '//option[contains(text(), "Global settings")]')))
+    global_settings_file_option.click()
+
+    file_path2 = wait5.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div/div[4]/div[3]/div[9]/div/div/div[7]/div[2]/input')))
+    file_path2.send_keys(input_text)
+
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_build_steps)
+    add_build_steps.click()
+    run_with_timeout = browser.find_element(By.XPATH, '//*[@id="tippy-5"]/div/div/div/div[2]/button[6]')
+    run_with_timeout.click()
+
+    time_out_dropdown = wait5.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div[2]/div[3]/div[1]/div[2]/select')))
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", time_out_dropdown)
+    time_out_dropdown.click()
+
+    deadline_option = browser.find_element(By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div[2]/div[3]/div[1]/div[2]/select/option[2]')
+    deadline_option.click()
+
+    deadline_time = wait5.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input[name="_.deadlineTime"]')))
+    deadline_time.clear()
+    deadline_time.send_keys("00:01:10")
+    deadline_tolerance = browser.find_element(By.CSS_SELECTOR, 'input[name="_.deadlineToleranceInMinutes"]')
+    deadline_tolerance.send_keys("12")
+
+    build_step_dropdown = browser.find_element(By.XPATH, '//*[@id="main-panel"]/form/div[1]/section[5]/div[3]/div[2]/div[3]/div[3]/div[1]/div[1]/div[2]/select')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", build_step_dropdown)
+    build_step_dropdown.click()
+
+    invoke_ant_option = browser.find_element(By.XPATH, '//option[@value="2" and contains(text(), "Invoke Ant")]')
+    browser.find_element(By.TAG_NAME, "body").click()
+    invoke_ant_option.click()
+
+    elements = browser.find_elements(By.CSS_SELECTOR, 'input[name="_.targets"]')
+    targets = elements[1]
+    targets.send_keys(input_text)
+
+    add_action_buttons = browser.find_elements(By.CSS_SELECTOR, '[suffix="operationList"]')
+    add_action_button = add_action_buttons[1]
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_action_button)
+    add_action_button.click()
+
+    abort_the_build_option = browser.find_element(By.XPATH, '//button[contains(text(), "Abort the build")]')
+    abort_the_build_option.click()
+
+    save_button = browser.find_element(By.NAME, 'Submit')
+    save_button.click()
+
+    wait5.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), item_name))
+    assert item_name in browser.find_element(By.TAG_NAME, "h1").text

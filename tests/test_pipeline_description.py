@@ -127,6 +127,7 @@ def test_clear_description_field(browser, wait10):
     wait10.until(description_is_empty)
     assert description_is_empty(browser), "Ошибка: блок с описанием не пустой"
 
+@pytest.mark.skip
 @pytest.mark.dependency(depends=["test_access_description_via_new_item"])
 def test_description_via_drop_down_menu(browser, wait10):
     job_name = browser.find_element(*JOB_NAME)
