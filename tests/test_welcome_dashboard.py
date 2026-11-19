@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -71,4 +73,31 @@ def test_manage_jenkins(browser, wait5):
     assert groups == expected_groups
     assert options == expected_options
 
+def test_build_queue(browser, wait5):
 
+    expand_collapse_locator = (By.XPATH, "//a[contains(@href,'buildQueue')]")
+    queue_message_locator = (By.XPATH, "//td[text()='No builds in the queue.']")
+    welcome_title_locator = (By.XPATH, "//div[@class='empty-state-block']/h1")
+
+    wait5.until(
+        EC.visibility_of_element_located((By.XPATH, "//div[@id='buildQueue']"))
+    )
+
+    expand_collapse = browser.find_element(*expand_collapse_locator)
+    if expand_collapse.get_attribute("title") == "collapse":
+        expand_collapse.click()
+        wait5.until(
+            EC.text_to_be_present_in_element_attribute(expand_collapse_locator, "title", "expand")
+        )
+
+    browser.find_element(*expand_collapse_locator).click()
+    queue_message = wait5.until(
+        EC.visibility_of_element_located(queue_message_locator)
+    )
+
+    browser.find_element(*expand_collapse_locator).click()
+    is_hidden = wait5.until(
+        EC.invisibility_of_element_located(queue_message)
+    )
+    assert is_hidden
+    assert browser.find_element(*welcome_title_locator).is_displayed()
