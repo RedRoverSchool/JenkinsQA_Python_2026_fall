@@ -5,8 +5,7 @@ from pages.freestyle_configuration_page import FreestyleConfigurationPage
 
 
 class FreestyleProjectPage(BasePage):
-
-    def click_configuration(self):
+    def click_configuration(self) -> FreestyleConfigurationPage:
         self.driver.find_element(By.XPATH, "//a[contains(., 'Configure')]").click()
 
         return FreestyleConfigurationPage(self.driver)

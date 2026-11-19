@@ -2,22 +2,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
-from pages.new_item_page import NewItemPage
 
 
 class FolderPage(BasePage):
 
-    def get_config_description(self):
+    def get_configuration_description(self) -> str:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "view-message"))).text
-
-    def click_new_item(self):
-        self.wait10.until(
-            EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, '/newJob')]"))
-        ).click()
-
-        return NewItemPage(self.driver)
-
-    def get_full_folder_name(self):
-        self.wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".job-index-headline.page-headline")))
-        return [line for line in self.driver.find_element(By.ID, "main-panel").text.split('\n') if
-                line.startswith("Full folder name: ")][0]

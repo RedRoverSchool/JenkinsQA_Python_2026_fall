@@ -1,4 +1,3 @@
-import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -6,22 +5,21 @@ from pages.home_page import HomePage
 
 
 def test_create_folder_from_dashboard(browser, wait10):
-
     folder_name = "TestFolder_01"
 
-    project_name=(
-        HomePage(browser.driver)
+    project_name = (
+        HomePage(browser)
         .click_new_item()
         .set_item_name(folder_name)
         .select_folder_and_click_ok()
         .goto_home_page()
-        .get_first_project_name())
+        .get_first_project_name()
+    )
 
     assert folder_name in project_name
 
 
 def test_create_nested_folder(browser, wait10):
-
     parent_name = "ParentFolder2"
     child_name = "NestedFolder2"
 

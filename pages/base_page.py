@@ -1,12 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from selenium.webdriver.common.by import By
 
 from common.base_model import BaseModel
-from pages.home_page import HomePage
+
+if TYPE_CHECKING:
+    from pages.home_page import HomePage
 
 
 class BasePage(BaseModel):
+    def goto_home_page(self) -> HomePage:
+        from pages.home_page import HomePage
 
-  def goto_home_page(self):
-      self.driver.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
+        self.driver.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
 
-      return HomePage(self.driver)
+        return HomePage(self.driver)

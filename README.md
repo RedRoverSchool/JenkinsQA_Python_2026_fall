@@ -95,6 +95,31 @@ python -m pytest tests/test_Serj_Jenkins.py -v -s
 python -m pytest -k jenkins -v -s
 ```
 
+## Стиль кода
+
+Для `pages/` используем отступы в четыре пробела и лимит строки 120 символов.
+Настройки проверки и форматирования Ruff находятся в `pyproject.toml`.
+
+Установите инструменты разработки:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+```
+
+Проверка стиля и форматирования:
+
+```powershell
+python -m ruff check pages tests/test_folder.py
+python -m ruff format --check pages tests/test_folder.py
+```
+
+Автоматическое исправление импортов и форматирование:
+
+```powershell
+python -m ruff check --fix pages tests/test_folder.py
+python -m ruff format pages tests/test_folder.py
+```
+
 ## CI
 
 Workflow `.github/workflows/ci.yml` запускается для pull request в `main`.
