@@ -1,10 +1,6 @@
 from functools import cached_property
 
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-import pages
-import time
 
 class BaseModel:
 

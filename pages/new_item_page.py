@@ -24,4 +24,7 @@ class NewItemPage(BasePage):
         self.driver.find_element(By.CLASS_NAME, "com_cloudbees_hudson_plugins_folder_Folder").click()
         self.driver.find_element(By.ID, "ok-button").click()
 
+        # wait new page
+        self.wait10.until(EC.presence_of_element_located(By.ID, "side-panel"))
+
         return FolderConfigurationPage(self.driver)
