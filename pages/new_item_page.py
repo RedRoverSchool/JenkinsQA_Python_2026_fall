@@ -25,6 +25,6 @@ class NewItemPage(BasePage):
         self.driver.find_element(By.ID, "ok-button").click()
 
         # wait new page
-        self.wait10.until(EC.presence_of_element_located(By.ID, "side-panel"))
+        self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
         return FolderConfigurationPage(self.driver)
