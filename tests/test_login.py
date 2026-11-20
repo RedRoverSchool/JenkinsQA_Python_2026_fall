@@ -13,7 +13,9 @@ def test_successful_login(browser, wait10):
 
     LoginPage(browser).login(username, password)
 
-    wait10.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+    new_item_btn = wait10.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
+
+    assert new_item_btn.is_displayed(), "Кнопка 'New Item' не отображается. Возможно, логин неверный."
 
 
 def test_login_with_invalid_credentials(browser, wait10):
