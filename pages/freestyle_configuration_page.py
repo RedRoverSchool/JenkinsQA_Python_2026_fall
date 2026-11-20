@@ -12,6 +12,42 @@ if TYPE_CHECKING:
 
 
 class FreestyleConfigurationPage(BasePage):
+    ENVIRONMENT_BUTTON = (
+        By.XPATH,
+        "//button[.//span[normalize-space()='Environment']]"
+    )
+    ENVIRONMENT_OPTIONS = [
+        (By.ID, "cb18"),
+        (By.ID, "cb19"),
+        (By.ID, "cb21"),
+        (By.ID, "cb22"),
+        (By.ID, "cb23"),
+        (By.NAME, "hudson-tasks-AntWrapper"),
+    ]
+
+    def click_environment(self) -> FreestyleConfigurationPage:
+        self.wait10.until(
+            EC.element_to_be_clickable(self.ENVIRONMENT_BUTTON)
+        ).click()
+
+        return self
+
+    def are_environment_options_displayed(self) -> bool:
+        return all(
+            self.wait10.until(
+                EC.visibility_of_element_located(locator)
+            ).is_displayed()
+            for locator in self.ENVIRONMENT_OPTIONS
+        )
+
+    def are_environment_options_unselected(self) -> bool:
+        return all(
+            not self.wait10.until(
+                EC.visibility_of_element_located(locator)
+            ).is_selected()
+            for locator in self.ENVIRONMENT_OPTIONS
+        )
+
     def click_save(self) -> FreestyleProjectPage:
         from pages.freestyle_project_page import FreestyleProjectPage
 

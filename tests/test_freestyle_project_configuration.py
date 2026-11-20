@@ -66,60 +66,33 @@ def test_enable_disabled_freestyle_project(browser):
     assert project_page.is_enable_button_hidden()
 
 
-@pytest.mark.dependency(name="environment_project_created")
-def test_environment_options_are_available(browser, wait10):
-    project_name = "Freestyle_Environment_Test"
+@pytest.mark.dependency(
+    name="environment_options_available",
+    depends=["project_created"]
+)
+def test_environment_options_are_available(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_environment()
+    )
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
-    browser.find_element(By.ID, "name").send_keys(project_name)
-
-    browser.find_element(By.XPATH, "//span[normalize-space()='Freestyle project']/parent::label").click()
-    browser.find_element(By.ID, "ok-button").submit()
-
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
-    browser.find_element(By.XPATH, "//button[.//span[normalize-space()='Environment']]").click()
-
-    delete_workspace = browser.find_element(By.XPATH, "//label[normalize-space()='Delete workspace before build starts']")
-    secret_text = browser.find_element(By.XPATH, "//label[normalize-space()='Use secret text(s) or file(s)']")
-    timestamps = browser.find_element(By.XPATH, "//label[normalize-space()='Add timestamps to the Console Output']")
-    build_scans = browser.find_element(By.XPATH, "//label[normalize-space()='Inspect build log for published build scans']")
-    terminate_build = browser.find_element(By.XPATH, "//label[normalize-space()=\"Terminate a build if it's stuck\"]")
-    ant = browser.find_element(By.XPATH, "//label[normalize-space()='With Ant']")
-
-    assert delete_workspace.is_displayed()
-    assert secret_text.is_displayed()
-    assert timestamps.is_displayed()
-    assert build_scans.is_displayed()
-    assert terminate_build.is_displayed()
-    assert ant.is_displayed()
+    assert configuration_page.are_environment_options_displayed()
 
 
-@pytest.mark.dependency(depends=["environment_project_created"])
-def test_create_project_without_environment_settings(browser, wait10):
-    browser.find_element( By.CSS_SELECTOR,"a[href='job/Freestyle_Environment_Test/']").click()
+@pytest.mark.dependency(depends=["environment_options_available"])
+def test_create_project_without_environment_settings(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_environment()
+    )
 
-    wait10.until(EC.url_contains("/job/Freestyle_Environment_Test/"))
-
-    browser.find_element( By.CSS_SELECTOR, "a[href='/job/Freestyle_Environment_Test/configure']").click()
-
-    wait10.until(EC.url_contains("/configure"))
-
-    browser.find_element( By.XPATH, "//button[.//span[normalize-space()='Environment']]" ).click()
-
-    timestamps = browser.find_element(By.ID, "cb21")
-    delete_workspace = browser.find_element(By.ID, "cb18")
-    secret_text = browser.find_element(By.ID, "cb19")
-    build_scans = browser.find_element(By.ID, "cb22")
-    terminate_build = browser.find_element(By.ID, "cb23")
-    ant = browser.find_element(By.NAME, "hudson-tasks-AntWrapper")
-
-    assert not timestamps.is_selected()
-    assert not delete_workspace.is_selected()
-    assert not secret_text.is_selected()
-    assert not build_scans.is_selected()
-    assert not terminate_build.is_selected()
-    assert not ant.is_selected()
+    assert configuration_page.are_environment_options_unselected()
 
 
 @pytest.mark.dependency(name="scm_project_created")
