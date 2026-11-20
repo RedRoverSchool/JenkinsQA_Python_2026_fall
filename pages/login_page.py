@@ -10,6 +10,9 @@ class LoginPage(BasePage):
         self.wait10.until(EC.visibility_of_element_located((By.ID, "j_username"))).send_keys(username)
         self.driver.find_element(By.NAME, "j_password").send_keys(password)
         self.driver.find_element(By.NAME, "Submit").click()
+
+        self.wait10.until(lambda d: "login" not in d.current_url)
+
         return HomePage(self.driver)
 
     def get_error_message(self) -> str:
