@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 from pages.folder_configuration_page import FolderConfigurationPage
 from pages.freestyle_configuration_page import FreestyleConfigurationPage
+from pages.pipeline_configuration_page import PipelineConfigurationPage
 
 
 class NewItemPage(BasePage):
@@ -29,6 +30,15 @@ class NewItemPage(BasePage):
 
         return FolderConfigurationPage(self.driver)
 
+    def select_pipeline_and_click_ok(self) -> PipelineConfigurationPage:
+        self.driver.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
+        self.wait2.until(EC.element_to_be_clickable((By.ID, "ok-button"))).click()
+
+        # wait new page
+        self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
+
+        return PipelineConfigurationPage(self.driver)
+      
     def click_duplicate_option(self) -> Self:
         duplicate_option = self.wait10.until(EC.visibility_of_element_located((By.ID, "duplicate-job")))
         self.driver.execute_script("arguments[0].scrollIntoView(true);", duplicate_option)

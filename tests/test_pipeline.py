@@ -3,28 +3,23 @@ import random
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from pages.home_page import HomePage
 
 NAME_PIPELINE = ''.join(random.choices(string.ascii_lowercase, k=10))
 
 @pytest.mark.dependency()
-def test_create(browser, wait5):
-    create_item_button = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//span[@class = 'task-link-text' and contains(text(), 'Item')]/.."))
+def test_create(browser):
+    project_name = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(NAME_PIPELINE)
+        .select_pipeline_and_click_ok()
+        .goto_home_page()
+        .get_first_project_name()
     )
-    create_item_button.click()
 
-    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline']")
-    pipeline_button.click()
+    assert NAME_PIPELINE in project_name
 
-    field_name = browser.find_element(By.ID, "name")
-    field_name.send_keys(NAME_PIPELINE)
-
-    ok_button = wait5.until(
-        EC.element_to_be_clickable((By.ID, "ok-button")))
-    ok_button.click()
-
-    assert wait5.until(EC.url_contains(f"/job/{NAME_PIPELINE}/configure")
-    )
 
 def test_create_with_invalid_name(browser, wait2, wait5):
     invalid_name = 'pap$line!'
