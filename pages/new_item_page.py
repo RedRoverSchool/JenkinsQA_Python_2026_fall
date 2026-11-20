@@ -32,8 +32,6 @@ class NewItemPage(BasePage):
 
     def select_pipeline_and_click_ok(self) -> PipelineConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
-
-        # wait ok button
         self.wait2.until(EC.element_to_be_clickable((By.ID, "ok-button"))).click()
 
         # wait new page
