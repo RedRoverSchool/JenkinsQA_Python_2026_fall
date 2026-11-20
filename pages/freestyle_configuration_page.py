@@ -16,6 +16,7 @@ class FreestyleConfigurationPage(BasePage):
         from pages.freestyle_project_page import FreestyleProjectPage
 
         self.driver.find_element(By.NAME, "Submit").click()
+        self.wait10.until(EC.presence_of_element_located((By.ID, "description-link")))
 
         return FreestyleProjectPage(self.driver)
 
