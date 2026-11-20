@@ -8,3 +8,8 @@ class FolderPage(BasePage):
 
     def get_configuration_description(self) -> str:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "view-message"))).text
+
+    def click_new_item(self) -> 'NewItemPage':
+        from pages.new_item_page import NewItemPage
+        self.wait10.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'newJob')]"))).click()
+        return NewItemPage(self.driver)
