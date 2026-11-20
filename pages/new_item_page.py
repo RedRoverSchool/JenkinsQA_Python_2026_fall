@@ -19,13 +19,14 @@ class NewItemPage(BasePage):
         self.driver.find_element(By.CLASS_NAME, "hudson_model_FreeStyleProject").click()
         self.driver.find_element(By.ID, "ok-button").click()
 
+        self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
+
         return FreestyleConfigurationPage(self.driver)
 
     def select_folder_and_click_ok(self) -> FolderConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "com_cloudbees_hudson_plugins_folder_Folder").click()
         self.driver.find_element(By.ID, "ok-button").click()
 
-        # wait new page
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
         return FolderConfigurationPage(self.driver)
@@ -43,6 +44,7 @@ class NewItemPage(BasePage):
         duplicate_option = self.wait10.until(EC.visibility_of_element_located((By.ID, "duplicate-job")))
         self.driver.execute_script("arguments[0].scrollIntoView(true);", duplicate_option)
         self.wait10.until(EC.element_to_be_clickable((By.ID, "duplicate-job"))).click()
+
         return self
 
     def is_duplicate_option_displayed(self) -> bool:
