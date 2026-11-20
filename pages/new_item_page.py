@@ -28,3 +28,11 @@ class NewItemPage(BasePage):
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
         return FolderConfigurationPage(self.driver)
+
+    def select_freestyle_and_click_ok(self) -> FreestyleConfigurationPage:
+        self.driver.find_element(By.CLASS_NAME, "hudson_model_FreeStyleProject").click()
+        self.driver.find_element(By.ID, "ok-button").click()
+
+        self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
+
+        return FreestyleConfigurationPage(self.driver)

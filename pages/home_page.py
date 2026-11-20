@@ -4,6 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 from pages.new_item_page import NewItemPage
 from pages.manage_jenkins_page import ManageJenkinsPage
+from pages.freestyle_project_page import FreestyleProjectPage
 
 
 class HomePage(BasePage):
@@ -70,3 +71,12 @@ class HomePage(BasePage):
         return self.wait5.until(
             EC.visibility_of_element_located(self.NEW_ITEM_LINK)
         ).is_displayed()
+
+    def click_project(self, project_name: str) -> FreestyleProjectPage:
+        project_locator = (By.LINK_TEXT, project_name)
+
+        self.wait10.until(
+            EC.element_to_be_clickable(project_locator)
+        ).click()
+
+        return FreestyleProjectPage(self.driver)
