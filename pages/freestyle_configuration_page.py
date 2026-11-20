@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from selenium.webdriver.common.by import By
-
+from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 
 if TYPE_CHECKING:
@@ -15,5 +15,6 @@ class FreestyleConfigurationPage(BasePage):
         from pages.freestyle_project_page import FreestyleProjectPage
 
         self.driver.find_element(By.NAME, "Submit").click()
+        self.wait10.until(EC.presence_of_element_located((By.ID, "description-link")))
 
         return FreestyleProjectPage(self.driver)
