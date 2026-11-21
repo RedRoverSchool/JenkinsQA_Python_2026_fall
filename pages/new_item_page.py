@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 from pages.folder_configuration_page import FolderConfigurationPage
 from pages.freestyle_configuration_page import FreestyleConfigurationPage
+from pages.multiconfiguration_configuration_page import MulticonfigurationConfigurationPage
 
 
 class NewItemPage(BasePage):
@@ -28,3 +29,11 @@ class NewItemPage(BasePage):
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
         return FolderConfigurationPage(self.driver)
+
+    def select_multiconfiguration_and_click_ok(self) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.CLASS_NAME, "hudson_matrix_MatrixProject").click()
+        self.wait5.until(EC.element_to_be_clickable((By.ID, "ok-button")))
+        self.driver.find_element(By.ID, "ok-button").click()
+
+        return MulticonfigurationConfigurationPage(self.driver)
+

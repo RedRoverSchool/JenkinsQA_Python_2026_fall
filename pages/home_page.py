@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
+from pages.multiconfiguration_project_page import MulticonfigurationProjectPage
 from pages.new_item_page import NewItemPage
 
 
@@ -15,3 +16,8 @@ class HomePage(BasePage):
         return self.wait5.until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, ".jenkins-table__link >span:first-child"))
         ).text
+
+    def get_multiconfiguration_project(self, project_name: str) -> MulticonfigurationProjectPage:
+        self.driver.find_element(By.LINK_TEXT, project_name).click()
+
+        return MulticonfigurationProjectPage(self.driver)
