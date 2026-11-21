@@ -90,3 +90,10 @@ class HomePage(BasePage):
         ).click()
 
         return PipelinePage(self.driver)
+
+    def is_project_displayed(self, project_name: str) -> bool:
+        project_locator = (By.LINK_TEXT, project_name)
+
+        return self.wait10.until(
+            EC.visibility_of_element_located(project_locator)
+        ).is_displayed()
