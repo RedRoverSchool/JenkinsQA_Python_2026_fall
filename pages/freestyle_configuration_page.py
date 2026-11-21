@@ -25,6 +25,26 @@ class FreestyleConfigurationPage(BasePage):
         (By.NAME, "hudson-tasks-AntWrapper"),
     ]
 
+    SCM_BUTTON = (
+        By.XPATH,
+        "//button[.//span[normalize-space()='Source Code Management']]"
+    )
+    SCM_OPTIONS = [
+        (By.CSS_SELECTOR, "label[for='radio-block-0']"),
+        (By.CSS_SELECTOR, "label[for='radio-block-1']"),
+    ]
+    GIT_OPTION = (By.CSS_SELECTOR, "label[for='radio-block-1']")
+    GIT_FIELDS = [
+        (By.CSS_SELECTOR, "input[name='_.url']"),
+        (By.CSS_SELECTOR, "select[name='_.credentialsId']"),
+        (By.CSS_SELECTOR, "input[name='_.name'][default='*/master']"),
+    ]
+    REPOSITORY_URL = (By.CSS_SELECTOR, "input[name='_.url']")
+    GIT_ERROR_MESSAGE = (
+        By.XPATH,
+        "//div[contains(@class, 'error') and contains(., 'Failed to connect to repository')]"
+    )
+
     def click_environment(self) -> FreestyleConfigurationPage:
         self.wait10.until(
             EC.element_to_be_clickable(self.ENVIRONMENT_BUTTON)
@@ -48,11 +68,62 @@ class FreestyleConfigurationPage(BasePage):
             for locator in self.ENVIRONMENT_OPTIONS
         )
 
+    def click_scm(self) -> FreestyleConfigurationPage:
+        self.wait10.until(
+            EC.element_to_be_clickable(self.SCM_BUTTON)
+        ).click()
+
+        return self
+
+    def are_scm_options_displayed(self) -> bool:
+        return all(
+            self.wait10.until(
+                EC.visibility_of_element_located(locator)
+            ).is_displayed()
+            for locator in self.SCM_OPTIONS
+        )
+
+    def is_none_scm_selected(self) -> bool:
+        return self.wait10.until(
+            EC.presence_of_element_located((By.ID, "radio-block-0"))
+        ).is_selected()
+
+    def select_git_scm(self) -> FreestyleConfigurationPage:
+        self.wait10.until(
+            EC.element_to_be_clickable(self.GIT_OPTION)
+        ).click()
+
+        return self
+
+    def are_git_fields_displayed(self) -> bool:
+        return all(
+            self.wait10.until(
+                EC.visibility_of_element_located(locator)
+            ).is_displayed()
+            for locator in self.GIT_FIELDS
+        )
+
+    def enter_repository_url(self, repository_url: str) -> FreestyleConfigurationPage:
+        url_field = self.wait10.until(
+            EC.visibility_of_element_located(self.REPOSITORY_URL)
+        )
+        url_field.send_keys(repository_url)
+        url_field.send_keys("\t")
+
+        return self
+
+    def is_git_error_displayed(self) -> bool:
+        return "Failed to connect to repository" in self.wait10.until(
+            EC.visibility_of_element_located(self.GIT_ERROR_MESSAGE)
+        ).text
+
     def click_save(self) -> FreestyleProjectPage:
         from pages.freestyle_project_page import FreestyleProjectPage
 
         self.driver.find_element(By.NAME, "Submit").click()
-        self.wait10.until(EC.presence_of_element_located((By.ID, "description-link")))
+        self.wait10.until(
+            EC.presence_of_element_located((By.ID, "description-link"))
+        )
 
         return FreestyleProjectPage(self.driver)
 
