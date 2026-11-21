@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
+from pages.multiconfiguration_project_page import MulticonfigurationProjectPage
 from pages.new_item_page import NewItemPage
 from pages.manage_jenkins_page import ManageJenkinsPage
 from pages.freestyle_project_page import FreestyleProjectPage
@@ -29,6 +30,10 @@ class HomePage(BasePage):
             EC.visibility_of_element_located(self.FIRST_PROJECT_NAME)
         ).text
 
+    def get_multiconfiguration_project(self, project_name: str) -> MulticonfigurationProjectPage:
+        self.driver.find_element(By.LINK_TEXT, project_name).click()
+
+        return MulticonfigurationProjectPage(self.driver)
     def click_new_item(self) -> NewItemPage:
         self.wait5.until(
             EC.element_to_be_clickable(self.NEW_ITEM_LINK)
