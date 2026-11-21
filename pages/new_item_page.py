@@ -52,3 +52,20 @@ class NewItemPage(BasePage):
 
     def is_from_field_displayed(self) -> bool:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "from"))).is_displayed()
+
+    def select_pipeline(self) -> Self:
+        self.driver.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
+
+        return self
+
+    def get_error_name_message(self) -> str:
+
+        return self.wait2.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[class = 'error']"))).text
+
+    def is_error_message_displayed(self) -> bool:
+
+        return self.wait2.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[class = 'error']"))).is_displayed()
+
+    def is_ok_button_disabled(self) -> bool:
+
+        return bool(self.wait2.until(EC.element_attribute_to_include((By.ID, "ok-button"), "disabled")))
