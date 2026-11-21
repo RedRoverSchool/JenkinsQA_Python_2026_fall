@@ -1,42 +1,33 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from common.project_utils import get_user_name, get_password, get_url
+
+from common.project_utils import get_user_name, get_password
 from common.jenkins_utils import logout
+from pages.login_page import LoginPage
+
 
 def test_successful_login(browser, wait10):
-
     username = get_user_name()
     password = get_password()
-    base_url = get_url()
     logout(browser)
 
-    wait10.until(
-        EC.visibility_of_element_located((By.ID, "j_username"))
-    )
+    LoginPage(browser).login(username, password)
 
-    browser.find_element(By.ID, "j_username").send_keys(username)
-    browser.find_element(By.NAME, "j_password").send_keys(password)
-    browser.find_element(By.NAME, "Submit").click()
+    new_item_btn = wait10.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']")))
 
-    wait10.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))
-    )
-    assert "login" not in browser.current_url
+    assert new_item_btn.is_displayed(), "Кнопка 'New Item' не отображается. Возможно, логин неверный."
+
 
 def test_login_with_invalid_credentials(browser, wait10):
-
     username = get_user_name()
     logout(browser)
 
-    wait10.until(
-        EC.visibility_of_element_located((By.ID, "j_username"))
-    )
-    browser.find_element(By.ID, "j_username").send_keys(username)
-    browser.find_element(By.NAME, "j_password").send_keys("WrongPassword_12345!")
-    browser.find_element(By.NAME, "Submit").click()
+    login_page = LoginPage(browser)
 
-    error_message = wait10.until(
-        EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'Invalid username or password')]"))
-    )
+    login_page.driver.find_element(By.ID, "j_username").send_keys(username)
+    login_page.driver.find_element(By.NAME, "j_password").send_keys("WrongPassword_12345!")
+    login_page.driver.find_element(By.NAME, "Submit").click()
 
-    assert "Invalid username or password" in error_message.text
+    error_text = login_page.get_error_message()
+
+    assert "Invalid username or password" in error_text

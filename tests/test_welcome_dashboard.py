@@ -3,27 +3,21 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+from pages.home_page import HomePage
+from pages.manage_jenkins_page import ManageJenkinsPage
+
 JOB_NAME = "Job_1"
 
-def test_welcome_message_and_start_page(browser, wait5):
+def test_welcome_message_and_start_page(browser):
+    home_page = HomePage(browser)
 
-    welcome_title = browser.find_element(By.XPATH, "//div[@class='empty-state-block']/h1")
-    create_job = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//a[@href='newJob']"))
-    )
-    setup_agent = browser.find_element(By.XPATH, "//a[@href='computer/new']")
-    configure_cloud = browser.find_element(By.XPATH, "//a[@href='cloud/']")
-    learn_more = browser.find_element(By.XPATH, "//a[contains(@href,'jenkins.io')]")
-    description = browser.find_element(By.ID, "description-link")
-    new_item = browser.find_element(By.XPATH, "//a[@href='/view/all/newJob']")
-
-    assert welcome_title.text == "Welcome to Jenkins!"
-    assert create_job.is_displayed()
-    assert setup_agent.is_displayed()
-    assert configure_cloud.is_displayed()
-    assert learn_more.is_displayed()
-    assert description.is_displayed()
-    assert new_item.is_displayed()
+    assert home_page.get_welcome_title() == "Welcome to Jenkins!"
+    assert home_page.is_create_job_displayed()
+    assert home_page.is_setup_agent_displayed()
+    assert home_page.is_configure_cloud_displayed()
+    assert home_page.is_learn_more_displayed()
+    assert home_page.is_add_description_displayed()
+    assert home_page.is_new_item_displayed()
 
 def test_create_job(browser, wait5):
 
@@ -45,15 +39,9 @@ def test_create_job(browser, wait5):
     job = browser.find_element(By.XPATH, f"//a[@href='job/{JOB_NAME}/' and contains(@class,'jenkins-table__link')]")
     assert job.is_displayed()
 
-def test_manage_jenkins(browser, wait5):
+def test_manage_jenkins(browser):
 
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//a[contains(@id,'ManageJenkinsAction')]"))
-    ).click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//section[contains(@class,'jenkins-section')]"))
-    )
+    HomePage(browser).click_manage_jenkins()
 
     expected_groups = ['System Configuration',
                        'Security',
@@ -67,8 +55,8 @@ def test_manage_jenkins(browser, wait5):
                         'Manage Old Data',
                         'Reload Configuration from Disk', 'Jenkins CLI', 'Script Console', 'Prepare for Shutdown']
 
-    groups = [el.text for el in browser.find_elements(By.XPATH, "//section[contains(@class,'jenkins-section')]/h2")]
-    options = [el.text for el in browser.find_elements(By.XPATH, "//section[contains(@class,'jenkins-section')]//dt")]
+    groups = ManageJenkinsPage(browser).get_group_names()
+    options = ManageJenkinsPage(browser).get_option_names()
 
     assert groups == expected_groups
     assert options == expected_options
