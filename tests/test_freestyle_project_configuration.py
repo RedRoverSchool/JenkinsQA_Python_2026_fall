@@ -459,7 +459,7 @@ def test_post_build_actions_options_are_available(browser, wait10):
 
     assert all(action in available_actions for action in expected_actions)
 
-@pytest.mark.skip
+
 @pytest.mark.dependency(depends=["post_build_project_created"])
 def test_multiple_post_build_actions_can_be_added(browser, wait10):
     project_name = "Freestyle_Post_Build_Actions_Test"
@@ -480,9 +480,11 @@ def test_multiple_post_build_actions_can_be_added(browser, wait10):
         browser.execute_script("arguments[0].scrollIntoView({block: 'start'});", add_element)
         browser.execute_script("window.scrollBy(0, 250);")
 
-        wait10.until(EC.element_to_be_clickable(add_button)).click()
+        add_element = wait10.until(EC.element_to_be_clickable(add_button))
+        browser.execute_script("arguments[0].click();", add_element)
 
-        action_locator = (By.XPATH, f"//button[contains(@class, 'jenkins-dropdown__item') and normalize-space()='{action}']")
+        action_locator = (By.XPATH,
+                          f"//button[contains(@class, 'jenkins-dropdown__item') and normalize-space()='{action}']")
         wait10.until(EC.element_to_be_clickable(action_locator)).click()
 
     browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
