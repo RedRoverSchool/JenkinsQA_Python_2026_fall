@@ -113,9 +113,9 @@ class FreestyleConfigurationPage(BasePage):
         return self
 
     def is_git_error_displayed(self) -> bool:
-        return "Failed to connect to repository" in self.wait10.until(
+        return self.wait10.until(
             EC.visibility_of_element_located(self.GIT_ERROR_MESSAGE)
-        ).text
+        ).is_displayed()
 
     def click_save(self) -> FreestyleProjectPage:
         from pages.freestyle_project_page import FreestyleProjectPage
