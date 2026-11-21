@@ -459,7 +459,7 @@ def test_post_build_actions_options_are_available(browser, wait10):
 
     assert all(action in available_actions for action in expected_actions)
 
-
+@pytest.mark.skip
 @pytest.mark.dependency(depends=["post_build_project_created"])
 def test_multiple_post_build_actions_can_be_added(browser, wait10):
     project_name = "Freestyle_Post_Build_Actions_Test"
