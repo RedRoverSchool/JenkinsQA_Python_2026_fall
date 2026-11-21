@@ -5,6 +5,7 @@ from pages.base_page import BasePage
 from pages.new_item_page import NewItemPage
 from pages.manage_jenkins_page import ManageJenkinsPage
 from pages.freestyle_project_page import FreestyleProjectPage
+from pages.pipeline_page import PipelinePage
 
 
 class HomePage(BasePage):
@@ -80,3 +81,12 @@ class HomePage(BasePage):
         ).click()
 
         return FreestyleProjectPage(self.driver)
+
+    def click_pipeline(self, pipeline_name: str) -> PipelinePage:
+        pipeline_locator = (By.CSS_SELECTOR, f"[href='job/{pipeline_name}/']")
+
+        self.wait10.until(
+            EC.element_to_be_clickable(pipeline_locator)
+        ).click()
+
+        return PipelinePage(self.driver)
