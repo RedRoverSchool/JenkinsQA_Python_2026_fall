@@ -38,15 +38,14 @@ def test_created_item_visible_on_dashboard(browser):
 
     assert home_page.is_project_displayed(item_name)
 
-@pytest.mark.skip
-def test_item_visible_after_skipping_save(browser, wait2, wait10):
+def test_item_visible_after_skipping_save(browser):
     item_name = "SkipSaveItem"
 
-    create_freestyle_item(browser, wait2, wait10, item_name, save=False)
-
-    return_to_dashboard(browser, wait10)
-
-    item_link = wait10.until(
-        EC.visibility_of_element_located((By.LINK_TEXT, item_name))
+    home_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(item_name)
+        .select_freestyle_and_click_ok()
+        .goto_home_page()
     )
-    assert item_link.is_displayed()
+    assert home_page.is_project_displayed(item_name)
