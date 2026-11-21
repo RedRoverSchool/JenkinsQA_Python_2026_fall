@@ -95,75 +95,57 @@ def test_create_project_without_environment_settings(browser):
     assert configuration_page.are_environment_options_unselected()
 
 
-@pytest.mark.dependency(name="scm_project_created")
-def test_create_freestyle_project_and_check_scm_types(browser, wait10):
-    project_name = "Freestyle_SCM_Test"
+@pytest.mark.dependency(
+    name="scm_types_checked",
+    depends=["project_created"]
+)
+def test_scm_types_are_displayed(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_scm()
+    )
 
-    browser.find_element( By.CSS_SELECTOR, "a[href='/view/all/newJob']" ).click()
-
-    name_field = browser.find_element(By.ID, "name")
-    name_field.clear()
-    name_field.send_keys(project_name)
-
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])" ).click()
-
-    freestyle_selected = browser.find_element(By.CSS_SELECTOR, "input[value='hudson.model.FreeStyleProject']" ).is_selected()
-
-    browser.find_element(By.ID, "ok-button").click()
-
-    wait10.until(EC.url_contains("/job/"))
-
-    assert freestyle_selected
-    assert browser.find_element(By.XPATH, "//button[.//span[normalize-space()='Source Code Management']]").is_displayed()
-    assert browser.find_element(By.CSS_SELECTOR, "label[for='radio-block-0']").is_displayed()
-    assert browser.find_element(By.CSS_SELECTOR, "label[for='radio-block-1']").is_displayed()
-    assert browser.find_element(By.ID, "radio-block-0").is_selected()
+    assert configuration_page.are_scm_options_displayed()
+    assert configuration_page.is_none_scm_selected()
 
 
-@pytest.mark.dependency(name="git_fields_checked", depends=["scm_project_created"])
-def test_git_scm_fields_are_displayed_when_git_is_selected(browser, wait10):
-    project_name = "Freestyle_SCM_Test"
+@pytest.mark.dependency(
+    name="git_fields_checked",
+    depends=["scm_types_checked"]
+)
+def test_git_scm_fields_are_displayed_when_git_is_selected(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_scm()
+        .select_git_scm()
+    )
 
-    browser.find_element(By.CSS_SELECTOR, f"a[href='job/{project_name}/']").click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+    assert configuration_page.are_git_fields_displayed()
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='/job/Freestyle_SCM_Test/configure']").click()
-    browser.find_element(By.CSS_SELECTOR, "label[for='radio-block-1']").click()
-
-    repository_url = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "input[name='_.url']")))
-    credentials = browser.find_element(By.CSS_SELECTOR, "select[name='_.credentialsId']")
-    branch = wait10.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "input[name='_.name'][default='*/master']")))
-
-    assert repository_url.is_displayed()
-    assert credentials.is_displayed()
-    assert branch.is_displayed()
-
-
-@pytest.mark.dependency(name="invalid_git_url_checked", depends=["git_fields_checked"])
-def test_error_message_for_invalid_git_repository_url(browser, wait10):
-    project_name = "Freestyle_SCM_Test"
+@pytest.mark.dependency(
+    name="invalid_git_url_checked",
+    depends=["git_fields_checked"]
+)
+def test_error_message_for_invalid_git_repository_url(browser):
     invalid_repository_url = "https://github.com/invalid-user/non-existing-repository.git"
 
-    browser.find_element(By.CSS_SELECTOR, f"a[href='job/{project_name}/']").click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_scm()
+        .select_git_scm()
+        .enter_repository_url(invalid_repository_url)
+    )
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='/job/Freestyle_SCM_Test/configure']").click()
-    browser.find_element(By.XPATH, "//button[.//span[normalize-space()='Source Code Management']]").click()
-    browser.find_element(By.CSS_SELECTOR, "label[for='radio-block-1']").click()
-
-    repository_url_field = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "input[name='_.url']")))
-    repository_url_field.send_keys(invalid_repository_url)
-    repository_url_field.send_keys(Keys.TAB)
-
-    wait10.until(EC.text_to_be_present_in_element(
-        (By.XPATH, "//div[contains(@class, 'error') and contains(., 'Failed to connect to repository')]"),
-        "Failed to connect to repository"))
-
-    error_message = browser.find_element(By.XPATH,
-                                         "//div[contains(@class, 'error') and contains(., 'Failed to connect to repository')]")
-
-    assert "Failed to connect to repository" in error_message.text
+    assert configuration_page.is_git_error_displayed()
 
 
 @pytest.mark.dependency(name="build_triggers_project_created")
