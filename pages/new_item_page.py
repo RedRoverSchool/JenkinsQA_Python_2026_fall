@@ -23,7 +23,7 @@ class NewItemPage(BasePage):
 
     def select_freestyle_and_click_ok(self) -> FreestyleConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "hudson_model_FreeStyleProject").click()
-        self.wait5.until(EC.element_to_be_clickable((By.ID, "ok-button")))
+        self.wait2.until(EC.element_to_be_clickable((By.ID, "ok-button"))).click()
 
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
