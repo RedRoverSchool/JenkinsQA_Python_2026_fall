@@ -111,6 +111,18 @@ class FreestyleConfigurationPage(BasePage):
         By.CSS_SELECTOR,
         "a[aria-label='Help for feature: Build after other projects are built']"
     )
+    POST_BUILD_ACTIONS_BUTTON = (
+        By.XPATH,
+        "//button[.//span[normalize-space()='Post-build Actions']]"
+    )
+    ADD_POST_BUILD_ACTION_BUTTON = (
+        By.CSS_SELECTOR,
+        "button.hetero-list-add[suffix='publisher']"
+    )
+    POST_BUILD_ACTION_ITEMS = (
+        By.CSS_SELECTOR,
+        "button.jenkins-dropdown__item"
+    )
 
     def click_environment(self) -> FreestyleConfigurationPage:
         self.wait10.until(
@@ -433,3 +445,55 @@ class FreestyleConfigurationPage(BasePage):
             help_results.append(expected_text in help_text)
 
         return all(help_results)
+
+    def click_post_build_actions(self):
+        self.wait10.until(
+            EC.element_to_be_clickable(self.POST_BUILD_ACTIONS_BUTTON)
+        ).click()
+
+        return self
+
+    def get_available_post_build_actions(self) -> list[str]:
+        self.wait10.until(
+            EC.presence_of_all_elements_located(self.POST_BUILD_ACTION_ITEMS)
+        )
+
+        return [
+            item.get_attribute("textContent").strip()
+            for item in self.driver.find_elements(*self.POST_BUILD_ACTION_ITEMS)
+        ]
+
+    def click_add_post_build_action(self):
+        add_button = self.driver.find_element(
+            *self.ADD_POST_BUILD_ACTION_BUTTON
+        )
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'start'});",
+            add_button
+        )
+        self.driver.execute_script("window.scrollBy(0, 250);")
+
+        add_button = self.wait10.until(
+            EC.element_to_be_clickable(self.ADD_POST_BUILD_ACTION_BUTTON)
+        )
+        self.driver.execute_script(
+            "arguments[0].click();",
+            add_button
+        )
+        return self
+
+    def select_post_build_action(self, action):
+        action_locator = (
+            By.XPATH,
+            f"//button[contains(@class, 'jenkins-dropdown__item') and normalize-space()='{action}']"
+        )
+        self.wait10.until(
+            EC.element_to_be_clickable(action_locator)
+        ).click()
+        return self
+
+    def add_post_build_actions(self, actions):
+        for action in actions:
+            self.click_add_post_build_action()
+            self.select_post_build_action(action)
+        return self
