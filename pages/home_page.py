@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 from pages.base_page import BasePage
 from pages.multiconfiguration_project_page import MulticonfigurationProjectPage
@@ -155,3 +156,11 @@ class HomePage(BasePage):
         return self.wait10.until(
             EC.visibility_of_element_located(project_locator)
         ).is_displayed()
+
+    def is_project_absent(self, project_name: str) -> bool:
+
+        try:
+            self.wait5.until(EC.invisibility_of_element_located((By.XPATH, f"//table[@id='projectstatus']//a[normalize-space(.)={project_name}]")))
+            return True
+        except TimeoutException:
+            return False

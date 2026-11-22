@@ -9,7 +9,7 @@ from pages.freestyle_configuration_page import FreestyleConfigurationPage
 from pages.multiconfiguration_configuration_page import MulticonfigurationConfigurationPage
 from pages.pipeline_configuration_page import PipelineConfigurationPage
 from pages.multibranch_configuration_page import MultibranchConfigurationPage
-
+from pages.error_page import ErrorPage
 
 class NewItemPage(BasePage):
     MULTIBRANCH = (By.XPATH, "//*[contains(@class, 'multibranch')]")
@@ -23,7 +23,7 @@ class NewItemPage(BasePage):
 
     def select_freestyle_and_click_ok(self) -> FreestyleConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "hudson_model_FreeStyleProject").click()
-        self.driver.find_element(By.ID, "ok-button").click()
+        self.wait2.until(EC.element_to_be_clickable((By.ID, "ok-button"))).click()
 
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
@@ -104,3 +104,29 @@ class NewItemPage(BasePage):
     def is_ok_button_disabled(self) -> bool:
 
         return bool(self.wait2.until(EC.element_attribute_to_include((By.ID, "ok-button"), "disabled")))
+
+    def set_duplicate_item_name(self, name) -> Self:
+        self.wait2.until(
+            EC.visibility_of_element_located((By.ID, "from"))
+        ).send_keys(name)
+
+        return self
+
+    def get_duplicate_item_names(self) -> list[str]:
+        options = self.wait2.until(
+            EC.visibility_of_all_elements_located((By.CSS_SELECTOR, ".jenkins-dropdown__item"))
+        )
+
+        return [o.text for o in options]
+
+    def get_no_items_alert_message(self) -> str:
+        alert_message = self.wait2.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".jenkins-dropdown__placeholder"))
+        ).text
+        return alert_message
+
+    def click_ok_expecting_error(self) -> ErrorPage:
+        self.wait5.until(EC.element_to_be_clickable(self.OK_BUTTON)).click()
+        self.wait5.until_not(EC.url_contains("newJob"))
+
+        return ErrorPage(self.driver)
