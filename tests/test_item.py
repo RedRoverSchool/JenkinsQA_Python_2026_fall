@@ -1,116 +1,83 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from common.project_utils import get_url
 import pytest
+from pages.home_page import HomePage
+from pages.pipeline_configuration_page import PipelineConfigurationPage
 
 
-def test_open_page(browser, wait10):
-    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
-    new_item_link.click()
+def test_open_page(browser):
+    new_item_page = HomePage(browser).click_new_item()
 
-    wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-
-    items_type_list = browser.find_element(By.ID, "items")
-    pipeline_item = browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
-    pipeline_label = pipeline_item.find_element(By.CLASS_NAME, "jenkins-choice-list__item__label")
-
-    assert "/view/all/newJob" in browser.current_url
-    assert items_type_list.is_displayed()
-    assert pipeline_item.is_displayed()
-    assert pipeline_label.text == "Pipeline"
+    assert new_item_page.is_items_type_list_displayed()
+    assert new_item_page.is_pipeline_displayed()
+    assert new_item_page.get_pipeline_label() == "Pipeline"
 
 
-def test_validate_blank_name(browser, wait10):
-    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
-    new_item_link.click()
+def test_validate_blank_name(browser):
+    new_item_page = (
+        HomePage(browser)
+        .click_new_item()
+    )
 
-    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-
-    ok_button = browser.find_element(By.ID, "ok-button")
-
-    assert name_field.get_attribute("value") == ""
-    assert not ok_button.is_enabled()
+    assert new_item_page.get_item_name() == ""
+    assert new_item_page.is_ok_button_disabled()
 
 
-def test_validate_invalid_characters(browser, wait10):
-    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
-    new_item_link.click()
+def test_validate_invalid_characters(browser):
+    item_name = "Test"
 
-    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-    name_field.send_keys("Test")
+    new_item_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(item_name)
+        .wait_for_valid_item_name()
+    )
 
-    wait10.until(EC.text_to_be_present_in_element_attribute((By.ID, "name"),"data-valid","true"))
-    name_field.send_keys("?")
+    new_item_page.set_item_name("?")
 
-    error_message = wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".validation-error-area--visible .error")))
-
-    ok_button = browser.find_element(By.ID, "ok-button")
-
-    assert error_message.text == "‘?’ is an unsafe character"
-    assert not ok_button.is_enabled()
+    assert new_item_page.get_error_name_message() == "‘?’ is an unsafe character"
+    assert new_item_page.is_ok_button_disabled()
 
 
 @pytest.mark.dependency()
-def test_create_with_valid_unique_name(browser, wait10):
-    new_item_link = browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']")
-    new_item_link.click()
-
-    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-    item_name = "TestJob"
-    name_field.send_keys(item_name)
-
-    pipeline_item = browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
-    pipeline_item.click()
-
-    ok_button = browser.find_element(By.ID, "ok-button")
-    ok_button.click()
-
-    wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
-
-
-def test_validate_existing_name(browser, wait10):
-    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
-
+def test_create_with_valid_unique_name(browser):
     item_name = "TestJob"
 
-    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-    name_field.send_keys(item_name)
+    configuration_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(item_name)
+        .select_pipeline_and_click_ok()
+    )
 
-    browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
-    browser.find_element(By.ID, "ok-button").click()
+    assert configuration_page.is_configuration_page_opened(item_name)
 
-    wait10.until(EC.url_contains(f"/job/{item_name}/configure"))
 
-    browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
-    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/view/all/newJob']"))).click()
-
-    name_field = wait10.until(EC.visibility_of_element_located((By.ID, "name")))
-    name_field.send_keys(item_name)
-
-    browser.find_element(By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob").click()
-
-    error_locator = (By.CSS_SELECTOR, ".validation-error-area .error")
+def test_validate_existing_name(browser):
+    item_name = "TestJob"
     error_text = f"A job already exists with the name ‘{item_name}’"
 
-    wait10.until(EC.text_to_be_present_in_element(error_locator, error_text))
+    (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(item_name)
+        .select_pipeline_and_click_ok()
+        .goto_home_page()
+    )
 
-    error_message = browser.find_element(By.CSS_SELECTOR, ".validation-error-area .error")
-    ok_button = browser.find_element(By.ID, "ok-button")
+    new_item_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(item_name)
+        .select_pipeline()
+    )
 
-    assert error_message.text == error_text
-    assert not ok_button.is_enabled()
+    assert new_item_page.get_error_name_message() == error_text
+    assert new_item_page.is_ok_button_disabled()
 
 
 @pytest.mark.dependency(depends=["test_create_with_valid_unique_name"])
-def test_item_appears_on_dashboard(browser, wait10):
-    wait10.until(EC.element_to_be_clickable((By.LINK_TEXT, "TestJob"))).click()
+def test_item_appears_on_dashboard(browser):
+    item_name = "TestJob"
 
-    wait10.until(EC.element_to_be_clickable((By.LINK_TEXT, "Configure"))).click()
+    dashboard = PipelineConfigurationPage(browser).goto_home_page()
 
-    wait10.until(EC.url_contains("/job/TestJob/configure"))
-
-    browser.find_element(By.CLASS_NAME, "app-jenkins-logo").click()
-
-    wait10.until(EC.url_to_be(get_url()))
-
-    wait10.until(EC.visibility_of_element_located((By.LINK_TEXT, "TestJob")))
+    assert dashboard.is_project_displayed(item_name)

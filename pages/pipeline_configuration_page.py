@@ -79,3 +79,6 @@ class PipelineConfigurationPage(BasePage):
     def get_description_value(self):
         desc = self.driver.find_element(*self.DESCRIPTION_FLD)
         return desc.get_attribute("value")
+
+    def is_configuration_page_opened(self, item_name: str) -> bool:
+        return f"/job/{item_name}/configure" in self.driver.current_url
