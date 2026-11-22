@@ -421,4 +421,24 @@ def test_save_apply_buttons_are_available(browser):
     assert configuration_page.are_save_apply_buttons_available()
 
 
+@pytest.mark.dependency(
+    name="project_configuration_saved",
+    depends=["project_created"]
+)
+def test_save_project_configuration(browser):
+    description = "Test project configuration saved successfully"
+
+    project_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .enter_description(description)
+        .click_save()
+    )
+
+    saved_description = project_page.get_description()
+
+    assert PROJECT_NAME in browser.current_url
+    assert saved_description == description
 

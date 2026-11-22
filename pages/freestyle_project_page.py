@@ -9,10 +9,17 @@ from pages.freestyle_configuration_page import FreestyleConfigurationPage
 
 
 class FreestyleProjectPage(BasePage):
+    DESCRIPTION = (By.ID, "description")
+
     def click_configuration(self) -> FreestyleConfigurationPage:
         self.driver.find_element(By.XPATH, "//a[contains(., 'Configure')]").click()
 
         return FreestyleConfigurationPage(self.driver)
+
+    def get_description(self) -> str:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.DESCRIPTION)
+        ).text
 
     def is_project_disabled(self) -> bool:
         return self.wait10.until(
