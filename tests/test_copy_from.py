@@ -1,126 +1,67 @@
-from selenium.common import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-import pytest
-
-class PageLocators:
-    JENKINS_LOGO = (By.CLASS_NAME, "app-jenkins-logo")
-
-    MAIN_NEW_ITEM = (By.CSS_SELECTOR, "a[href='/view/all/newJob']")
-
-    NEW_ITEM_NAME_INPUT = (By.ID, "name")
-    NEW_ITEM_TYPE_PIPELINE = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob")
-    NEW_ITEM_TYPE_FREESTYLE_PROJECT = (By.CLASS_NAME, "jenkins-choice-list__item__icon")
-    NEW_ITEM_OK_BUTTON = (By.ID, "ok-button")
-    NEW_ITEM_TYPE_DUPLICATE = (By.ID, "duplicate-job")
-    NEW_ITEM_DUPLICATE_INPUT = (By.ID, "from")
-    NEW_ITEM_DROPDOWN_VALUES = (By.CSS_SELECTOR, ".jenkins-dropdown__item")
-    NEW_ITEM_DROPDOWN_NO_ITEMS = (By.CSS_SELECTOR, ".jenkins-dropdown__placeholder")
-
-    NEW_ITEM_CREATION_ERROR_HEADER = (By.CSS_SELECTOR, "#main-panel h1")
-    NEW_ITEM_CREATION_ERROR_MESSAGE = (By.CSS_SELECTOR, "#main-panel p")
-
-    CONFIGURE_GENERAL_DESCRIPTION_INPUT = (By.NAME, "description")
-    CONFIGURE_GENERAL_SAVE_BUTTON = (By.NAME, "Submit")
-
-class Inputs:
-    FIRST_JOB_NAME_VALID = "First Job"
-    SECOND_JOB_NAME_VALID = "Second Job"
-
-    NEW_ITEM_DROPDOWN_NO_ITEMS_TEXT = "No items"
-
-    DESCRIPTION_TEXT_VALID = "Description"
+from pages.home_page import HomePage
 
 
-class PageActions:
-    def __init__(self, driver, wait):
-        self.driver = driver
-        self.wait = wait
+def test_dropdown_shows_matching_existing_items(browser):
+    main_freestyle_project_name = "First Job"
 
-    def click(self, locator):
-        element = self.wait.until(EC.element_to_be_clickable(locator),
-                                  message=f"Not clickable: {locator}")
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
-        element.click()
+    dropdown_value_list = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(main_freestyle_project_name)
+        .select_freestyle_and_click_ok()
+        .click_save()
+        .goto_home_page()
+        .click_new_item()
+        .click_duplicate_option()
+        .set_duplicate_item_name(main_freestyle_project_name)
+        .get_duplicate_item_names()
+    )
 
-    def visibility(self, locator):
-        return self.wait.until(EC.visibility_of_element_located(locator),
-                           message=f"Not visible: {locator}")
-
-    def enter_text(self, locator, text):
-        return locator.send_keys(text)
-
-    def wait_url_not_contains(self, text):
-        self.wait.until_not(EC.url_contains(text),
-                           message=f"URL not contains: {text}")
-
-    def is_absent(self, locator):
-        try:
-            self.wait.until(lambda d: not d.find_elements(*locator))
-            return True
-        except TimeoutException:
-            return False
+    assert main_freestyle_project_name in dropdown_value_list
 
 
-@pytest.fixture
-def actions(browser, wait5):
-    return PageActions(browser, wait5)
+def test_dropdown_shows_no_items_for_non_matching_value(browser):
+    main_freestyle_project_name = "First Job"
+    non_existing_name = "Nonexisting"
+
+    no_items_message = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(main_freestyle_project_name)
+        .select_freestyle_and_click_ok()
+        .click_save()
+        .goto_home_page()
+        .click_new_item()
+        .click_duplicate_option()
+        .set_duplicate_item_name(non_existing_name)
+        .get_no_items_alert_message()
+    )
+
+    assert no_items_message == "No items"
 
 
-@pytest.fixture
-def create_item_with_configuration(browser, actions):
-    actions.click(PageLocators.MAIN_NEW_ITEM)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.FIRST_JOB_NAME_VALID)
-    actions.click(PageLocators.NEW_ITEM_TYPE_FREESTYLE_PROJECT)
-    actions.click(PageLocators.NEW_ITEM_OK_BUTTON)
-    actions.enter_text(actions.visibility(PageLocators.CONFIGURE_GENERAL_DESCRIPTION_INPUT), Inputs.DESCRIPTION_TEXT_VALID)
-    actions.click(PageLocators.CONFIGURE_GENERAL_SAVE_BUTTON)
-    actions.wait_url_not_contains("configure")
-    actions.click(PageLocators.JENKINS_LOGO)
+def test_error_on_non_existed_item(browser):
+    main_freestyle_project_name = "First Job"
+    non_existing_name = "Nonexisting"
 
+    error_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(main_freestyle_project_name)
+        .select_freestyle_and_click_ok()
+        .click_save()
+        .goto_home_page()
+        .click_new_item()
+        .set_item_name(non_existing_name)
+        .click_duplicate_option()
+        .set_duplicate_item_name(non_existing_name)
+        .click_ok_expecting_error()
+    )
 
+    assert error_page.get_error_header() == "Error"
+    assert error_page.get_error_message() == f"No such job: {non_existing_name}"
 
+    home_page = error_page.goto_home_page()
 
-def test_dropdown_shows_matching_existing_items(browser, actions, create_item_with_configuration):
-    actions.click(PageLocators.MAIN_NEW_ITEM)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
-
-    actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.FIRST_JOB_NAME_VALID)
-    actions.visibility(PageLocators.NEW_ITEM_DROPDOWN_VALUES)
-    options = browser.find_elements(*PageLocators.NEW_ITEM_DROPDOWN_VALUES)
-
-    assert Inputs.FIRST_JOB_NAME_VALID in [o.text for o in options]
-
-
-def test_dropdown_shows_no_items_for_non_matching_value(browser, actions, create_item_with_configuration):
-    actions.click(PageLocators.MAIN_NEW_ITEM)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
-
-    actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.SECOND_JOB_NAME_VALID)
-    no_items = actions.visibility(PageLocators.NEW_ITEM_DROPDOWN_NO_ITEMS)
-
-    assert no_items.text == Inputs.NEW_ITEM_DROPDOWN_NO_ITEMS_TEXT
-    assert actions.is_absent(PageLocators.NEW_ITEM_DROPDOWN_VALUES)
-
-
-def test_error_on_non_existed_item(browser, actions, create_item_with_configuration):
-    actions.click(PageLocators.MAIN_NEW_ITEM)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_NAME_INPUT), Inputs.SECOND_JOB_NAME_VALID)
-
-    actions.click(PageLocators.NEW_ITEM_TYPE_DUPLICATE)
-    actions.enter_text(actions.visibility(PageLocators.NEW_ITEM_DUPLICATE_INPUT), Inputs.SECOND_JOB_NAME_VALID)
-    actions.click(PageLocators.NEW_ITEM_OK_BUTTON)
-
-    actions.wait_url_not_contains("newJob")
-    error_header = actions.visibility(PageLocators.NEW_ITEM_CREATION_ERROR_HEADER).text
-    error_message = actions.visibility(PageLocators.NEW_ITEM_CREATION_ERROR_MESSAGE).text
-
-    assert error_header == "Error", f"Error header is {error_header}"
-    assert error_message == f"No such job: {Inputs.SECOND_JOB_NAME_VALID}", f"Error message is {error_message}"
-
-    actions.click(PageLocators.JENKINS_LOGO)
-    actions.wait_url_not_contains("createItem")
-
-    assert actions.is_absent((By.XPATH, f"//table[@id='projectstatus']//*[contains(text(), '{Inputs.SECOND_JOB_NAME_VALID}')]"))
+    assert home_page.is_project_displayed(main_freestyle_project_name)
+    assert home_page.is_project_absent(non_existing_name)
