@@ -5,7 +5,18 @@ from selenium.webdriver.support import expected_conditions as EC
 from pages.home_page import HomePage
 
 PROJECT_NAME = "Freestyle_Project_Config_Test"
-
+EXPECTED_POST_BUILD_ACTIONS = [
+    "Aggregate downstream test results",
+    "Archive the artifacts",
+    "Build other projects",
+    "Publish JUnit test result report",
+    "Record fingerprints of files to track usage",
+    "Git Publisher",
+    "E-mail Notification",
+    "Editable Email Notification",
+    "Set GitHub commit status (universal)",
+    "Delete workspace when build is done"
+]
 
 @pytest.mark.dependency(name="project_created")
 def test_access_enable_disable_option(browser):
@@ -347,77 +358,53 @@ def test_build_triggers_helper_tooltips(browser):
     assert tooltips_correct
 
 
-@pytest.mark.dependency(name="post_build_project_created")
-def test_post_build_actions_options_are_available(browser, wait10):
-    project_name = "Freestyle_Post_Build_Actions_Test"
-    expected_actions = [
-        "Aggregate downstream test results",
-        "Archive the artifacts",
-        "Build other projects",
-        "Publish JUnit test result report",
-        "Record fingerprints of files to track usage",
-        "Git Publisher",
-        "E-mail Notification",
-        "Editable Email Notification",
-        "Set GitHub commit status (universal)",
-        "Delete workspace when build is done"
-    ]
+@pytest.mark.dependency(
+    name="post_build_actions_available",
+    depends=["project_created"]
+)
+def test_post_build_actions_options_are_available(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_post_build_actions()
+        .click_add_post_build_action()
+    )
 
-    browser.find_element(By.CSS_SELECTOR, "a[href='newJob']").click()
-    browser.find_element(By.ID, "name").send_keys(project_name)
-    browser.find_element(By.CSS_SELECTOR, "label:has(input[value='hudson.model.FreeStyleProject'])").click()
-    browser.find_element(By.ID, "ok-button").click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
+    available_actions = configuration_page.get_available_post_build_actions()
 
-    browser.find_element(By.CSS_SELECTOR, "button[data-section-id='50-6f-73-74-2d-62-75-69-6c-64-20-41-63-74-69-6f-6e-73']").click()
-    add_button = browser.find_element(By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']")
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_button)
-    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']"))).click()
+    configuration_page.click_save()
 
-    action_items = wait10.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "button.jenkins-dropdown__item")))
-    available_actions = [item.get_attribute("textContent").strip() for item in action_items]
-
-    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
-    assert all(action in available_actions for action in expected_actions)
+    assert all(action in available_actions for action in EXPECTED_POST_BUILD_ACTIONS)
 
 
-@pytest.mark.dependency(depends=["post_build_project_created"])
-def test_multiple_post_build_actions_can_be_added(browser, wait10):
-    project_name = "Freestyle_Post_Build_Actions_Test"
+@pytest.mark.dependency(
+    depends=["post_build_actions_available"]
+)
+def test_multiple_post_build_actions_can_be_added(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .click_post_build_actions()
+        .add_post_build_actions(
+            ["Archive the artifacts", "E-mail Notification"]
+        )
+    )
 
-    project_link = (By.CSS_SELECTOR, f"a[href='job/{project_name}/']")
-    configure_link = (By.CSS_SELECTOR, f"a[href='/job/{project_name}/configure']")
+    configuration_page.click_save()
 
-    wait10.until(EC.element_to_be_clickable(project_link)).click()
-    wait10.until(EC.element_to_be_clickable(configure_link)).click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+    )
+    assert "Archive the artifacts" in configuration_page.driver.page_source
+    assert "E-mail Notification" in configuration_page.driver.page_source
 
-    browser.find_element(By.CSS_SELECTOR, "button[data-section-id='50-6f-73-74-2d-62-75-69-6c-64-20-41-63-74-69-6f-6e-73']").click()
-
-    add_button = (By.CSS_SELECTOR, "button.hetero-list-add[suffix='publisher']")
-
-    for action in ["Archive the artifacts", "E-mail Notification"]:
-        add_element = browser.find_element(*add_button)
-        browser.execute_script("arguments[0].scrollIntoView({block: 'start'});", add_element)
-        browser.execute_script("window.scrollBy(0, 250);")
-
-        add_element = wait10.until(EC.element_to_be_clickable(add_button))
-        browser.execute_script("arguments[0].click();", add_element)
-
-        action_locator = (By.XPATH,
-                          f"//button[contains(@class, 'jenkins-dropdown__item') and normalize-space()='{action}']")
-        wait10.until(EC.element_to_be_clickable(action_locator)).click()
-
-    browser.find_element(By.CSS_SELECTOR, "button[name='Submit'][value='Save']").click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/"))
-
-    wait10.until(EC.element_to_be_clickable(configure_link)).click()
-    wait10.until(EC.url_contains(f"/job/{project_name}/configure"))
-
-    assert "Archive the artifacts" in browser.page_source
-    assert "E-mail Notification" in browser.page_source
 
 @pytest.mark.dependency(name="save_apply_project_created")
 def test_save_apply_buttons_are_available(browser, wait10):
