@@ -24,12 +24,16 @@ def test_create_pipeline(browser, wait10):
 def test_edit_pipeline(browser, wait10):
     pipeline_link = browser.find_element(By.CSS_SELECTOR, "a[href='job/new-pipeline/']")
     ActionChains(browser).move_to_element(pipeline_link).perform()
-    menu_dropdown = pipeline_link.find_element(By.CSS_SELECTOR, ".jenkins-menu-dropdown-chevron")
-    menu_dropdown.click()
-    configure_button = wait10.until(EC.element_to_be_clickable(
-        (By.XPATH, "//a[contains(@class, 'jenkins-dropdown__item') and contains(., 'Configure')]")))
-    configure_button.click()
+
+    wait10.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='job/new-pipeline/'] .jenkins-menu-dropdown-chevron"))).click()
+
+    wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".jenkins-dropdown")))
+    wait10.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "a.jenkins-dropdown__item[href='/job/new-pipeline/configure']"))).click()
+
+    wait10.until(EC.url_contains("/job/new-pipeline/configure"))
     triggers = wait10.until(EC.visibility_of_element_located(
         (By.XPATH, "//div[contains(@class, 'jenkins-section__title') and contains(., 'Triggers')]")))
 
+    assert "/job/new-pipeline/configure" in browser.current_url
     assert triggers.text == "Triggers"
