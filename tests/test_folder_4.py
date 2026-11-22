@@ -1,10 +1,7 @@
 import pytest
-from selenium.webdriver.common.bidi import browser
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-from conftest import wait5
 
 
 def test_create_item_folder(browser,wait5,wait10):
