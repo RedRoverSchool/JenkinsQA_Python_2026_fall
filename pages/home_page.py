@@ -7,6 +7,7 @@ from pages.new_item_page import NewItemPage
 from pages.manage_jenkins_page import ManageJenkinsPage
 from pages.freestyle_project_page import FreestyleProjectPage
 from pages.pipeline_page import PipelinePage
+from pages.rename_page import RenamePage
 
 
 class HomePage(BasePage):
@@ -37,6 +38,7 @@ class HomePage(BasePage):
         self.driver.find_element(By.LINK_TEXT, project_name).click()
 
         return MulticonfigurationProjectPage(self.driver)
+
     def click_new_item(self) -> NewItemPage:
         self.wait5.until(
             EC.element_to_be_clickable(self.NEW_ITEM_LINK)
@@ -128,6 +130,15 @@ class HomePage(BasePage):
         ).click()
 
         return FreestyleProjectPage(self.driver)
+
+    def click_project_context_menu_and_click_rename(self,project_name):
+        chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{project_name})]"
+        self.driver.find_element(By.XPATH, chevron_selector).click()
+        self.wait10.until(
+            EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'confirm-rename')]"))
+        ).click()
+
+        return RenamePage(self.driver)
 
     def click_pipeline(self, pipeline_name: str) -> PipelinePage:
         pipeline_locator = (By.CSS_SELECTOR, f"[href='job/{pipeline_name}/']")

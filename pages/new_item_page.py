@@ -8,9 +8,14 @@ from pages.folder_configuration_page import FolderConfigurationPage
 from pages.freestyle_configuration_page import FreestyleConfigurationPage
 from pages.multiconfiguration_configuration_page import MulticonfigurationConfigurationPage
 from pages.pipeline_configuration_page import PipelineConfigurationPage
+from pages.multibranch_configuration_page import MultibranchConfigurationPage
 
 
 class NewItemPage(BasePage):
+    MULTIBRANCH = (By.XPATH, "//*[contains(@class, 'multibranch')]")
+    OK_BUTTON = (By.ID, "ok-button")
+    SIDE_PANEL = (By.ID, "side-panel")
+
     def set_item_name(self, name: str) -> Self:
         self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).send_keys(name)
 
@@ -48,6 +53,27 @@ class NewItemPage(BasePage):
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
         return PipelineConfigurationPage(self.driver)
+
+    def select_multibranch_and_click_ok(self) -> MultibranchConfigurationPage:
+        multibranch_option = self.wait5.until(
+            EC.element_to_be_clickable(self.MULTIBRANCH)
+        )
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", multibranch_option)
+        multibranch_option.click()
+        self.driver.find_element(*self.OK_BUTTON).click()
+        self.wait5.until(
+            EC.visibility_of_element_located(self.SIDE_PANEL)
+        )
+
+        return MultibranchConfigurationPage(self.driver)
+
+    def select_multibranch(self) :
+        multibranch_option = self.wait5.until(
+            EC.element_to_be_clickable(self.MULTIBRANCH)
+        )
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", multibranch_option)
+        multibranch_option.click()
+        return self
 
     def click_duplicate_option(self) -> Self:
         duplicate_option = self.wait10.until(EC.visibility_of_element_located((By.ID, "duplicate-job")))
