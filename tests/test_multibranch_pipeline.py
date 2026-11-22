@@ -93,115 +93,66 @@ def test_rename_multibranch_pipeline_from_dropdown_menu(browser, created_multibr
     assert f"job/{new_name}" in browser.current_url
 
 
-def test_rename_multibranch_pipeline_from_project_menu(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+def test_rename_multibranch_pipeline_from_project_menu(browser, created_multibranch_pipeline):
+    home_page = HomePage(browser)
+    project_name = home_page.get_first_project_name()
+    new_name = "Pipeline_2"
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'confirm-rename')]").click()
+    item_page = (home_page
+                 .click_job(project_name)
+                 .click_rename()
+                 .rename_to(new_name)
+                 )
 
-    new_pipeline_name = "Pipeline_2"
-    input_field = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//input[@name='newName']"))
-    )
-    input_field.clear()
-    input_field.send_keys(new_pipeline_name)
-    browser.find_element(By.XPATH, "//button[@name='Submit']").click()
-
-    job_name = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//h1[contains(@class,'job-index-headline')]"))
-    )
-
-    assert new_pipeline_name == job_name.text
-    assert f"job/{new_pipeline_name}" in browser.current_url
+    assert item_page.get_item_name() == new_name
+    assert f"job/{new_name}" in browser.current_url
 
 
-def test_rename_multibranch_pipeline_with_same_name(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+def test_rename_multibranch_pipeline_with_same_name(browser, created_multibranch_pipeline):
+    home_page = HomePage(browser)
+    project_name = home_page.get_first_project_name()
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'confirm-rename')]").click()
+    error_page = (home_page
+                 .click_job(project_name)
+                 .click_rename()
+                 .try_rename_to(PIPELINE_NAME)
+                 )
 
-    input_field = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//input[@name='newName']"))
-    )
-    input_field.clear()
-    input_field.send_keys(PIPELINE_NAME)
-    browser.find_element(By.TAG_NAME, "body").click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.CLASS_NAME, "validation-error-area--visible"))
-    )
     expected_text = "The new name is the same as the current name."
-    wait5.until(
-        EC.text_to_be_present_in_element((By.CLASS_NAME, "warning"), expected_text)
-    )
-    warning_message = browser.find_element(By.CLASS_NAME, "warning").text
-
-    assert warning_message == expected_text
+    assert error_page.get_error_header() == "Error"
+    assert error_page.get_error_message() == expected_text
 
 
-def test_rename_multibranch_pipeline_with_blank_name(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+def test_rename_multibranch_pipeline_with_blank_name(browser, created_multibranch_pipeline):
+    home_page = HomePage(browser)
+    project_name = home_page.get_first_project_name()
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'confirm-rename')]").click()
+    error_page = (home_page
+                  .click_job(project_name)
+                  .click_rename()
+                  .try_rename_to()
+                  )
 
-    input_field = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//input[@name='newName']"))
-    )
-    input_field.clear()
-    browser.find_element(By.TAG_NAME, "body").click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.CLASS_NAME, "validation-error-area--visible"))
-    )
     expected_text = "No name is specified"
-    wait5.until(
-        EC.text_to_be_present_in_element((By.CLASS_NAME, "error"), expected_text)
-    )
-    error_message = browser.find_element(By.CLASS_NAME, "error").text
-
-    assert error_message == expected_text
+    assert error_page.get_error_header() == "Error"
+    assert error_page.get_error_message() == expected_text
 
 
-def test_rename_multibranch_pipeline_with_unsupported_characters(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'confirm-rename')]").click()
-
-    input_field = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//input[@name='newName']"))
-    )
-    input_field.clear()
-
+def test_rename_multibranch_pipeline_with_unsupported_characters(browser, created_multibranch_pipeline):
+    home_page = HomePage(browser)
+    project_name = home_page.get_first_project_name()
     spec_chars = r"!@#$%^&*[]<>;:/\|"
     spec_char = secrets.choice(spec_chars)
-    input_field.send_keys("Pipeline" + spec_char)
-    browser.find_element(By.TAG_NAME, "body").click()
 
-    wait5.until(
-        EC.visibility_of_element_located((By.CLASS_NAME, "validation-error-area--visible"))
-    )
+    error_page = (home_page
+                  .click_job(project_name)
+                  .click_rename()
+                  .try_rename_to("Pipeline" + spec_char)
+                  )
+
     expected_text = f"‘{spec_char}’ is an unsafe character"
-    wait5.until(
-        EC.text_to_be_present_in_element((By.CLASS_NAME, "error"), expected_text)
-    )
-    error_message = browser.find_element(By.CLASS_NAME, "error").text
-
-    assert error_message == expected_text
+    assert error_page.get_error_header() == "Error"
+    assert error_page.get_error_message() == expected_text
 
 
 def test_availability_of_health_metrics(browser, wait5, created_multibranch_pipeline):

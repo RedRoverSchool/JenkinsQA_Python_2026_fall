@@ -9,7 +9,7 @@ from pages.manage_jenkins_page import ManageJenkinsPage
 from pages.freestyle_project_page import FreestyleProjectPage
 from pages.pipeline_page import PipelinePage
 from pages.rename_page import RenamePage
-
+from pages.base_item_page import BaseItemPage
 
 class HomePage(BasePage):
     WELCOME_TITLE = (By.XPATH, "//div[@class='empty-state-block']/h1")
@@ -131,6 +131,14 @@ class HomePage(BasePage):
         ).click()
 
         return FreestyleProjectPage(self.driver)
+
+    def click_job(self, job_name) -> BaseItemPage:
+        job_locator = (By.LINK_TEXT, job_name)
+        self.wait5.until(
+            EC.element_to_be_clickable(job_locator)
+        ).click()
+
+        return BaseItemPage(self.driver)
 
     def click_project_context_menu_and_click_rename(self,project_name):
         chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{project_name})]"
