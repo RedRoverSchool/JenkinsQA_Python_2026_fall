@@ -125,6 +125,7 @@ class FreestyleConfigurationPage(BasePage):
     )
     SAVE_BUTTON = (By.CSS_SELECTOR, "button[name='Submit'][value='Save']")
     APPLY_BUTTON = (By.CSS_SELECTOR, "button[name='Apply']")
+    DESCRIPTION_FIELD = (By.NAME, "description")
 
     def click_environment(self) -> FreestyleConfigurationPage:
         self.wait10.until(
@@ -507,3 +508,10 @@ class FreestyleConfigurationPage(BasePage):
             ).is_enabled()
             for locator in [self.SAVE_BUTTON, self.APPLY_BUTTON]
         )
+
+    def enter_description(self, description: str) -> FreestyleConfigurationPage:
+        self.wait10.until(
+            EC.visibility_of_element_located(self.DESCRIPTION_FIELD)
+        ).send_keys(description)
+
+        return self
