@@ -1,10 +1,14 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 from pages.base_page import BasePage
+from pages.multiconfiguration_project_page import MulticonfigurationProjectPage
 from pages.new_item_page import NewItemPage
 from pages.manage_jenkins_page import ManageJenkinsPage
 from pages.freestyle_project_page import FreestyleProjectPage
+from pages.pipeline_page import PipelinePage
+from pages.rename_page import RenamePage
 
 
 class HomePage(BasePage):
@@ -17,6 +21,9 @@ class HomePage(BasePage):
     CONFIGURE_CLOUD_LINK = (By.XPATH, "//a[@href='cloud/']")
     LEARN_MORE_LINK = (By.XPATH, "//a[contains(@href,'jenkins.io')]")
     ADD_DESCRIPTION_LINK = (By.ID, "description-link")
+    BUILD_QUEUE = (By.ID, "buildQueue")
+    BUILD_QUEUE_TOGGLE = (By.XPATH, "//a[contains(@href,'buildQueue')]")
+    BUILD_QUEUE_CONTENT = (By.XPATH, "//td[text()='No builds in the queue.']")
 
     def get_welcome_title(self) -> str:
         return self.wait5.until(
@@ -28,9 +35,21 @@ class HomePage(BasePage):
             EC.visibility_of_element_located(self.FIRST_PROJECT_NAME)
         ).text
 
+    def get_multiconfiguration_project(self, project_name: str) -> MulticonfigurationProjectPage:
+        self.driver.find_element(By.LINK_TEXT, project_name).click()
+
+        return MulticonfigurationProjectPage(self.driver)
+
     def click_new_item(self) -> NewItemPage:
         self.wait5.until(
             EC.element_to_be_clickable(self.NEW_ITEM_LINK)
+        ).click()
+
+        return NewItemPage(self.driver)
+
+    def click_create_job(self) -> NewItemPage:
+        self.wait5.until(
+            EC.element_to_be_clickable(self.CREATE_JOB_LINK)
         ).click()
 
         return NewItemPage(self.driver)
@@ -41,6 +60,38 @@ class HomePage(BasePage):
         ).click()
 
         return ManageJenkinsPage(self.driver)
+
+    def toggle_build_queue(self):
+        current_title = self.wait5.until(
+            EC.presence_of_element_located(self.BUILD_QUEUE_TOGGLE)
+        ).get_attribute("title")
+
+        if current_title == "collapse":
+            expected_title = "expand"
+        else:
+            expected_title = "collapse"
+
+        self.wait5.until(
+            EC.element_to_be_clickable(self.BUILD_QUEUE_TOGGLE)
+        ).click()
+
+        self.wait5.until(
+            EC.text_to_be_present_in_element_attribute(
+                self.BUILD_QUEUE_TOGGLE, "title", expected_title
+            )
+        )
+        return self
+
+    def is_build_queue_expanded(self) -> bool:
+        expand_collapse = self.wait5.until(
+            EC.element_to_be_clickable(self.BUILD_QUEUE_TOGGLE)
+        )
+        if expand_collapse.get_attribute("title") == "collapse":
+            return True
+        return False
+
+    def is_build_queue_content_displayed(self) -> bool:
+        return "No builds in the queue." in self.driver.find_element(*self.BUILD_QUEUE).text
 
     def is_create_job_displayed(self) -> bool:
         return self.wait5.until(
@@ -62,7 +113,7 @@ class HomePage(BasePage):
             EC.visibility_of_element_located(self.LEARN_MORE_LINK)
         ).is_displayed()
 
-    def is_add_description_displayed(self):
+    def is_add_description_displayed(self) -> bool:
         return self.wait5.until(
             EC.visibility_of_element_located(self.ADD_DESCRIPTION_LINK)
         ).is_displayed()
@@ -80,3 +131,36 @@ class HomePage(BasePage):
         ).click()
 
         return FreestyleProjectPage(self.driver)
+
+    def click_project_context_menu_and_click_rename(self,project_name):
+        chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{project_name})]"
+        self.driver.find_element(By.XPATH, chevron_selector).click()
+        self.wait10.until(
+            EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'confirm-rename')]"))
+        ).click()
+
+        return RenamePage(self.driver)
+
+    def click_pipeline(self, pipeline_name: str) -> PipelinePage:
+        pipeline_locator = (By.CSS_SELECTOR, f"[href='job/{pipeline_name}/']")
+
+        self.wait10.until(
+            EC.element_to_be_clickable(pipeline_locator)
+        ).click()
+
+        return PipelinePage(self.driver)
+
+    def is_project_displayed(self, project_name: str) -> bool:
+        project_locator = (By.LINK_TEXT, project_name)
+
+        return self.wait10.until(
+            EC.visibility_of_element_located(project_locator)
+        ).is_displayed()
+
+    def is_project_absent(self, project_name: str) -> bool:
+
+        try:
+            self.wait5.until(EC.invisibility_of_element_located((By.XPATH, f"//table[@id='projectstatus']//a[normalize-space(.)={project_name}]")))
+            return True
+        except TimeoutException:
+            return False

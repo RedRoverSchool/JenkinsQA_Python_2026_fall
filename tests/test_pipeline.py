@@ -1,15 +1,13 @@
 import string
 import random
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from pages.home_page import HomePage
 
 NAME_PIPELINE = ''.join(random.choices(string.ascii_lowercase, k=10))
 
 @pytest.mark.dependency()
 def test_create(browser):
-    project_name = (
+    pipeline_name = (
         HomePage(browser)
         .click_new_item()
         .set_item_name(NAME_PIPELINE)
@@ -18,87 +16,44 @@ def test_create(browser):
         .get_first_project_name()
     )
 
-    assert NAME_PIPELINE in project_name
+    assert NAME_PIPELINE in pipeline_name
 
-
-def test_create_with_invalid_name(browser, wait2, wait5):
+def test_create_with_invalid_name(browser):
     invalid_name = 'pap$line!'
 
-    create_item_button = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//span[@class = 'task-link-text' and contains(text(), 'Item')]/.."))
-    )
-    create_item_button.click()
-
-    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline']")
-    pipeline_button.click()
-
-    field_name = browser.find_element(By.ID, "name")
-    field_name.send_keys(invalid_name)
-
-    error = wait2.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "[class = 'error']"))
-    )
-    error_visible = error.is_displayed()
-
-    button_disabled = wait2.until(
-        EC.element_attribute_to_include((By.ID, "ok-button"), "disabled")
+    new_item_page = (
+        HomePage(browser)
+        .click_new_item()
+        .select_pipeline()
+        .set_item_name(invalid_name)
     )
 
-    assert error_visible and button_disabled
+    assert new_item_page.is_error_message_displayed()
+    assert new_item_page.is_ok_button_disabled()
 
-def test_disable_the_project(browser, wait5, wait2):
-    name_pipeline = ''.join(random.choices(string.ascii_lowercase, k=10))
-
-    create_item_button = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//span[@class = 'task-link-text' and contains(text(), 'Item')]/.."))
-    )
-    create_item_button.click()
-
-    pipeline_button = browser.find_element(By.XPATH, "//span[text() = 'Pipeline']")
-    pipeline_button.click()
-
-    field_name = browser.find_element(By.ID, "name")
-    field_name.send_keys(name_pipeline)
-
-    ok_button = wait5.until(
-        EC.element_to_be_clickable((By.ID, "ok-button"))
-    )
-    ok_button.click()
-
-    enabled_radiobutton = wait5.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "[class = 'jenkins-toggle-switch__label ']"))
-    )
-    enabled_radiobutton.click()
-
-    save_button = wait2.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@value = 'Save']")))
-    save_button.click()
-
-    warning = wait5.until(
-        EC.visibility_of_element_located((By.ID, "enable-project"))
-    )
-    text_warning = warning.text.split('\n')[0].strip()
-
-    enabled_button = wait2.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "button[value='Enable']"))
+def test_disable_the_project(browser):
+    pipeline_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(NAME_PIPELINE)
+        .select_pipeline_and_click_ok()
+        .switch_button_disabled()
+        .click_save()
     )
 
-    assert text_warning == "This project is currently disabled" and enabled_button.is_enabled()
+    assert pipeline_page.get_warning_message() == "This project is currently disabled"
+    assert pipeline_page.is_enabled_button_visible()
 
 @pytest.mark.dependency(depends = "test_create")
-def test_rename_left_side(browser, wait5, wait2):
-    wait5.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"[href='job/{NAME_PIPELINE}/']"))).click()
+def test_rename_left_side(browser):
+    new_name = ''.join(random.choices(string.ascii_lowercase, k=10))
 
-    rename_button = wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"[href='/job/{NAME_PIPELINE}/confirm-rename']")))
-    rename_button.click()
+    actual_name = (
+        HomePage(browser)
+        .click_pipeline(NAME_PIPELINE)
+        .click_rename()
+        .rename_and_submit(new_name)
+        .get_actual_name()
+    )
 
-    new_name_pipeline = ''.join(random.choices(string.ascii_lowercase, k=10))
-    name_field = browser.find_element(By.CSS_SELECTOR, "[name='newName']")
-
-    name_field.clear()
-    name_field.send_keys(new_name_pipeline)
-
-    browser.find_element(By.CSS_SELECTOR, "[name='Submit']").click()
-    actual_name = wait2.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".job-index-headline"))).text
-
-    assert actual_name == new_name_pipeline
+    assert actual_name == new_name

@@ -1,5 +1,3 @@
-import time
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -19,25 +17,17 @@ def test_welcome_message_and_start_page(browser):
     assert home_page.is_add_description_displayed()
     assert home_page.is_new_item_displayed()
 
-def test_create_job(browser, wait5):
-
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//a[@href='newJob']"))
-    ).click()
-
-    browser.find_element(By.ID, "name").send_keys(JOB_NAME)
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'WorkflowJob')]"))
-    ).click()
-    browser.find_element(By.ID, "ok-button").click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
+def test_new_job_via_create_job_link(browser):
+    new_job = (
+        HomePage(browser)
+        .click_create_job()
+        .set_item_name(JOB_NAME)
+        .select_pipeline_and_click_ok()
+        .goto_home_page()
+        .get_first_project_name()
     )
-    browser.find_element(By.XPATH, "//a[@class='app-jenkins-logo']").click()
 
-    job = browser.find_element(By.XPATH, f"//a[@href='job/{JOB_NAME}/' and contains(@class,'jenkins-table__link')]")
-    assert job.is_displayed()
+    assert new_job == JOB_NAME
 
 def test_manage_jenkins(browser):
 
@@ -61,31 +51,24 @@ def test_manage_jenkins(browser):
     assert groups == expected_groups
     assert options == expected_options
 
-def test_build_queue(browser, wait5):
+def test_expand_build_queue(browser):
+    home_page = HomePage(browser)
 
-    expand_collapse_locator = (By.XPATH, "//a[contains(@href,'buildQueue')]")
-    queue_message_locator = (By.XPATH, "//td[text()='No builds in the queue.']")
-    welcome_title_locator = (By.XPATH, "//div[@class='empty-state-block']/h1")
+    if home_page.is_build_queue_expanded():
+        home_page.toggle_build_queue()
 
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@id='buildQueue']"))
-    )
+    home_page.toggle_build_queue()
 
-    expand_collapse = browser.find_element(*expand_collapse_locator)
-    if expand_collapse.get_attribute("title") == "collapse":
-        expand_collapse.click()
-        wait5.until(
-            EC.text_to_be_present_in_element_attribute(expand_collapse_locator, "title", "expand")
-        )
+    assert home_page.is_build_queue_expanded()
+    assert home_page.is_build_queue_content_displayed()
 
-    browser.find_element(*expand_collapse_locator).click()
-    queue_message = wait5.until(
-        EC.visibility_of_element_located(queue_message_locator)
-    )
+def test_collapse_build_queue(browser):
+    home_page = HomePage(browser)
 
-    browser.find_element(*expand_collapse_locator).click()
-    is_hidden = wait5.until(
-        EC.invisibility_of_element_located(queue_message)
-    )
-    assert is_hidden
-    assert browser.find_element(*welcome_title_locator).is_displayed()
+    if not home_page.is_build_queue_expanded():
+        home_page.toggle_build_queue()
+
+    home_page.toggle_build_queue()
+
+    assert not home_page.is_build_queue_expanded()
+    assert not home_page.is_build_queue_content_displayed()
