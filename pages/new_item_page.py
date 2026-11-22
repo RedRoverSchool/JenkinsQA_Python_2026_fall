@@ -15,11 +15,16 @@ class NewItemPage(BasePage):
     MULTIBRANCH = (By.XPATH, "//*[contains(@class, 'multibranch')]")
     OK_BUTTON = (By.ID, "ok-button")
     SIDE_PANEL = (By.ID, "side-panel")
+    ITEMS_TYPE_LIST = (By.ID, "items")
+    PIPELINE_ITEM = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob",)
 
     def set_item_name(self, name: str) -> Self:
         self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).send_keys(name)
 
         return self
+
+    def get_item_name(self) -> str:
+        return self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).get_attribute("value")
 
     def select_freestyle_and_click_ok(self) -> FreestyleConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "hudson_model_FreeStyleProject").click()
@@ -130,3 +135,30 @@ class NewItemPage(BasePage):
         self.wait5.until_not(EC.url_contains("newJob"))
 
         return ErrorPage(self.driver)
+
+    def wait_for_valid_item_name(self) -> Self:
+        self.wait10.until(
+            EC.text_to_be_present_in_element_attribute(
+                (By.ID, "name"),
+                "data-valid",
+                "true"
+            )
+        )
+        return self
+
+    def is_pipeline_displayed(self) -> bool:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.PIPELINE_ITEM)).is_displayed()
+
+    def is_items_type_list_displayed(self) -> bool:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.ITEMS_TYPE_LIST)).is_displayed()
+
+    def get_pipeline_label(self) -> str:
+        pipeline_item = self.wait10.until(
+            EC.visibility_of_element_located(self.PIPELINE_ITEM)
+        )
+        return pipeline_item.find_element(
+            By.CLASS_NAME,
+            "jenkins-choice-list__item__label"
+        ).text
