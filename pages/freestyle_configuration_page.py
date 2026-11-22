@@ -510,8 +510,26 @@ class FreestyleConfigurationPage(BasePage):
         )
 
     def enter_description(self, description: str) -> FreestyleConfigurationPage:
-        self.wait10.until(
+        description_field = self.wait10.until(
             EC.visibility_of_element_located(self.DESCRIPTION_FIELD)
-        ).send_keys(description)
+        )
+        description_field.clear()
+        description_field.send_keys(description)
 
         return self
+
+    def click_apply(self) -> FreestyleConfigurationPage:
+        self.wait10.until(
+            EC.element_to_be_clickable(self.APPLY_BUTTON)
+        ).click()
+
+        self.wait10.until(
+            EC.visibility_of_element_located(self.DESCRIPTION_FIELD)
+        )
+
+        return self
+
+    def get_description(self) -> str:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.DESCRIPTION_FIELD)
+        ).get_attribute("value") or ""

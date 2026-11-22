@@ -1,10 +1,10 @@
 import pytest
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-
 from pages.home_page import HomePage
 
 PROJECT_NAME = "Freestyle_Project_Config_Test"
+SAVE_DESCRIPTION = "Test project configuration saved successfully"
+APPLY_DESCRIPTION = "Test project configuration applied successfully"
 EXPECTED_POST_BUILD_ACTIONS = [
     "Aggregate downstream test results",
     "Archive the artifacts",
@@ -426,19 +426,39 @@ def test_save_apply_buttons_are_available(browser):
     depends=["project_created"]
 )
 def test_save_project_configuration(browser):
-    description = "Test project configuration saved successfully"
-
     project_page = (
         HomePage(browser)
         .goto_home_page()
         .click_project(PROJECT_NAME)
         .click_configuration()
-        .enter_description(description)
+        .enter_description(SAVE_DESCRIPTION)
         .click_save()
     )
 
     saved_description = project_page.get_description()
 
     assert PROJECT_NAME in browser.current_url
-    assert saved_description == description
+    assert saved_description == SAVE_DESCRIPTION
+
+
+@pytest.mark.dependency(
+    name="project_configuration_applied",
+    depends=["project_created"]
+)
+def test_apply_project_configuration(browser):
+    configuration_page = (
+        HomePage(browser)
+        .goto_home_page()
+        .click_project(PROJECT_NAME)
+        .click_configuration()
+        .enter_description(APPLY_DESCRIPTION)
+        .click_apply()
+    )
+
+    saved_description = configuration_page.get_description()
+
+    assert f"/job/{PROJECT_NAME}/configure" in browser.current_url
+    assert saved_description == APPLY_DESCRIPTION
+
+
 
