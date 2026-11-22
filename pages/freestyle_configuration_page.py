@@ -123,6 +123,8 @@ class FreestyleConfigurationPage(BasePage):
         By.CSS_SELECTOR,
         "button.jenkins-dropdown__item"
     )
+    SAVE_BUTTON = (By.CSS_SELECTOR, "button[name='Submit'][value='Save']")
+    APPLY_BUTTON = (By.CSS_SELECTOR, "button[name='Apply']")
 
     def click_environment(self) -> FreestyleConfigurationPage:
         self.wait10.until(
@@ -497,3 +499,11 @@ class FreestyleConfigurationPage(BasePage):
             self.click_add_post_build_action()
             self.select_post_build_action(action)
         return self
+
+    def are_save_apply_buttons_available(self) -> bool:
+        return all(
+            self.wait10.until(
+                EC.visibility_of_element_located(locator)
+            ).is_enabled()
+            for locator in [self.SAVE_BUTTON, self.APPLY_BUTTON]
+        )
