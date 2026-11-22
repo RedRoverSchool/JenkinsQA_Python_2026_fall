@@ -19,7 +19,7 @@ EXPECTED_POST_BUILD_ACTIONS = [
 ]
 
 @pytest.mark.dependency(name="project_created")
-def test_access_enable_disable_option(browser):
+def test_create_project_and_access_enable_disable_option(browser):
     configuration_page = (
         HomePage(browser)
         .click_new_item()
@@ -459,6 +459,4 @@ def test_apply_project_configuration(browser):
 
     assert f"/job/{PROJECT_NAME}/configure" in browser.current_url
     assert saved_description == APPLY_DESCRIPTION
-
-
 
