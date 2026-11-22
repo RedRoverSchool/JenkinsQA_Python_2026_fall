@@ -1,10 +1,8 @@
 from __future__ import annotations
 from enum import Enum
-from typing import TYPE_CHECKING
 from selenium.webdriver import Keys
 from typing import TYPE_CHECKING, Self
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -23,7 +21,7 @@ class PipelineConfigurationPage(BasePage):
         # wait new page
         self.wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href$=configure]")))
 
-        return PipelineStatusPage(self.driver)
+        return PipelinePage(self.driver)
 
     class ClickOnLeftSideSection(Enum):
         GENERAL = "General"

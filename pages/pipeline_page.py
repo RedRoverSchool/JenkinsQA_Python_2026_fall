@@ -1,10 +1,8 @@
 from typing import Self
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-
 from pages.base_page import BasePage
-
+from pages.pipeline_configuration_page import PipelineConfigurationPage
 
 class PipelinePage(BasePage):
 
@@ -33,3 +31,8 @@ class PipelinePage(BasePage):
 
     def get_actual_name(self) -> str:
         return self.wait10.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".job-index-headline"))).text
+
+    def open_configuration_pipeline_page(self) -> PipelineConfigurationPage:
+        self.driver.find_element(By.CSS_SELECTOR, "a[href$=configure]").click()
+
+        return PipelineConfigurationPage(self.driver)
