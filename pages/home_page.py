@@ -24,6 +24,8 @@ class HomePage(BasePage):
     BUILD_QUEUE = (By.ID, "buildQueue")
     BUILD_QUEUE_TOGGLE = (By.XPATH, "//a[contains(@href,'buildQueue')]")
     BUILD_QUEUE_CONTENT = (By.XPATH, "//td[text()='No builds in the queue.']")
+    MAIN_PANEL = (By.ID, "main-panel")
+    PROJECT_LINKS = (By.XPATH, "//table[@id='projectstatus']//a[contains(@class,'jenkins-table__link')]")
 
     def get_welcome_title(self) -> str:
         return self.wait5.until(
@@ -34,6 +36,12 @@ class HomePage(BasePage):
         return self.wait5.until(
             EC.visibility_of_element_located(self.FIRST_PROJECT_NAME)
         ).text
+
+    def is_project_present(self, project_name) -> bool:
+        if "Welcome to Jenkins!" in self.driver.find_element(*self.MAIN_PANEL).text:
+            return False
+        project_names = [el.text for el in self.driver.find_elements(*self.PROJECT_LINKS)]
+        return project_name in project_names
 
     def get_multiconfiguration_project(self, project_name: str) -> MulticonfigurationProjectPage:
         self.driver.find_element(By.LINK_TEXT, project_name).click()

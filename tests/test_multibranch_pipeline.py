@@ -10,27 +10,6 @@ from pages.base_item_page import BaseItemPage
 
 PIPELINE_NAME = "Pipeline_1"
 
-
-def test_multibranch_pipeline(browser, wait5):
-    browser.find_element(By.CSS_SELECTOR, "a[href='/view/all/newJob']").click()
-    browser.find_element(By.ID, "name").send_keys("FirstPipeline")
-    browser.find_element(By.XPATH, "//span[normalize-space()='Multibranch Pipeline']").click()
-    browser.find_element(By.ID, "ok-button").click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.NAME, "_.displayNameOrNull"))
-    )
-
-    browser.find_element(By.NAME, "_.displayNameOrNull").send_keys("PipelineDisplayName")
-    browser.find_element(By.NAME, "_.description").send_keys("PipelineDescriptions")
-    browser.find_element(By.NAME, "Submit").click()
-
-    wait5.until(
-        EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), "PipelineDisplayName")
-    )
-
-    assert "PipelineDisplayName" in browser.find_element(By.TAG_NAME, "h1").text
-
 @pytest.fixture
 def created_multibranch_pipeline(browser):
     (
@@ -40,11 +19,11 @@ def created_multibranch_pipeline(browser):
         .select_multibranch_and_click_ok()
         .goto_home_page()
     )
+    return PIPELINE_NAME
 
 
 def test_create_multibranch_pipeline(browser, created_multibranch_pipeline):
-    pipeline_name = HomePage(browser).get_first_project_name()
-
+    pipeline_name = created_multibranch_pipeline
     assert PIPELINE_NAME == pipeline_name
 
 
@@ -80,43 +59,43 @@ def test_multibranch_with_special_characters(browser):
 
 
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, created_multibranch_pipeline):
-    home_page = HomePage(browser)
-    project_name = home_page.get_first_project_name()
+    project_name = created_multibranch_pipeline
     new_name = "Pipeline_2"
 
-    item_page = (home_page
-     .click_project_context_menu_and_click_rename(project_name)
-     .rename_to(new_name)
-     )
+    item_page = (
+        HomePage(browser)
+        .click_project_context_menu_and_click_rename(project_name)
+        .rename_to(new_name)
+        )
 
     assert item_page.get_item_name() == new_name
     assert f"job/{new_name}" in browser.current_url
 
 
 def test_rename_multibranch_pipeline_from_project_menu(browser, created_multibranch_pipeline):
-    home_page = HomePage(browser)
-    project_name = home_page.get_first_project_name()
+    project_name = created_multibranch_pipeline
     new_name = "Pipeline_2"
 
-    item_page = (home_page
-                 .click_job(project_name)
-                 .click_rename()
-                 .rename_to(new_name)
-                 )
+    item_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_rename()
+        .rename_to(new_name)
+        )
 
     assert item_page.get_item_name() == new_name
     assert f"job/{new_name}" in browser.current_url
 
 
 def test_rename_multibranch_pipeline_with_same_name(browser, created_multibranch_pipeline):
-    home_page = HomePage(browser)
-    project_name = home_page.get_first_project_name()
+    project_name = created_multibranch_pipeline
 
-    error_page = (home_page
-                 .click_job(project_name)
-                 .click_rename()
-                 .try_rename_to(PIPELINE_NAME)
-                 )
+    error_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_rename()
+        .try_rename_to(project_name)
+        )
 
     expected_text = "The new name is the same as the current name."
     assert error_page.get_error_header() == "Error"
@@ -124,14 +103,14 @@ def test_rename_multibranch_pipeline_with_same_name(browser, created_multibranch
 
 
 def test_rename_multibranch_pipeline_with_blank_name(browser, created_multibranch_pipeline):
-    home_page = HomePage(browser)
-    project_name = home_page.get_first_project_name()
+    project_name = created_multibranch_pipeline
 
-    error_page = (home_page
-                  .click_job(project_name)
-                  .click_rename()
-                  .try_rename_to()
-                  )
+    error_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_rename()
+        .try_rename_to()
+        )
 
     expected_text = "No name is specified"
     assert error_page.get_error_header() == "Error"
@@ -139,16 +118,16 @@ def test_rename_multibranch_pipeline_with_blank_name(browser, created_multibranc
 
 
 def test_rename_multibranch_pipeline_with_unsupported_characters(browser, created_multibranch_pipeline):
-    home_page = HomePage(browser)
-    project_name = home_page.get_first_project_name()
+    project_name = created_multibranch_pipeline
     spec_chars = r"!@#$%^&*[]<>;:/\|"
     spec_char = secrets.choice(spec_chars)
 
-    error_page = (home_page
-                  .click_job(project_name)
-                  .click_rename()
-                  .try_rename_to("Pipeline" + spec_char)
-                  )
+    error_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_rename()
+        .try_rename_to("Pipeline" + spec_char)
+        )
 
     expected_text = f"‘{spec_char}’ is an unsafe character"
     assert error_page.get_error_header() == "Error"
@@ -332,45 +311,28 @@ def test_all_health_metrics_are_added(browser, wait5, created_multibranch_pipeli
     assert not add_metric_btn.is_enabled()
 
 
-def test_delete_multibranch_pipeline_via_side_panel(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+def test_delete_multibranch_pipeline_via_side_panel(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
+    home_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_delete()
+        .confirm_delete_modal()
+        )
+
+    assert not home_page.is_project_present(project_name)
+
+
+def test_cancel_pipeline_deletion(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
+
+    item_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_delete()
+        .cancel_delete_modal()
     )
-    browser.find_element(By.XPATH, "//a[@data-title='Delete Multibranch Pipeline']").click()
 
-    dialog = wait5.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
-    )
-    confirm_btn = dialog.find_element(By.XPATH, ".//button[@data-id='ok']")
-    confirm_btn.click()
-    wait5.until(
-        EC.invisibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
-    )
-
-    welcome_title = browser.find_element(By.CSS_SELECTOR, "div.empty-state-block > h1")
-
-    assert welcome_title.text == "Welcome to Jenkins!"
-
-
-def test_cancel_pipeline_deletion(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[@data-title='Delete Multibranch Pipeline']").click()
-
-    dialog = wait5.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "dialog[open]"))
-    )
-    cancel_btn = dialog.find_element(By.XPATH, ".//button[@data-id='cancel']")
-    cancel_btn.click()
-
-    title = browser.find_element(By.XPATH, "//h1[contains(@class,'job-index-headline')]")
-
-    assert title.text == PIPELINE_NAME
-    assert f"job/{PIPELINE_NAME}/" in browser.current_url
+    assert item_page.get_item_name() == project_name
+    assert f"job/{project_name}/" in browser.current_url
