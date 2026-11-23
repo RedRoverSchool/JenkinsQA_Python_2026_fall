@@ -60,3 +60,25 @@ class BasePage(BaseModel):
             EC.invisibility_of_element_located(modal)
         )
         return self
+
+    def wait_for_element_visible(self, locator):
+        return self.wait10.until(EC.visibility_of_element_located(locator))
+
+    def click_clear_and_send_keys_in_field_area(self, locator, text):
+        element = self.wait_for_element_visible(locator)
+        element.click()
+        element.clear()
+        element.send_keys(text)
+        return self
+    def click_btn(self, locator):
+        btn = self.driver.find_element(*locator)
+        btn.click()
+        return self
+
+    def wait_for_text_in_element(self, locator: tuple, text: str):
+        self.wait10.until(EC.text_to_be_present_in_element(locator, text))
+        return self
+
+    def get_element_text(self, locator: tuple):
+        element = self.wait_for_element_visible(locator)
+        return element.text.strip()

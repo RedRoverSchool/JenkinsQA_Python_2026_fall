@@ -5,6 +5,7 @@ from pages.base_page import BasePage
 from pages.pipeline_configuration_page import PipelineConfigurationPage
 
 class PipelinePage(BasePage):
+    EDIT_DESCRIPTION_BTN = (By.XPATH, "//*[@id='description-link']/span")
 
     def get_configuration_description(self) -> str:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "view-message"))).text
@@ -36,3 +37,8 @@ class PipelinePage(BasePage):
         self.driver.find_element(By.CSS_SELECTOR, "a[href$=configure]").click()
 
         return PipelineConfigurationPage(self.driver)
+
+    def click_add_or_rename_description_btn(self):
+        edit_desc_btm = self.wait10.until(EC.element_to_be_clickable(self.EDIT_DESCRIPTION_BTN))
+        edit_desc_btm.click()
+        return self
