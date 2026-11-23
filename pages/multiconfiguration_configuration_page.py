@@ -44,3 +44,20 @@ class MulticonfigurationConfigurationPage(BasePage):
 
     def is_discard_old_builds_enabled(self) -> bool:
         return self.driver.find_element(By.ID, "cb2").is_selected()
+
+    def enable_github_project(self) -> MulticonfigurationConfigurationPage:
+        github_checkbox = self.driver.find_element(By.XPATH, "//label[contains(., 'GitHub project')]")
+        self.driver.execute_script("arguments[0].scrollIntoView();",github_checkbox)
+        github_checkbox.click()
+        return self
+
+    def enter_project_url(self, project_url: str) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.NAME, "_.projectUrlStr").send_keys(project_url)
+        return self
+
+    def get_project_url(self) -> str:
+        return self.driver.find_element(By.NAME, "_.projectUrlStr").get_attribute("value")
+
+    def is_github_project_enabled(self) -> bool:
+        return self.driver.find_element(By.ID, "cb3").is_selected()
+

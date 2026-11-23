@@ -46,5 +46,23 @@ def test_verify_discard_old_builds_configuration_options(browser):
     assert multiconfiguration_project.is_discard_old_builds_enabled()
 
 
+@pytest.mark.dependency(depends=["test_add_description_to_multiconfiguration_project"])
+def test_verify_github_project_configuration_options(browser):
+
+    project_name = "My multi-configuration project"
+    project_url = "https://github.com/tests/project/"
+
+    multiconfiguration_project = (
+        HomePage(browser)
+        .get_multiconfiguration_project(project_name)
+        .get_configure()
+        .enable_github_project()
+        .enter_project_url(project_url)
+        .click_save()
+        .get_configure()
+    )
+    assert multiconfiguration_project.get_project_url() == project_url
+    assert multiconfiguration_project.is_github_project_enabled()
+
 
 
