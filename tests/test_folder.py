@@ -1,6 +1,4 @@
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 from pages.home_page import HomePage
@@ -55,17 +53,19 @@ def test_create_folder_with_empty_name(browser):
 
 
 def test_create_folder_with_empty_name_error(browser):
-    error_message = (
+    new_item_page = (
     HomePage(browser)
     .click_new_item()
     .set_item_name(FOLDER_NAME)
     .select_folder()
     .clear_item_name()
     .set_item_name(Keys.TAB)
-    .get_error_name_message()
     )
 
+    error_message = new_item_page.get_error_name_message()
+
     assert any(word in error_message for word in ('пуст', 'empty'))
+    assert not new_item_page.is_ok_button_enabled()
 
 
 @pytest.mark.parametrize("symbols", ['A', 'ф', '1', 'te st', ' test ', ',', '"', "'"])
@@ -86,7 +86,7 @@ def test_name_is_invalid(browser, symbols):
         HomePage(browser)
         .click_new_item()
         .set_item_name(symbols)
-        .is_ok_button_enabled()
+        .is_item_name_valid()
     )
 
     assert not item_name_valid
