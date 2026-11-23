@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Self
 
 from selenium.webdriver.common.by import By
@@ -87,6 +88,12 @@ class NewItemPage(BasePage):
 
         return self
 
+    def select_duplicate_item(self, name: str) -> Self:
+        option_locator = (By.XPATH,
+                          f"//button[contains(@class, 'jenkins-dropdown__item') and contains(text(), '{name}')]")
+        self.wait10.until(EC.element_to_be_clickable(option_locator)).click()
+        return self
+
     def is_duplicate_option_displayed(self) -> bool:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "duplicate-job"))).is_displayed()
 
@@ -135,6 +142,14 @@ class NewItemPage(BasePage):
         self.wait5.until_not(EC.url_contains("newJob"))
 
         return ErrorPage(self.driver)
+
+    def click_ok_expecting_success(self) -> FreestyleConfigurationPage:
+        from pages.freestyle_configuration_page import FreestyleConfigurationPage
+
+        self.wait5.until(EC.element_to_be_clickable(self.OK_BUTTON)).click()
+        self.wait10.until(EC.visibility_of_element_located((By.NAME, "description")))
+
+        return FreestyleConfigurationPage(self.driver)
 
     def wait_for_valid_item_name(self) -> Self:
         self.wait10.until(
