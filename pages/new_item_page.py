@@ -19,6 +19,7 @@ class NewItemPage(BasePage):
     PIPELINE_ITEM = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob",)
     NEW_FOLDER = (By.CLASS_NAME, "com_cloudbees_hudson_plugins_folder_Folder")
     NEW_ITEM_NAME_INPUT = (By.ID, "name")
+    ERROR = (By.CSS_SELECTOR, "[class = 'error']")
 
     def set_item_name(self, name: str) -> Self:
         self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).send_keys(name)
@@ -119,9 +120,14 @@ class NewItemPage(BasePage):
         return self.wait2.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[class = 'error']"))).is_displayed()
 
     def is_item_name_valid(self) -> bool:
-        is_valid = self.driver.find_element(*self.NEW_ITEM_NAME_INPUT).get_attribute("data-valid")
+        def validation_result(driver):
+            if driver.find_element(*self.NEW_ITEM_NAME_INPUT).get_attribute("data-valid") == "true":
+                return "valid"
 
-        return is_valid == "true"
+            if driver.find_element(*self.ERROR).is_displayed():
+                return "invalid"
+
+        return self.wait10.until(validation_result) == "valid"
 
     def is_ok_button_enabled(self) -> bool:
         return self.driver.find_element(*self.OK_BUTTON).is_enabled()
