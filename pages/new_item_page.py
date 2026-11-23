@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Self
 
 from selenium.webdriver.common.by import By
@@ -144,7 +143,6 @@ class NewItemPage(BasePage):
         return ErrorPage(self.driver)
 
     def click_ok_expecting_success(self) -> FreestyleConfigurationPage:
-        from pages.freestyle_configuration_page import FreestyleConfigurationPage
 
         self.wait5.until(EC.element_to_be_clickable(self.OK_BUTTON)).click()
         self.wait10.until(EC.visibility_of_element_located((By.NAME, "description")))
