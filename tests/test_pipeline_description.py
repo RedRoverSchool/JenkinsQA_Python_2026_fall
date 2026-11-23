@@ -67,7 +67,6 @@ def test_edit_existing_description(browser, wait10):
 
 
 def test_enter_multiline_description_on_configure(browser, wait10):
-    time.sleep(5)
     actual_result = (
         HomePage(browser)
         .click_new_item()
@@ -77,7 +76,6 @@ def test_enter_multiline_description_on_configure(browser, wait10):
         .click_btn(SAVE_BTN)
         .get_element_text(DESCRIPTION_CONTENT_FLD)
     )
-    time.sleep(5)
     lines = actual_result.splitlines()
     assert len(lines) == 3, f"Ожидалось 3 строки, а получено {len(lines)}"
 
