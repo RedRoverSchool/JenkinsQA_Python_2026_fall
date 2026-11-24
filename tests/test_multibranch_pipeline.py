@@ -101,7 +101,7 @@ def test_rename_multibranch_pipeline_with_same_name(browser, created_multibranch
     assert error_page.get_error_header() == "Error"
     assert error_page.get_error_message() == expected_text
 
-@pytest.mark.skip()
+
 def test_rename_multibranch_pipeline_with_blank_name(browser, created_multibranch_pipeline):
     project_name = created_multibranch_pipeline
 
