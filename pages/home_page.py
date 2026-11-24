@@ -70,24 +70,9 @@ class HomePage(BasePage):
         return ManageJenkinsPage(self.driver)
 
     def toggle_build_queue(self):
-        current_title = self.wait5.until(
-            EC.presence_of_element_located(self.BUILD_QUEUE_TOGGLE)
-        ).get_attribute("title")
-
-        if current_title == "collapse":
-            expected_title = "expand"
-        else:
-            expected_title = "collapse"
-
-        self.wait5.until(
-            EC.element_to_be_clickable(self.BUILD_QUEUE_TOGGLE)
-        ).click()
-
-        self.wait5.until(
-            EC.text_to_be_present_in_element_attribute(
-                self.BUILD_QUEUE_TOGGLE, "title", expected_title
-            )
-        )
+        switcher = self.wait5.until(EC.element_to_be_clickable(self.BUILD_QUEUE_TOGGLE))
+        switcher.click()
+        self.wait5.until(EC.staleness_of(switcher))
         return self
 
     def is_build_queue_expanded(self) -> bool:
