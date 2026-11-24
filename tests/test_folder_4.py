@@ -12,7 +12,7 @@ DISCRIPTION_TEXT = 'description'
 OK_BUTTON = (By.ID, "ok-button")
 
 
-def test_create_item_folder(browser):
+def test_create_item_folder(browser,wait5,wait10):
 
     progect_name = (
         HomePage(browser)
@@ -27,8 +27,9 @@ def test_create_item_folder(browser):
 
     assert browser.find_element(By.XPATH, "//h1[@class='job-index-headline page-headline']").is_displayed()
 
-@pytest.mark.parametrize('invalid_characters',['!','@','%','&'])
-def test_create_folder_with_invalid_characters_name(browser,invalid_characters):
+
+@pytest.mark.parametrize('invalid_characters', ['!', '@', '%', '&'])
+def test_create_folder_with_invalid_characters_name(browser, invalid_characters):
     invalid_name = (
         HomePage(browser)
         .click_new_item()
@@ -38,3 +39,4 @@ def test_create_folder_with_invalid_characters_name(browser,invalid_characters):
     )
 
     assert not invalid_name
+
