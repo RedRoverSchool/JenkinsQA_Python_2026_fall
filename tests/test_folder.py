@@ -4,7 +4,9 @@ from selenium.webdriver.common.keys import Keys
 from pages.home_page import HomePage
 
 FOLDER_NAME = "TestFolder_01"
+FOLDER_NEW_NAME = "Edited Test_Folder"
 
+@pytest.mark.dependency()
 def test_create_folder_from_dashboard(browser, wait10):
     folder_name = "TestFolder_01"
 
@@ -90,3 +92,14 @@ def test_name_is_invalid(browser, symbols):
     )
 
     assert not item_name_valid
+
+@pytest.mark.dependency(depends=["test_create_folder_from_dashboard"])
+def test_rename_folder(browser):
+    new_name = (
+        HomePage(browser)
+        .click_project_context_menu_and_click_rename(FOLDER_NAME)
+        .rename_to(FOLDER_NEW_NAME)
+        .get_item_name()
+    )
+
+    assert new_name == FOLDER_NEW_NAME
