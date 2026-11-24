@@ -17,6 +17,9 @@ class NewItemPage(BasePage):
     SIDE_PANEL = (By.ID, "side-panel")
     ITEMS_TYPE_LIST = (By.ID, "items")
     PIPELINE_ITEM = (By.CLASS_NAME, "org_jenkinsci_plugins_workflow_job_WorkflowJob",)
+    NEW_FOLDER = (By.CLASS_NAME, "com_cloudbees_hudson_plugins_folder_Folder")
+    NEW_ITEM_NAME_INPUT = (By.ID, "name")
+    ERROR = (By.CSS_SELECTOR, "[class = 'error']")
 
     def set_item_name(self, name: str) -> Self:
         self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).send_keys(name)
@@ -25,6 +28,11 @@ class NewItemPage(BasePage):
 
     def get_item_name(self) -> str:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).get_attribute("value")
+
+    def clear_item_name(self) -> Self:
+        self.driver.find_element(*self.NEW_ITEM_NAME_INPUT).clear()
+
+        return self
 
     def select_freestyle_and_click_ok(self) -> FreestyleConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "hudson_model_FreeStyleProject").click()
@@ -41,6 +49,11 @@ class NewItemPage(BasePage):
         self.wait10.until(EC.presence_of_element_located((By.ID, "side-panel")))
 
         return FolderConfigurationPage(self.driver)
+
+    def select_folder(self) -> Self:
+        self.wait5.until(EC.element_to_be_clickable(self.NEW_FOLDER)).click()
+
+        return self
 
     def select_multiconfiguration_and_click_ok(self) -> MulticonfigurationConfigurationPage:
         self.driver.find_element(By.CLASS_NAME, "hudson_matrix_MatrixProject").click()
@@ -111,6 +124,19 @@ class NewItemPage(BasePage):
     def is_error_message_displayed(self) -> bool:
 
         return self.wait2.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[class = 'error']"))).is_displayed()
+
+    def is_item_name_valid(self) -> bool:
+        def validation_result(driver):
+            if driver.find_element(*self.NEW_ITEM_NAME_INPUT).get_attribute("data-valid") == "true":
+                return "valid"
+
+            if driver.find_element(*self.ERROR).is_displayed():
+                return "invalid"
+
+        return self.wait10.until(validation_result) == "valid"
+
+    def is_ok_button_enabled(self) -> bool:
+        return self.driver.find_element(*self.OK_BUTTON).is_enabled()
 
     def is_ok_button_disabled(self) -> bool:
 
