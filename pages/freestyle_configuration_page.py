@@ -533,3 +533,6 @@ class FreestyleConfigurationPage(BasePage):
         return self.wait10.until(
             EC.visibility_of_element_located(self.DESCRIPTION_FIELD)
         ).get_attribute("value") or ""
+
+    def get_page_text(self):
+        return self.get_element_text(self.BODY)

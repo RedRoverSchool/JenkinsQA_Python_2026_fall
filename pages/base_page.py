@@ -17,6 +17,7 @@ class BasePage(BaseModel):
     DELETE_MODAL = (By.CSS_SELECTOR, "dialog[open], .jenkins-modal")
     CONFIRM_DELETE_BTN = (By.XPATH, ".//button[@data-id='ok']")
     CANCEL_DELETE_BTN = (By.CSS_SELECTOR, "button[data-id='cancel']")
+    BODY = (By.TAG_NAME, "body")
 
     def goto_home_page(self) -> HomePage:
         from pages.home_page import HomePage
