@@ -1,12 +1,7 @@
 import secrets
-import time
-
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.home_page import HomePage
-from pages.base_item_page import BaseItemPage
 from pages.multibranch_configuration_page import MultibranchConfigurationPage
 
 PIPELINE_NAME = "Pipeline_1"
