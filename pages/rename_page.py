@@ -15,6 +15,7 @@ class RenamePage(BasePage):
         input_field.clear()
         input_field.send_keys(new_name)
         self.driver.find_element(*self.RENAME_BUTTON).click()
+        self.wait5.until(EC.staleness_of(input_field))
 
     def rename_to(self, new_name, return_page_class=None):
         self.submit_new_name(new_name)

@@ -129,7 +129,11 @@ def test_rename_multibranch_pipeline_with_unsupported_characters(browser, create
         .try_rename_to("Pipeline" + spec_char)
         )
 
-    expected_text = f"‘{spec_char}’ is an unsafe character"
+    escaped_char = (spec_char.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;"))
+    expected_text = f"‘{escaped_char}’ is an unsafe character"
+
     assert error_page.get_error_header() == "Error"
     assert error_page.get_error_message() == expected_text
 
