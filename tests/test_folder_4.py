@@ -9,7 +9,7 @@ from pages.home_page import HomePage
 ITEM_NAME = 'folder_name'
 DISPLAY_NAME = 'display_name'
 DISCRIPTION_TEXT = 'description'
-OK_BUTTON = (By.ID, "ok-button")
+
 
 
 def test_create_item_folder(browser,wait5,wait10):
