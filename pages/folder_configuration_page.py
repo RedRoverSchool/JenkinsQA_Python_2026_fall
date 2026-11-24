@@ -21,3 +21,8 @@ class FolderConfigurationPage(BasePage):
         from pages.folder_page import FolderPage
         self.wait10.until(EC.visibility_of_element_located((By.NAME, "Submit"))).click()
         return FolderPage(self.driver)
+
+    def set_dicription(self, dicription: str) -> Self:
+        self.driver.find_element(By.NAME,"_.description").send_keys(dicription)
+
+        return self
