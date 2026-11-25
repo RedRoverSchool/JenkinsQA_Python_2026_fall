@@ -28,6 +28,9 @@ class HomePage(BasePage):
     BUILD_QUEUE_CONTENT = (By.XPATH, "//td[text()='No builds in the queue.']")
     MAIN_PANEL = (By.ID, "main-panel")
     PROJECT_LINKS = (By.XPATH, "//table[@id='projectstatus']//a[contains(@class,'jenkins-table__link')]")
+    JOB_NAME = (By.XPATH, "//*[@id='job_random_name']/td[3]/a/span")
+    DROPDOWN_CHEVRON = (By.XPATH, f"//*[@id='job_random_name']/td[3]/a/button")
+    DROPDOWN_CONFIGURE = (By.XPATH, "//*[@id='tippy-4']/div/div/div/a[2]")
 
     def get_welcome_title(self) -> str:
         return self.wait5.until(
@@ -169,9 +172,6 @@ class HomePage(BasePage):
             return False
 
     def open_configuration_via_dropdown(self, job_name: str) -> PipelineConfigurationPage:
-        JOB_NAME = (By.XPATH, "//*[@id='job_random_name']/td[3]/a/span")
-        DROPDOWN_CHEVRON = (By.XPATH, f"//*[@id='job_random_name']/td[3]/a/button")
-        DROPDOWN_CONFIGURE = (By.XPATH, "//*[@id='tippy-4']/div/div/div/a[2]")
         job_element = self.wait10.until(EC.visibility_of_element_located(JOB_NAME))
         actions = ActionChains(self.driver)
         actions.move_to_element(job_element).perform()
