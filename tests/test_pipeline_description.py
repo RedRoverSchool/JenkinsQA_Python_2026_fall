@@ -92,7 +92,7 @@ def test_clear_description_field(browser, wait10):
     )
     assert pipeline_page.is_description_empty(), "Ошибка: блок с описанием не пустой"
 
-@pytest.mark.skip
+
 @pytest.mark.dependency(depends=["test_access_description_via_new_item"])
 def test_access_description_via_drop_down_menu(browser, wait10):
     configuration_page = (

@@ -172,10 +172,10 @@ class HomePage(BasePage):
             return False
 
     def open_configuration_via_dropdown(self, job_name: str) -> PipelineConfigurationPage:
-        job_element = self.wait10.until(EC.visibility_of_element_located(JOB_NAME))
+        job_element = self.wait10.until(EC.visibility_of_element_located(self.JOB_NAME))
         actions = ActionChains(self.driver)
         actions.move_to_element(job_element).perform()
-        self.wait10.until(EC.element_to_be_clickable(DROPDOWN_CHEVRON)).click()
-        self.wait10.until(EC.element_to_be_clickable(DROPDOWN_CONFIGURE)).click()
+        self.wait10.until(EC.element_to_be_clickable(self.DROPDOWN_CHEVRON)).click()
+        self.wait10.until(EC.element_to_be_clickable(self.DROPDOWN_CONFIGURE)).click()
         self.wait10.until(EC.url_contains("configure"))
         return PipelineConfigurationPage(self.driver)
