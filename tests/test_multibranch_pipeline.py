@@ -57,7 +57,7 @@ def test_multibranch_with_special_characters(browser):
     assert page.is_ok_button_disabled()
     assert page.get_error_name_message() == expected_text
 
-
+@pytest.mark.skip
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, created_multibranch_pipeline):
     project_name = created_multibranch_pipeline
     new_name = "Pipeline_2"

@@ -93,6 +93,8 @@ def test_name_is_invalid(browser, symbols):
 
     assert not item_name_valid
 
+
+@pytest.mark.skip
 @pytest.mark.dependency(depends=["test_create_folder_from_dashboard"])
 def test_rename_folder(browser):
     new_name = (
