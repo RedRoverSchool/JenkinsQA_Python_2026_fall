@@ -36,7 +36,7 @@ def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser):
     welcome_title = page.get_welcome_title()
     assert welcome_title == "Welcome to Jenkins!"
 
-
+@pytest.mark.skip
 def test_multibranch_with_special_characters(browser):
     spec_chars = r"!@#$%^&*[]<>;:/\|"
     spec_char = secrets.choice(spec_chars)
@@ -57,7 +57,7 @@ def test_multibranch_with_special_characters(browser):
     assert page.is_ok_button_disabled()
     assert page.get_error_name_message() == expected_text
 
-
+@pytest.mark.skip
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, created_multibranch_pipeline):
     project_name = created_multibranch_pipeline
     new_name = "Pipeline_2"

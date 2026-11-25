@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
 
 from pages.base_page import BasePage
 from pages.multiconfiguration_project_page import MulticonfigurationProjectPage
@@ -10,6 +11,7 @@ from pages.freestyle_project_page import FreestyleProjectPage
 from pages.pipeline_page import PipelinePage
 from pages.rename_page import RenamePage
 from pages.base_item_page import BaseItemPage
+from pages.pipeline_configuration_page import PipelineConfigurationPage
 
 class HomePage(BasePage):
     WELCOME_TITLE = (By.XPATH, "//div[@class='empty-state-block']/h1")
@@ -26,6 +28,9 @@ class HomePage(BasePage):
     BUILD_QUEUE_CONTENT = (By.XPATH, "//td[text()='No builds in the queue.']")
     MAIN_PANEL = (By.ID, "main-panel")
     PROJECT_LINKS = (By.XPATH, "//table[@id='projectstatus']//a[contains(@class,'jenkins-table__link')]")
+    JOB_NAME = (By.XPATH, "//*[@id='job_random_name']/td[3]/a/span")
+    DROPDOWN_CHEVRON = (By.XPATH, f"//*[@id='job_random_name']/td[3]/a/button")
+    DROPDOWN_CONFIGURE = (By.XPATH, "//*[@id='tippy-4']/div/div/div/a[2]")
 
     def get_welcome_title(self) -> str:
         return self.wait5.until(
@@ -165,3 +170,12 @@ class HomePage(BasePage):
             return True
         except TimeoutException:
             return False
+
+    def open_configuration_via_dropdown(self, job_name: str) -> PipelineConfigurationPage:
+        job_element = self.wait10.until(EC.visibility_of_element_located(self.JOB_NAME))
+        actions = ActionChains(self.driver)
+        actions.move_to_element(job_element).perform()
+        self.wait10.until(EC.element_to_be_clickable(self.DROPDOWN_CHEVRON)).click()
+        self.wait10.until(EC.element_to_be_clickable(self.DROPDOWN_CONFIGURE)).click()
+        self.wait10.until(EC.url_contains("configure"))
+        return PipelineConfigurationPage(self.driver)

@@ -67,14 +67,6 @@ class PipelineConfigurationPage(BasePage):
 
         return self
 
-    def enter_description(self, text: str) -> "PipelineConfigurationPage":
-        self.wait10.until(EC.url_contains("configure"))
-        desc = self.driver.find_element(*self.DESCRIPTION_FLD)
-        desc.click()
-        desc.clear()
-        desc.send_keys(text)
-        return self
-
     def get_description_value(self):
         desc = self.driver.find_element(*self.DESCRIPTION_FLD)
         return desc.get_attribute("value")

@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from common.base_model import BaseModel
 
 if TYPE_CHECKING:
@@ -72,7 +73,7 @@ class BasePage(BaseModel):
         element.send_keys(text)
         return self
     def click_btn(self, locator):
-        btn = self.driver.find_element(*locator)
+        btn = self.wait10.until(EC.element_to_be_clickable(locator))
         btn.click()
         return self
 
@@ -83,3 +84,18 @@ class BasePage(BaseModel):
     def get_element_text(self, locator: tuple):
         element = self.wait_for_element_visible(locator)
         return element.text.strip()
+
+    def clear_field(self, locator):
+        textarea = self.wait10.until(EC.element_to_be_clickable(locator))
+        textarea.click()
+        textarea.send_keys(Keys.CONTROL, "a")
+        textarea.send_keys(Keys.BACKSPACE)
+        self.wait10.until(lambda driver: textarea.get_attribute("value") == "")
+        return self
+
+    def enter_text(self, locator: tuple, text: str) -> "BasePage":
+        element = self.wait10.until(EC.visibility_of_element_located(locator))
+        element.click()
+        element.clear()
+        element.send_keys(text)
+        return self
