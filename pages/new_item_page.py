@@ -201,3 +201,13 @@ class NewItemPage(BasePage):
             By.CLASS_NAME,
             "jenkins-choice-list__item__label"
         ).text
+
+    def is_item_name_enabled(self) -> bool:
+        return self.driver.find_element(*self.NEW_ITEM_NAME_INPUT).is_enabled()
+
+    def select_freestyle(self) -> Self:
+        self.wait5.until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "hudson_model_FreeStyleProject"))
+        ).click()
+
+        return self
