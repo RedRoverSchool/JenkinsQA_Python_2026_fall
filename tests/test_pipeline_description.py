@@ -113,7 +113,6 @@ def test_preview_description(browser, wait10):
         .click_btn(PREVIEW_BTN)
         .wait_for_text_in_element(PREVIEW_FLD, MULTILINE_TEXT)
         .get_element_text(PREVIEW_FLD)
-
     )
     assert actual_text == MULTILINE_TEXT, f"Ожидался текст '{MULTILINE_TEXT}', а получен '{actual_text}'"
 
