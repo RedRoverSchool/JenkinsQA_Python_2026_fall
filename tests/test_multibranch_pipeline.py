@@ -1,14 +1,11 @@
 import secrets
-import time
-
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.home_page import HomePage
-from pages.base_item_page import BaseItemPage
+from pages.multibranch_configuration_page import MultibranchConfigurationPage
 
 PIPELINE_NAME = "Pipeline_1"
+
 
 @pytest.fixture
 def created_multibranch_pipeline(browser):
@@ -52,7 +49,10 @@ def test_multibranch_with_special_characters(browser):
         .select_multibranch()
     )
 
-    expected_text = f"‘{spec_char}’ is an unsafe character"
+    escaped_char = (spec_char.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;"))
+    expected_text = f"‘{escaped_char}’ is an unsafe character"
 
     assert page.is_ok_button_disabled()
     assert page.get_error_name_message() == expected_text
@@ -66,7 +66,7 @@ def test_rename_multibranch_pipeline_from_dropdown_menu(browser, created_multibr
         HomePage(browser)
         .click_project_context_menu_and_click_rename(project_name)
         .rename_to(new_name)
-        )
+    )
 
     assert item_page.get_item_name() == new_name
     assert f"job/{new_name}" in browser.current_url
@@ -81,13 +81,12 @@ def test_rename_multibranch_pipeline_from_project_menu(browser, created_multibra
         .click_job(project_name)
         .click_rename()
         .rename_to(new_name)
-        )
+    )
 
     assert item_page.get_item_name() == new_name
     assert f"job/{new_name}" in browser.current_url
 
 
-@pytest.mark.skip(reason="failed")
 def test_rename_multibranch_pipeline_with_same_name(browser, created_multibranch_pipeline):
     project_name = created_multibranch_pipeline
 
@@ -96,7 +95,7 @@ def test_rename_multibranch_pipeline_with_same_name(browser, created_multibranch
         .click_job(project_name)
         .click_rename()
         .try_rename_to(project_name)
-        )
+    )
 
     expected_text = "The new name is the same as the current name."
     assert error_page.get_error_header() == "Error"
@@ -111,7 +110,7 @@ def test_rename_multibranch_pipeline_with_blank_name(browser, created_multibranc
         .click_job(project_name)
         .click_rename()
         .try_rename_to()
-        )
+    )
 
     expected_text = "No name is specified"
     assert error_page.get_error_header() == "Error"
@@ -128,7 +127,7 @@ def test_rename_multibranch_pipeline_with_unsupported_characters(browser, create
         .click_job(project_name)
         .click_rename()
         .try_rename_to("Pipeline" + spec_char)
-        )
+    )
 
     escaped_char = (spec_char.replace("&", "&amp;")
                     .replace("<", "&lt;")
@@ -139,181 +138,89 @@ def test_rename_multibranch_pipeline_with_unsupported_characters(browser, create
     assert error_page.get_error_message() == expected_text
 
 
-def test_availability_of_health_metrics(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+def test_availability_of_health_metrics(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'configure') and contains(@class,'task-link')]").click()
-
-    health_metrics_btn = wait5.until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "advancedButton"))
-    )
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", health_metrics_btn)
-    health_metrics_btn.click()
-
-    add_metric_btn = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@suffix='healthMetrics']"))
-    )
-    add_metric_btn.click()
-
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    child_with_name = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                                     "and contains(text(),'Child item with the given name')]")
-    child_worst_health = browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                                        "and contains(text(),'Child item with worst health')]")
-    health_primary_branch = browser.find_element(By.XPATH,
-                                                 "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                                 "and contains(text(),'Health of the primary branch of a repository')]")
-
-    assert child_with_name.is_enabled() == True
-    assert child_worst_health.is_enabled() == True
-    assert health_primary_branch.is_enabled() == True
-
-
-def test_health_metrics_child_item_with_given_name(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'configure') and contains(@class,'task-link')]").click()
-
-    health_metrics_btn = wait5.until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "advancedButton"))
-    )
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", health_metrics_btn)
-    health_metrics_btn.click()
-
-    add_metric_btn = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@suffix='healthMetrics']"))
-    )
-    add_metric_btn.click()
-
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Child item with the given name')]").click()
-    child_name = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//input[@name='_.childName']"))
+    configuration_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_configure(MultibranchConfigurationPage)
+        .open_health_metrics_dropdown()
     )
 
-    assert child_name.is_displayed() == True
+    available_metrics = configuration_page.get_available_health_metrics()
+
+    expected_metrics = ["Child item with the given name",
+                        "Child item with worst health",
+                        "Health of the primary branch of a repository"]
+
+    for metric in expected_metrics:
+        assert metric in available_metrics
 
 
-def test_health_metrics_child_item_with_worst_health(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+def test_health_metrics_child_item_with_given_name(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'configure') and contains(@class,'task-link')]").click()
-
-    health_metrics_btn = wait5.until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "advancedButton"))
-    )
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", health_metrics_btn)
-    health_metrics_btn.click()
-
-    add_metric_btn = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@suffix='healthMetrics']"))
-    )
-    add_metric_btn.click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Child item with worst health')]").click()
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[contains(@descriptorid,'WorstChildHealthMetric')]"))
-    )
-    recursive_checkbox = browser.find_element(By.XPATH, "//input[@name='_.recursive']")
-    assert recursive_checkbox.is_displayed() == True
-    assert recursive_checkbox.is_selected() == True
-
-
-def test_health_metrics_health_of_the_primary_branch(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
-
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'configure') and contains(@class,'task-link')]").click()
-
-    health_metrics_btn = wait5.until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "advancedButton"))
-    )
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", health_metrics_btn)
-    health_metrics_btn.click()
-
-    add_metric_btn = wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@suffix='healthMetrics']"))
-    )
-    add_metric_btn.click()
-
-    wait5.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[@id='tippy-2']"))
-    )
-    browser.find_element(By.XPATH, "//div[@id='tippy-2']//button[@class='jenkins-dropdown__item' "
-                                   "and contains(text(),'Health of the primary branch of a repository')]").click()
-    primary_branch_metric = wait5.until(
-        EC.visibility_of_element_located((By.XPATH, "//div[contains(@descriptorid,'PrimaryBranchHealthMetric')]"))
+    configuration_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_configure(MultibranchConfigurationPage)
+        .expand_health_metrics()
+        .open_metrics_dropdown()
+        .select_health_metric("Child item with the given name")
     )
 
-    assert primary_branch_metric.is_displayed() == True
+    assert configuration_page.is_child_name_input_displayed()
+
+
+def test_health_metrics_child_item_with_worst_health(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
+
+    configuration_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_configure(MultibranchConfigurationPage)
+        .expand_health_metrics()
+        .open_metrics_dropdown()
+        .select_health_metric("Child item with worst health")
+    )
+
+    assert configuration_page.is_recursive_checkbox_displayed()
+    assert configuration_page.is_recursive_checkbox_selected()
+
+
+def test_health_metrics_health_of_the_primary_branch(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
+
+    configuration_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_configure(MultibranchConfigurationPage)
+        .expand_health_metrics()
+        .open_metrics_dropdown()
+        .select_health_metric("Health of the primary branch of a repository")
+    )
+
+    assert configuration_page.is_primary_branch_metric_displayed()
 
 
 def test_all_health_metrics_are_added(browser, wait5, created_multibranch_pipeline):
-    link_selector = f"//a[@href='job/{PIPELINE_NAME}/' and contains(@class,'jenkins-table__link')]"
-    browser.find_element(By.XPATH, link_selector).click()
+    project_name = created_multibranch_pipeline
 
-    wait5.until(
-        EC.visibility_of_element_located((By.ID, "side-panel"))
-    )
-    browser.find_element(By.XPATH, "//a[contains(@href, 'configure') and contains(@class,'task-link')]").click()
-
-    health_metrics_btn = wait5.until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "advancedButton"))
-    )
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", health_metrics_btn)
-    health_metrics_btn.click()
-
-    add_metric_locator = (By.XPATH, "//button[@suffix='healthMetrics']")
-    add_metric_btn = wait5.until(
-        EC.element_to_be_clickable(add_metric_locator)
+    configuration_page = (
+        HomePage(browser)
+        .click_job(project_name)
+        .click_configure(MultibranchConfigurationPage)
+        .expand_health_metrics()
+        .open_metrics_dropdown()
+        .select_health_metric("Child item with the given name")
+        .open_metrics_dropdown()
+        .select_health_metric("Child item with worst health")
+        .open_metrics_dropdown()
+        .select_health_metric("Health of the primary branch of a repository")
     )
 
-    metrics = ["Child item with the given name",
-               "Child item with worst health",
-               "Health of the primary branch of a repository"]
-
-    for metric in metrics:
-        browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_metric_btn)
-        wait5.until(
-            EC.element_to_be_clickable(add_metric_locator)
-        ).click()
-
-        option_locator = (By.XPATH, f"//button[contains(@class, 'jenkins-dropdown__item') "
-                                    f"and contains(., '{metric}')]")
-        wait5.until(
-            EC.element_to_be_clickable(option_locator)
-        ).click()
-
-    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", add_metric_btn)
-    wait5.until_not(
-        EC.element_to_be_clickable(add_metric_locator)
-    )
-
-    assert not add_metric_btn.is_enabled()
+    assert not configuration_page.is_add_metric_btn_enabled()
 
 
 def test_delete_multibranch_pipeline_via_side_panel(browser, created_multibranch_pipeline):
@@ -324,7 +231,7 @@ def test_delete_multibranch_pipeline_via_side_panel(browser, created_multibranch
         .click_job(project_name)
         .click_delete()
         .confirm_delete_modal()
-        )
+    )
 
     assert not home_page.is_project_present(project_name)
 
