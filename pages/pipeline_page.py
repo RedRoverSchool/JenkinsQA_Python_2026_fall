@@ -1,4 +1,6 @@
 from typing import Self
+
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
@@ -6,6 +8,7 @@ from pages.pipeline_configuration_page import PipelineConfigurationPage
 
 class PipelinePage(BasePage):
     EDIT_DESCRIPTION_BTN = (By.XPATH, "//*[@id='description-link']/span")
+    DESCRIPTION_CONTENT_FLD = (By.XPATH, "//*[@id='description-content']")
 
     def get_configuration_description(self) -> str:
         return self.wait10.until(EC.visibility_of_element_located((By.ID, "view-message"))).text
@@ -42,3 +45,13 @@ class PipelinePage(BasePage):
         edit_desc_btm = self.wait10.until(EC.element_to_be_clickable(self.EDIT_DESCRIPTION_BTN))
         edit_desc_btm.click()
         return self
+
+    def is_description_empty(self) -> bool:
+        try:
+            self.wait10.until(
+                lambda driver: len(driver.find_elements(*self.DESCRIPTION_CONTENT_FLD)) == 0
+                               or driver.find_element(*self.DESCRIPTION_CONTENT_FLD).text.strip() == ""
+            )
+            return True
+        except TimeoutException:
+            return False

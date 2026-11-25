@@ -1,9 +1,6 @@
 import pytest
 import time
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 from pages.home_page import HomePage
 
 TEST_TEXT = 'random_name'
@@ -35,7 +32,7 @@ def test_access_description_via_new_item(browser, wait10):
         .set_item_name(TEST_TEXT)
         .select_pipeline_and_click_ok()
     )
-    configuration_page.enter_description(TEST_TEXT)
+    configuration_page.enter_text(DESCRIPTION_FLD, TEST_TEXT)
     assert configuration_page.get_description_value() == TEST_TEXT
 
 
@@ -72,7 +69,7 @@ def test_enter_multiline_description_on_configure(browser, wait10):
         .click_new_item()
         .set_item_name(TEST_TEXT)
         .select_pipeline_and_click_ok()
-        .enter_description(MULTILINE_TEXT)
+        .enter_text(DESCRIPTION_FLD, MULTILINE_TEXT)
         .click_btn(SAVE_BTN)
         .get_element_text(DESCRIPTION_CONTENT_FLD)
     )
@@ -80,63 +77,43 @@ def test_enter_multiline_description_on_configure(browser, wait10):
     assert len(lines) == 3, f"Ожидалось 3 строки, а получено {len(lines)}"
 
 
-@pytest.mark.dependency(depends=["test_access_description_via_click_pipeline_name"])
 def test_clear_description_field(browser, wait10):
 
-    wait10.until(EC.element_to_be_clickable(PIPELINE_LINK)).click()
-    desc_content = browser.find_element(*EDIT_DESCRIPTION_BTN)
-    desc_content.click()
+    pipeline_page = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(TEST_TEXT)
+        .select_pipeline_and_click_ok()
+        .enter_text(DESCRIPTION_FLD, TEST_TEXT)
+        .click_save()
+        .click_btn(EDIT_DESCRIPTION_BTN)
+        .clear_field(DESCRIPTION_TEXTAREA_FLD)
+        .click_btn(SAVE_BTN_OK)
+    )
+    assert pipeline_page.is_description_empty(), "Ошибка: блок с описанием не пустой"
 
-    desc_textarea = browser.find_element(*DESCRIPTION_TEXTAREA_FLD)
-    desc_textarea.send_keys(Keys.CONTROL, "a")
-    desc_textarea.send_keys(Keys.BACKSPACE)
 
-    save_btn_2 = browser.find_element(*SAVE_BTN_OK)
-    save_btn_2.click()
-
-    def description_is_empty(driver):
-        elements = driver.find_elements(*DESCRIPTION_CONTENT_FLD)
-        if len(elements) == 0:
-            return True
-        return elements[0].text.strip() == ""
-
-    wait10.until(description_is_empty)
-    assert description_is_empty(browser), "Ошибка: блок с описанием не пустой"
-
-@pytest.mark.skip
 @pytest.mark.dependency(depends=["test_access_description_via_new_item"])
-def test_description_via_drop_down_menu(browser, wait10):
-    job_name = browser.find_element(*JOB_NAME)
-    actions = ActionChains(browser)
-    actions.move_to_element(job_name)
-    actions.perform()
-    chevron = wait10.until(EC.visibility_of_element_located(DROPDOWN_CHEVRON))
-    chevron.click()
-    configue = wait10.until(EC.element_to_be_clickable(DROPDOWN_CONFIGURE))
-    configue.click()
-    wait10.until(EC.url_contains(TEST_TEXT))
-    wait10.until(EC.url_contains("configure"))
-    desc = wait10.until(EC.element_to_be_clickable(DESCRIPTION_FLD))
-    desc.click()
-    desc.clear()
-    desc.send_keys(TEST_TEXT)
-    wait10.until(EC.text_to_be_present_in_element_value(DESCRIPTION_FLD, TEST_TEXT))
-    assert desc.get_attribute('value') == TEST_TEXT, desc.get_attribute("value")
+def test_access_description_via_drop_down_menu(browser, wait10):
+    configuration_page = (
+        HomePage(browser)
+        .open_configuration_via_dropdown(TEST_TEXT)
+        .enter_text(DESCRIPTION_FLD, TEST_TEXT)
+    )
+    assert configuration_page.get_description_value() == TEST_TEXT
 
 
 @pytest.mark.dependency(depends=["test_access_description_via_click_pipeline_name"])
 def test_preview_description(browser, wait10):
-    wait10.until(EC.element_to_be_clickable(PIPELINE_LINK)).click()
-    edit_desc_btn = browser.find_element(*EDIT_DESCRIPTION_BTN)
-    edit_desc_btn.click()
-    desc_textarea_fld = browser.find_element(*DESCRIPTION_TEXTAREA_FLD)
-    desc_textarea_fld.click()
-    desc_textarea_fld.clear()
-    desc_textarea_fld.send_keys(TEST_TEXT)
-    preview_btn = browser.find_element(*PREVIEW_BTN)
-    preview_btn.click()
-    preview_fld = browser.find_element(*PREVIEW_FLD)
-    wait10.until(EC.text_to_be_present_in_element(PREVIEW_FLD, TEST_TEXT))
-    text = preview_fld.text
-    assert text == TEST_TEXT
+    actual_text = (
+        HomePage(browser)
+        .click_pipeline(TEST_TEXT)
+        .click_add_or_rename_description_btn()
+        .enter_text(DESCRIPTION_TEXTAREA_FLD, MULTILINE_TEXT)
+        .click_btn(PREVIEW_BTN)
+        .wait_for_text_in_element(PREVIEW_FLD, MULTILINE_TEXT)
+        .get_element_text(PREVIEW_FLD)
+
+    )
+    assert actual_text == MULTILINE_TEXT, f"Ожидался текст '{MULTILINE_TEXT}', а получен '{actual_text}'"
 
