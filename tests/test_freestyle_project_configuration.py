@@ -1,5 +1,4 @@
 import pytest
-from selenium.webdriver.common.by import By
 from pages.home_page import HomePage
 
 PROJECT_NAME = "Freestyle_Project_Config_Test"
@@ -31,7 +30,7 @@ def test_create_project_and_access_enable_disable_option(browser):
     )
 
     assert f"/job/{PROJECT_NAME}/configure" in browser.current_url
-    assert PROJECT_NAME in browser.find_element(By.TAG_NAME, "body").text
+    assert PROJECT_NAME in configuration_page.get_page_text()
     assert configuration_page.is_enable_disable_displayed()
     assert configuration_page.is_enable_disable_selected()
 
