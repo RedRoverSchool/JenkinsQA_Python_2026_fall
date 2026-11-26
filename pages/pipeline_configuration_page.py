@@ -13,6 +13,22 @@ if TYPE_CHECKING:
 class PipelineConfigurationPage(BasePage):
     DESCRIPTION_FLD = (By.XPATH, "//textarea[@name='description']")
 
+    TRIGGERS_TITLE = (By.XPATH, "//div[contains(@class, 'jenkins-section__title') and normalize-space()='Triggers']")
+
+    REVERSE_BUILD_TRIGGER_CHECKBOX = (By.CSS_SELECTOR, "input[name='jenkins-triggers-ReverseBuildTrigger']")
+    TIMER_TRIGGER_CHECKBOX = (By.CSS_SELECTOR, "input[name='hudson-triggers-TimerTrigger']")
+    GITHUB_PUSH_TRIGGER_CHECKBOX = (By.CSS_SELECTOR, "input[name='com-cloudbees-jenkins-GitHubPushTrigger']")
+    SCM_TRIGGER_CHECKBOX = (By.CSS_SELECTOR, "input[name='hudson-triggers-SCMTrigger']")
+    REMOTE_TRIGGER_CHECKBOX = (By.CSS_SELECTOR, "input[name='pseudoRemoteTrigger']")
+
+    REVERSE_BUILD_TRIGGER_HELP = (By.CSS_SELECTOR, "a[helpURL='/descriptor/jenkins.triggers.ReverseBuildTrigger/help']")
+    TIMER_TRIGGER_HELP = (By.CSS_SELECTOR, "a[helpURL='/descriptor/hudson.triggers.TimerTrigger/help']")
+    GITHUB_PUSH_TRIGGER_HELP = (By.CSS_SELECTOR,
+                                "a[helpURL='/descriptor/com.cloudbees.jenkins.GitHubPushTrigger/help']")
+    SCM_TRIGGER_HELP = (By.CSS_SELECTOR, "a[helpURL='/descriptor/hudson.triggers.SCMTrigger/help']")
+    REMOTE_TRIGGER_HELP = (By.CSS_SELECTOR, "a[helpURL='/help/project-config/triggerRemotely.html']")
+
+
     def click_save(self) -> PipelinePage:
         from pages.pipeline_page import PipelinePage
 
@@ -73,3 +89,21 @@ class PipelineConfigurationPage(BasePage):
 
     def is_configuration_page_opened(self, item_name: str) -> bool:
         return f"/job/{item_name}/configure" in self.driver.current_url
+
+    def get_triggers_title(self) -> str:
+        return self.wait10.until(EC.visibility_of_element_located(self.TRIGGERS_TITLE)).text
+
+    def are_triggers_checkboxes_and_help_icons_displayed(self) -> bool:
+        trigger_pairs = [
+            (self.REVERSE_BUILD_TRIGGER_CHECKBOX, self.REVERSE_BUILD_TRIGGER_HELP),
+            (self.TIMER_TRIGGER_CHECKBOX, self.TIMER_TRIGGER_HELP),
+            (self.GITHUB_PUSH_TRIGGER_CHECKBOX, self.GITHUB_PUSH_TRIGGER_HELP),
+            (self.SCM_TRIGGER_CHECKBOX, self.SCM_TRIGGER_HELP),
+            (self.REMOTE_TRIGGER_CHECKBOX, self.REMOTE_TRIGGER_HELP),
+        ]
+        for checkbox_loc, help_loc in trigger_pairs:
+            checkbox = self.wait5.until(EC.visibility_of_element_located(checkbox_loc))
+            help_icon = self.wait5.until(EC.visibility_of_element_located(help_loc))
+            if not (checkbox.is_displayed() and help_icon.is_displayed() and help_icon.text.strip() == "?"):
+                return False
+        return True
