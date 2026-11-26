@@ -1,4 +1,6 @@
 import secrets
+import time
+
 import pytest
 
 from pages.home_page import HomePage
@@ -36,7 +38,7 @@ def test_return_to_the_dashboard_without_creating_multibranch_pipeline(browser):
     welcome_title = page.get_welcome_title()
     assert welcome_title == "Welcome to Jenkins!"
 
-@pytest.mark.skip
+
 def test_multibranch_with_special_characters(browser):
     spec_chars = r"!@#$%^&*[]<>;:/\|"
     spec_char = secrets.choice(spec_chars)
@@ -49,15 +51,12 @@ def test_multibranch_with_special_characters(browser):
         .select_multibranch()
     )
 
-    escaped_char = (spec_char.replace("&", "&amp;")
-                    .replace("<", "&lt;")
-                    .replace(">", "&gt;"))
-    expected_text = f"‘{escaped_char}’ is an unsafe character"
+    expected_text = f"‘{spec_char}’ is an unsafe character"
 
     assert page.is_ok_button_disabled()
     assert page.get_error_name_message() == expected_text
 
-@pytest.mark.skip
+
 def test_rename_multibranch_pipeline_from_dropdown_menu(browser, created_multibranch_pipeline):
     project_name = created_multibranch_pipeline
     new_name = "Pipeline_2"
@@ -230,6 +229,17 @@ def test_delete_multibranch_pipeline_via_side_panel(browser, created_multibranch
         HomePage(browser)
         .click_job(project_name)
         .click_delete()
+        .confirm_delete_modal()
+    )
+
+    assert not home_page.is_project_present(project_name)
+
+def test_delete_multibranch_pipeline_from_dropdown_menu(browser, created_multibranch_pipeline):
+    project_name = created_multibranch_pipeline
+
+    home_page = (
+        HomePage(browser)
+        .click_project_context_menu_and_click_delete(project_name)
         .confirm_delete_modal()
     )
 

@@ -31,6 +31,8 @@ class HomePage(BasePage):
     JOB_NAME = (By.XPATH, "//*[@id='job_random_name']/td[3]/a/span")
     DROPDOWN_CHEVRON = (By.XPATH, f"//*[@id='job_random_name']/td[3]/a/button")
     DROPDOWN_CONFIGURE = (By.XPATH, "//*[@id='tippy-4']/div/div/div/a[2]")
+    DROPDOWN_RENAME = (By.XPATH, "//div[starts-with(@id,'tippy')]//a[contains(@href,'confirm-rename')]")
+    DROPDOWN_DELETE = (By.XPATH, "//div[starts-with(@id,'tippy')]//button[contains(.,'Delete')]")
 
     def get_welcome_title(self) -> str:
         return self.wait5.until(
@@ -139,13 +141,30 @@ class HomePage(BasePage):
         return BaseItemPage(self.driver)
 
     def click_project_context_menu_and_click_rename(self,project_name):
-        chevron_selector = f"//button[@class='jenkins-menu-dropdown-chevron' and contains(@data-href,{project_name})]"
-        self.driver.find_element(By.XPATH, chevron_selector).click()
-        self.wait10.until(
-            EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'confirm-rename')]"))
+        chevron_selector = (By.XPATH,f"//table[@id='projectstatus']//button[contains(@class, 'jenkins-menu-dropdown-chevron') "
+                            f"and contains(@data-href, '{project_name}')]")
+        self.wait5.until(
+            EC.element_to_be_clickable(chevron_selector)
+        ).click()
+
+        self.wait5.until(
+            EC.element_to_be_clickable(self.DROPDOWN_RENAME)
         ).click()
 
         return RenamePage(self.driver)
+
+    def click_project_context_menu_and_click_delete(self,project_name):
+        chevron_selector = (By.XPATH,f"//table[@id='projectstatus']//button[contains(@class, 'jenkins-menu-dropdown-chevron') "
+                            f"and contains(@data-href, '{project_name}')]")
+        self.wait5.until(
+            EC.element_to_be_clickable(chevron_selector)
+        ).click()
+
+        self.wait5.until(
+            EC.element_to_be_clickable(self.DROPDOWN_DELETE)
+        ).click()
+
+        return self
 
     def click_pipeline(self, pipeline_name: str) -> PipelinePage:
         pipeline_locator = (By.CSS_SELECTOR, f"[href='job/{pipeline_name}/']")
