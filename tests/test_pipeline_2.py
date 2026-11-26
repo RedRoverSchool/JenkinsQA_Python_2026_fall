@@ -2,7 +2,8 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-
+from pages.pipeline_configuration_page import PipelineConfigurationPage
+from pages.home_page import HomePage
 
 @pytest.mark.dependency()
 def test_create_pipeline(browser, wait10):
@@ -37,3 +38,14 @@ def test_edit_pipeline(browser, wait10):
 
     assert "/job/new-pipeline/configure" in browser.current_url
     assert triggers.text == "Triggers"
+
+
+@pytest.mark.dependency(depends=["test_create_pipeline"])
+def test_triggers_display_checkboxes_and_help_icons(browser):
+    config_page = (
+        HomePage(browser)
+        .click_pipeline("new-pipeline")
+        .open_configuration_pipeline_page()
+        .click_on_left_side_section(PipelineConfigurationPage.ClickOnLeftSideSection.TRIGGERS)
+    )
+    assert config_page.are_triggers_checkboxes_and_help_icons_displayed()
