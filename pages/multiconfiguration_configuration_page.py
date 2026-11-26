@@ -61,3 +61,40 @@ class MulticonfigurationConfigurationPage(BasePage):
     def is_github_project_enabled(self) -> bool:
         return self.driver.find_element(By.ID, "cb3").is_selected()
 
+    def enable_this_project_is_parameterised(self) -> MulticonfigurationConfigurationPage:
+        this_project_is_parameterised_checkbox = self.driver.find_element(By.XPATH, "//input[@id='cb4']/following-sibling::label")
+        self.driver.execute_script( "arguments[0].scrollIntoView({block: 'center'});", this_project_is_parameterised_checkbox)
+        this_project_is_parameterised_checkbox.click()
+        return self
+
+    def click_add_parameter(self) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.CSS_SELECTOR, '[suffix="parameterDefinitions"]').click()
+        return self
+
+    def select_string_parameter(self) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.XPATH, "//button[normalize-space()='String Parameter']").click()
+        return self
+
+    def set_parameter_name(self, parameter_name: str) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.NAME, "parameter.name").send_keys(parameter_name)
+        return self
+
+    def set_default_value(self, default_value: str) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.NAME, "parameter.defaultValue").send_keys(default_value)
+        return self
+
+    def set_parameter_description(self, parameter_description: str) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.NAME, "parameter.description").send_keys(parameter_description)
+        return self
+
+    def is_this_project_parameterised_enabled(self) -> bool:
+        return self.driver.find_element(By.ID, "cb4").is_selected()
+
+    def get_parameter_name(self) -> str:
+        return self.driver.find_element(By.NAME, "parameter.name").get_attribute("value")
+
+    def get_default_value(self) -> str:
+        return self.driver.find_element(By.NAME, "parameter.defaultValue").get_attribute("value")
+
+    def get_parameter_description(self) -> str:
+        return self.driver.find_element(By.NAME, "parameter.description").get_attribute("value")

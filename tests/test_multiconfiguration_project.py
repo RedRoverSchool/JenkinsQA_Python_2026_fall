@@ -1,9 +1,6 @@
 import pytest
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
 from pages import multiconfiguration_configuration_page
 from pages.home_page import HomePage
 
@@ -65,4 +62,30 @@ def test_verify_github_project_configuration_options(browser):
     assert multiconfiguration_project.is_github_project_enabled()
 
 
+@pytest.mark.dependency(depends=["test_add_description_to_multiconfiguration_project"])
+def test_verify_this_project_is_parameterised_configuration_options(browser):
+
+    project_name = "My multi-configuration project"
+    parameter_name = "TestParameter"
+    default_value = "DefaultValue"
+    parameter_description = "Test description"
+
+    multiconfiguration_project = (
+        HomePage(browser)
+        .get_multiconfiguration_project(project_name)
+        .get_configure()
+        .enable_this_project_is_parameterised()
+        .click_add_parameter()
+        .select_string_parameter()
+        .set_parameter_name(parameter_name)
+        .set_default_value(default_value)
+        .set_parameter_description(parameter_description)
+        .click_save()
+        .get_configure()
+    )
+
+    assert multiconfiguration_project.is_this_project_parameterised_enabled()
+    assert multiconfiguration_project.get_parameter_name() == parameter_name
+    assert multiconfiguration_project.get_default_value() == default_value
+    assert multiconfiguration_project.get_parameter_description() == parameter_description
 
