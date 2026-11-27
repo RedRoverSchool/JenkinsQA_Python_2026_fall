@@ -24,3 +24,4 @@ def test_create_organization_folder_and_access_general_settings(browser):
 
     assert first_general_displayed
     assert second_general_displayed
+
