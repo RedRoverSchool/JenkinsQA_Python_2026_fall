@@ -15,7 +15,8 @@ def test_add_description_to_multiconfiguration_project(browser):
         .click_new_item()
         .set_item_name(project_name)
         .select_multiconfiguration_and_click_ok()
-        .enter_description_and_click_save(description)
+        .enter_description(description)
+        .click_save()
     )
 
     assert multiconfiguration_project.get_description() == description
@@ -89,3 +90,23 @@ def test_verify_this_project_is_parameterised_configuration_options(browser):
     assert multiconfiguration_project.get_default_value() == default_value
     assert multiconfiguration_project.get_parameter_description() == parameter_description
 
+
+def test_verify_description_preview_can_be_displayed_and_hidden(browser):
+
+    project_name = "My multi-configuration project"
+    description = "This is a test description for my multi-configuration project"
+
+    multiconfiguration_project = (
+        HomePage(browser)
+        .click_new_item()
+        .set_item_name(project_name)
+        .select_multiconfiguration_and_click_ok()
+        .enter_description(description)
+        .click_preview()
+    )
+
+    assert multiconfiguration_project.is_preview_displayed()
+
+    multiconfiguration_project.click_hide_preview()
+
+    assert multiconfiguration_project.is_preview_hidden()

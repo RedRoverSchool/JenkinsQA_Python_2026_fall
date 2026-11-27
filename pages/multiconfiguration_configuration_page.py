@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
+from selenium.webdriver.support import expected_conditions as EC
 
 
 if TYPE_CHECKING:
@@ -10,13 +11,9 @@ if TYPE_CHECKING:
 
 class MulticonfigurationConfigurationPage(BasePage):
 
-    def enter_description_and_click_save(self, description) -> MulticonfigurationProjectPage:
-        from pages.multiconfiguration_project_page import MulticonfigurationProjectPage
-
+    def enter_description(self, description) -> MulticonfigurationConfigurationPage:
         self.driver.find_element(By.NAME, "description").send_keys(description)
-        self.driver.find_element(By.NAME, "Submit").click()
-
-        return MulticonfigurationProjectPage(self.driver)
+        return MulticonfigurationConfigurationPage(self.driver)
 
     def enable_discard_old_builds(self) -> MulticonfigurationConfigurationPage:
         self.driver.find_element(By.XPATH, "//label[contains(., 'Discard old builds')]").click()
@@ -98,3 +95,23 @@ class MulticonfigurationConfigurationPage(BasePage):
 
     def get_parameter_description(self) -> str:
         return self.driver.find_element(By.NAME, "parameter.description").get_attribute("value")
+
+    def click_preview(self) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.XPATH, "//a[text()='Preview']").click()
+        return self
+
+    def is_preview_displayed(self) -> bool:
+        self.wait5.until(
+            EC.visibility_of_element_located(
+                (By.XPATH, "//div[contains(@class, 'textarea-preview')]")
+            )
+        )
+        return self.driver.find_element(By.XPATH, "//div[contains(@class, 'textarea-preview')]").is_displayed()
+
+    def click_hide_preview(self) -> MulticonfigurationConfigurationPage:
+        self.driver.find_element(By.XPATH, "//a[text()='Hide preview']").click()
+        return self
+
+    def is_preview_hidden(self) -> bool:
+        return self.driver.find_element(By.XPATH,"//a[text()='Preview']").is_displayed()
+
