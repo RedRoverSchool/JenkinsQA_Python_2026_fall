@@ -20,6 +20,7 @@ class NewItemPage(BasePage):
     NEW_FOLDER = (By.CLASS_NAME, "com_cloudbees_hudson_plugins_folder_Folder")
     NEW_ITEM_NAME_INPUT = (By.ID, "name")
     ERROR = (By.CSS_SELECTOR, "[class = 'error']")
+    ORGANIZATION_FOLDER = (By.XPATH, "//label[.//input[@value='jenkins.branch.OrganizationFolder']]" )
 
     def set_item_name(self, name: str) -> Self:
         self.wait10.until(EC.visibility_of_element_located((By.ID, "name"))).send_keys(name)
@@ -84,6 +85,27 @@ class NewItemPage(BasePage):
         )
 
         return MultibranchConfigurationPage(self.driver)
+
+    def select_organization_folder_and_click_ok(self):
+        organization_folder = self.wait5.until(
+            EC.element_to_be_clickable(self.ORGANIZATION_FOLDER)
+        )
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});",
+            organization_folder
+        )
+        organization_folder.click()
+
+        self.wait5.until(
+            EC.element_to_be_clickable(self.OK_BUTTON)
+        ).click()
+
+        self.wait10.until(
+            EC.url_contains("/configure")
+        )
+
+        from pages.base_configuration_page import BaseConfigurationPage
+        return BaseConfigurationPage(self.driver)
 
     def select_multibranch(self) :
         multibranch_option = self.wait5.until(
