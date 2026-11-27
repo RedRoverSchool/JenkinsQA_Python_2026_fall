@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -126,6 +126,14 @@ class FreestyleConfigurationPage(BasePage):
     SAVE_BUTTON = (By.CSS_SELECTOR, "button[name='Submit'][value='Save']")
     APPLY_BUTTON = (By.CSS_SELECTOR, "button[name='Apply']")
     DESCRIPTION_FIELD = (By.NAME, "description")
+
+    GENERAL_SECTION_TITLE = (By.ID, "47-65-6e-65-72-61-6c")
+    DISCARD_OLD_BUILDS_CHECKBOX = (By.ID, "cb2")
+    GITHUB_PROJECT_CHECKBOX = (By.ID, "cb3")
+    PARAMETERIZED_CHECKBOX = (By.ID, "cb4")
+    THROTTLE_BUILDS_CHECKBOX = (By.ID, "cb5")
+    EXECUTE_CONCURRENT_BUILDS_CHECKBOX = (By.ID, "cb6")
+    STRATEGY_DROPDOWN = (By.CSS_SELECTOR, "select.jenkins-select__input.dropdownList")
 
     def click_environment(self) -> FreestyleConfigurationPage:
         self.wait10.until(
@@ -536,3 +544,35 @@ class FreestyleConfigurationPage(BasePage):
 
     def get_page_text(self):
         return self.get_element_text(self.BODY)
+
+    def is_general_section_displayed(self) -> bool:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.GENERAL_SECTION_TITLE)
+        ).is_displayed()
+
+    def are_general_blocks_displayed(self) -> bool:
+        return all(
+            self.wait10.until(
+                EC.visibility_of_element_located(locator)
+            ).is_displayed()
+            for locator in [
+                self.DISCARD_OLD_BUILDS_CHECKBOX,
+                self.GITHUB_PROJECT_CHECKBOX,
+                self.PARAMETERIZED_CHECKBOX,
+                self.THROTTLE_BUILDS_CHECKBOX,
+                self.EXECUTE_CONCURRENT_BUILDS_CHECKBOX,
+            ]
+        )
+
+    def enable_discard_old_builds(self) -> Self:
+        checkbox = self.driver.find_element(*self.DISCARD_OLD_BUILDS_CHECKBOX)
+        label = checkbox.find_element(By.XPATH, "following-sibling::label")
+        label.click()
+        return self
+
+    def get_discard_old_builds_strategy(self) -> str:
+        dropdown = self.wait10.until(
+            EC.visibility_of_element_located(self.STRATEGY_DROPDOWN)
+        )
+        selected_option = dropdown.find_element(By.TAG_NAME, "option")
+        return selected_option.text

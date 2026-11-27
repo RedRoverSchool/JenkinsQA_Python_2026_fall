@@ -1,8 +1,3 @@
-import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import StaleElementReferenceException
-from common.project_utils import get_url
 from pages.home_page import HomePage
 
 def test_duplicate_option_reveals_copy_from_field(browser):
