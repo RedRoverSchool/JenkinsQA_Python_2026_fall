@@ -56,3 +56,4 @@ def test_organization_folder_description_preview(browser):
     )
 
     assert configuration_page.get_description_preview() == "Preview Test Description"
+
