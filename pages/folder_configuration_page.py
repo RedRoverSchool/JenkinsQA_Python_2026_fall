@@ -7,6 +7,12 @@ from pages.base_page import BasePage
 from selenium.webdriver.support import expected_conditions as EC
 
 class FolderConfigurationPage(BasePage):
+    DISPLAY_NAME = (By.NAME, "_.displayNameOrNull")
+    DESCRIPTION = (By.NAME, "_.description")
+    DESCRIPTION_PREVIEW_BTN = (By.CLASS_NAME, "textarea-show-preview")
+    DESCRIPTION_PREVIEW = (By.CLASS_NAME, "textarea-preview")
+
+
     def set_display_name(self, display_name: str) -> Self:
         self.driver.find_element(By.NAME, "_.displayNameOrNull").send_keys(display_name)
 
@@ -32,3 +38,11 @@ class FolderConfigurationPage(BasePage):
 
     def get_description(self) -> str:
         return self.driver.find_element(By.NAME, "_.description").get_attribute("value")
+
+    def click_preview(self) -> Self:
+        self.click_btn(self.DESCRIPTION_PREVIEW_BTN)
+
+        return self
+
+    def get_description_preview(self) -> str:
+        return self.get_element_text(self.DESCRIPTION_PREVIEW)
