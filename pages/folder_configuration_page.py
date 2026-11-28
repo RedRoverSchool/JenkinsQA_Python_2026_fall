@@ -26,3 +26,9 @@ class FolderConfigurationPage(BasePage):
         self.driver.find_element(By.NAME,"_.description").send_keys(dicription)
 
         return self
+
+    def get_display_name(self) -> str:
+        return self.driver.find_element(By.NAME, "_.displayNameOrNull").get_attribute("value")
+
+    def get_description(self) -> str:
+        return self.driver.find_element(By.NAME, "_.description").get_attribute("value")
