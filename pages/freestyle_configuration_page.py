@@ -134,6 +134,8 @@ class FreestyleConfigurationPage(BasePage):
     THROTTLE_BUILDS_CHECKBOX = (By.ID, "cb5")
     EXECUTE_CONCURRENT_BUILDS_CHECKBOX = (By.ID, "cb6")
     STRATEGY_DROPDOWN = (By.CSS_SELECTOR, "select.jenkins-select__input.dropdownList")
+    DAYS_TO_KEEP_BUILDS_FIELD = (By.NAME, "_.daysToKeepStr")
+    MAX_BUILDS_TO_KEEP_FIELD = (By.NAME, "_.numToKeepStr")
 
     def click_environment(self) -> FreestyleConfigurationPage:
         self.wait10.until(
@@ -576,3 +578,29 @@ class FreestyleConfigurationPage(BasePage):
         )
         selected_option = dropdown.find_element(By.TAG_NAME, "option")
         return selected_option.text
+
+    def enter_days_to_keep_builds(self, days: str) -> Self:
+        field = self.wait10.until(
+            EC.visibility_of_element_located(self.DAYS_TO_KEEP_BUILDS_FIELD)
+        )
+        field.clear()
+        field.send_keys(days)
+        return self
+
+    def get_days_to_keep_builds(self) -> str:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.DAYS_TO_KEEP_BUILDS_FIELD)
+        ).get_attribute("value") or ""
+
+    def enter_max_builds_to_keep(self, count: str) -> Self:
+        field = self.wait10.until(
+            EC.visibility_of_element_located(self.MAX_BUILDS_TO_KEEP_FIELD)
+        )
+        field.clear()
+        field.send_keys(count)
+        return self
+
+    def get_max_builds_to_keep(self) -> str:
+        return self.wait10.until(
+            EC.visibility_of_element_located(self.MAX_BUILDS_TO_KEEP_FIELD)
+        ).get_attribute("value") or ""
