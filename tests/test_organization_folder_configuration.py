@@ -26,7 +26,10 @@ def test_create_organization_folder_and_access_general_settings(browser):
     assert first_general_displayed
     assert second_general_displayed
 
-@pytest.mark.dependency(depends=["organization_folder_created"])
+@pytest.mark.dependency(
+    name="organization_folder_updated",
+    depends=["organization_folder_created"]
+)
 def test_edit_organization_folder_display_name_and_description(browser):
     configuration_page = (
         HomePage(browser)
@@ -38,4 +41,19 @@ def test_edit_organization_folder_display_name_and_description(browser):
 
     assert configuration_page.get_display_name() == DISPLAY_NAME
     assert configuration_page.get_description() == DESCRIPTION_TEXT
+
+@pytest.mark.dependency(
+    name="organization_folder_description_preview",
+    depends=["organization_folder_updated"]
+)
+def test_organization_folder_description_preview(browser):
+    configuration_page = (
+        HomePage(browser)
+        .click_job(ORGANIZATION_FOLDER_NAME)
+        .click_configure(FolderConfigurationPage)
+        .set_dicription("Preview Test Description")
+        .click_preview()
+    )
+
+    assert configuration_page.get_description_preview() == "Preview Test Description"
 
